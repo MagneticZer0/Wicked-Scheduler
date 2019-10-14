@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,12 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
-public class TestTermScraper {
+/**
+ * 
+ * @author Harley Merkaj
+ *
+ */
+public class Scraper {
 
 	private static final String COURSE_SELECT_URL = "https://www.banweb.mtu.edu/pls/owa/bzskfcls.p_sel_crse_search";
 	private static final String CATEGORY_SELECT_URL = "https://www.banweb.mtu.edu/owassb/bwckgens.p_proc_term_date";
@@ -23,11 +29,11 @@ public class TestTermScraper {
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 	private static ArrayList<Class> classes = new ArrayList<>();
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ParseException {
 		//System.out.println(getAllSemesters());
 		//System.out.println(getEditableSemesters());
 		//System.out.println(getCategories("201905"));
-		//System.out.println(getAllClasses("201905"));
+		System.out.println(getAllClasses("201905").toString());
 	}
 
 	public static Map<String, String> getAllSemesters() throws IOException {
@@ -90,8 +96,10 @@ public class TestTermScraper {
 		return output;
 	}
 
-	public static String getAllClasses(String semesterID) throws IOException {
+	public static List<Class> getAllClasses(String semesterID) throws IOException, ParseException {
 		List<String> categories = getCategories(semesterID);
+		
+		String year = semesterID.substring(0, 4);
 
 		StringJoiner argJoiner = new StringJoiner("&");
 		joinerHelper(argJoiner, "term_in", semesterID);
@@ -127,10 +135,11 @@ public class TestTermScraper {
 
 		BufferedReader in = sendWebForm(CLASS_LIST_URL, argJoiner);
 
-		StringBuilder output = new StringBuilder();
+		String input = "";
 		String inputLine = null;
 		boolean searching = false;
 		boolean inRow = false;
+		Class previousClass = null;
 		while ((inputLine = in.readLine()) != null) {
 			String inputLineLower = inputLine.toLowerCase();
 			if (!searching) {
@@ -144,9 +153,25 @@ public class TestTermScraper {
 					} else {
 						if (inputLineLower.contains("</tr>")) {
 							inRow = false;
-							output.append("\n");
+							String[] classInfo = input.split("\\|");
+							if (classInfo.length > 10) { // Because there's some classes that happen multiple times a day, or at different times on different days.
+								if (classInfo[0].trim().isEmpty()) {
+									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
+								} else {
+									previousClass = new Class(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
+									classes.add(previousClass);
+								}
+							}
+							input = "";
 						} else {
-							output.append(getInternalValue(inputLine).replaceAll("\n", "").replaceAll("&nbsp;", "").trim() + "|");
+							String value = getInternalValue(inputLine).replaceAll("\n", "").replaceAll("&nbsp;", "").trim() + "|";
+							if (inputLine.contains("colspan")) { // Because for some reason they just colspan TBA for days/time
+								int loops = Integer.parseInt(inputLine.split("colspan=\"")[1].split("\"")[0]);
+								for (int i=0; i<loops-1; i++) {
+									input += value;
+								}
+							}
+							input += value;
 						}
 					}
 					
@@ -154,7 +179,7 @@ public class TestTermScraper {
 			}
 		}
 		in.close();
-		return output.toString();
+		return classes;
 	}
 
 	private static BufferedReader getWebPage(String url) throws IOException {

@@ -3,10 +3,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Class implements Serializable {
 
@@ -17,9 +19,9 @@ public class Class implements Serializable {
 	private int courseNumber;
 	private double[] credits;
 	private String title;
-	private String days;
-	private LocalTime startTime;
-	private LocalTime endTime;
+	private ArrayList<String> days;
+	private ArrayList<LocalTime> startTime;
+	private ArrayList<LocalTime> endTime;
 	private int remaining;
 	private String instructor;
 	private Date startDate;
@@ -28,25 +30,34 @@ public class Class implements Serializable {
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
-	public Class(int CRN, String subject, int courseNumber, double[] credits, String title, String days, String time, int remaining, String instructor, String date, int fee) throws ParseException {
-		this.crn = CRN;
+	public Class(String CRN, String subject, String courseNumber, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
+		this.days = new ArrayList<>();
+		this.startTime = new ArrayList<>();
+		this.endTime = new ArrayList<>();
+
+		this.crn = Integer.parseInt(CRN);
 		this.subject = subject;
-		this.courseNumber = courseNumber;
+		this.courseNumber = Integer.parseInt(courseNumber);
 		this.credits = credits;
 		this.title = title;
-		this.days = days;
+		this.days.add(days);
 
 		String[] timeSplit = time.split("-");
-		startTime = parseTime(timeSplit[0]);
-		endTime = parseTime(timeSplit[1]);
+		if (!time.equals("TBA")) {
+			startTime.add(parseTime(timeSplit[0]));
+			endTime.add(parseTime(timeSplit[1]));
+		} else {
+			startTime.add(parseTime("1:37 am")); // This will be the TBA time
+			endTime.add(parseTime("1:37 am"));
+		}
 
-		this.remaining = remaining;
+		this.remaining = Integer.parseInt(remaining);
 		this.instructor = instructor;
 
 		String[] dateSplit1 = date.split("-");
-		String[] dateSpllt2 = date.split("|");
+		String[] dateSpllt2 = date.split("\\|");
 		startDate = parseDate(dateSplit1[0] + "/" + dateSpllt2[1]);
-		endDate = parseDate(dateSplit1[1].split("|")[0] + "/" + dateSpllt2[1]);
+		endDate = parseDate(dateSplit1[1].split("\\|")[0] + "/" + dateSpllt2[1]);
 
 		this.fee = fee;
 	}
@@ -61,7 +72,7 @@ public class Class implements Serializable {
 
 	public List<String> getDays() {
 		ArrayList<String> days = new ArrayList<>(6);
-		if (this.days != "TBA" || this.days != " ") {
+		if (!this.days.contains("TBA") || !this.days.contains(" ")) {
 			if (this.days.contains("M")) {
 				days.add("Monday");
 			}
@@ -81,12 +92,12 @@ public class Class implements Serializable {
 		return Collections.unmodifiableList(days); // Create an immutable list
 	}
 
-	public LocalTime getStartTime() {
-		return startTime;
+	public LocalTime getStartTime(int i) {
+		return startTime.get(i);
 	}
 
-	public LocalTime getEndTime() {
-		return endTime;
+	public LocalTime getEndTime(int i) {
+		return endTime.get(i);
 	}
 
 	public int getRemaining() {
@@ -110,6 +121,26 @@ public class Class implements Serializable {
 	}
 
 	/**
+	 * Some classes happen at different times on different days
+	 * Or maybe they have multiple class sessions in the same day,
+	 * this is for adding the additional times for those classes.
+	 * @param dayAndTimes Must be in format DAYS(MTWRF)|h1:m1 a/pm1-h2:m2 a/pm2
+	 */
+	public void addDayandTime(String dayAndTimes) {
+		String[] data = dayAndTimes.split("\\|");
+		days.add(data[0]);
+
+		String[] timeSplit = data[1].split("-");
+		if (!data[1].equals("TBA")) {
+			startTime.add(parseTime(timeSplit[0]));
+			endTime.add(parseTime(timeSplit[1]));
+		} else {
+			startTime.add(parseTime("1:37 am"));
+			endTime.add(parseTime("1:37 am"));
+		}
+	}
+
+	/**
 	 * 
 	 * @param date Must be in format MM/dd/yyyy
 	 * @return
@@ -125,7 +156,7 @@ public class Class implements Serializable {
 	 * @return
 	 */
 	private LocalTime parseTime(String time) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+		DateTimeFormatter formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("h:mm a").toFormatter(Locale.ENGLISH);
 		return LocalTime.parse(time, formatter);
 	}
 
