@@ -16,26 +16,52 @@ import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 /**
+ * The Scraper is what does all the data scraping it will access multiple links
+ * through the use of web forms and take the information needed from each
+ * website and output it into various Java collection classes.
  * 
  * @author Harley Merkaj
  *
  */
 public class Scraper {
 
+	/**
+	 * The initial URL, this asks you to choose a term
+	 */
 	private static final String COURSE_SELECT_URL = "https://www.banweb.mtu.edu/pls/owa/bzskfcls.p_sel_crse_search";
+	/**
+	 * THe secondary page, this asks you to choose a category
+	 */
 	private static final String CATEGORY_SELECT_URL = "https://www.banweb.mtu.edu/owassb/bwckgens.p_proc_term_date";
+	/**
+	 * The tertiary page, this display all classes available for the category choosen.
+	 */
 	private static final String CLASS_LIST_URL = "https://www.banweb.mtu.edu/owassb/bzckschd.p_get_crse_unsec";
+	/**
+	 * Dummy value used for the web form
+	 */
 	private static final String DUMMY_VALUE = "dummy";
+	/**
+	 * Use agent used when visiting the website, this makes it think we're using Chrome.
+	 */
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
-	private static ArrayList<Class> classes = new ArrayList<>();
+	/**
+	 * The output of the getAllClasses method
+	 */
+	private static ArrayList<Course> classes = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
-		//System.out.println(getAllSemesters());
-		//System.out.println(getEditableSemesters());
-		//System.out.println(getCategories("201905"));
+		// System.out.println(getAllSemesters());
+		// System.out.println(getEditableSemesters());
+		// System.out.println(getCategories("201905"));
 		System.out.println(getAllClasses("201905").toString());
 	}
 
+	/**
+	 * Accesses the COURSE_SELECT_URL link and takes all the semesters that Michigan Tech offers
+	 * @return A Hashmap of semester names to semester IDs.
+	 * @throws IOException If something goes wrong accessing the website.
+	 */
 	public static Map<String, String> getAllSemesters() throws IOException {
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
@@ -61,12 +87,23 @@ public class Scraper {
 		return output;
 	}
 
+	/**
+	 * Does what getAllSemesters does but only returns the ones that don't contain (View only)
+	 * @return A hashmap of semester names to semester IDs.
+	 * @throws IOException If something goes wrong accessing the website.
+	 */
 	public static Map<String, String> getEditableSemesters() throws IOException {
 		Map<String, String> output = getAllSemesters();
 		output.keySet().removeIf(e -> e.contains("View only"));
 		return output;
 	}
 
+	/**
+	 * Gets all categories within a given semster by searching it by the semester ID.
+	 * @param semesterID The semester ID for the semester, this is given by the map given by {@link getAllSemesters()}
+	 * @return Returns a list of available categories.
+	 * @throws IOException If something goes wrong accessing the website.
+	 */
 	public static List<String> getCategories(String semesterID) throws IOException {
 		HashMap<String, String> arguments = new HashMap<>();
 		arguments.put("p_calling_proc", "bzskfcls.P_CrseSearch");
@@ -96,9 +133,16 @@ public class Scraper {
 		return output;
 	}
 
-	public static List<Class> getAllClasses(String semesterID) throws IOException, ParseException {
+	/**
+	 * Returns all classes of all categories within a given semester by the semester ID.
+	 * @param semesterID The semester Id for the semester, this is given by the map given by {@link getAllSemesters()} 
+	 * @return Returns a list of Class objects for the given semester
+	 * @throws IOException If something goes wrong accessing the website.
+	 * @throws ParseException If something goes wrong parsing the website.
+	 */
+	public static List<Course> getAllClasses(String semesterID) throws IOException, ParseException {
 		List<String> categories = getCategories(semesterID);
-		
+
 		String year = semesterID.substring(0, 4);
 
 		StringJoiner argJoiner = new StringJoiner("&");
@@ -139,7 +183,7 @@ public class Scraper {
 		String inputLine = null;
 		boolean searching = false;
 		boolean inRow = false;
-		Class previousClass = null;
+		Course previousClass = null;
 		while ((inputLine = in.readLine()) != null) {
 			String inputLineLower = inputLine.toLowerCase();
 			if (!searching) {
@@ -147,18 +191,19 @@ public class Scraper {
 			} else {
 				if (inputLineLower.contains("summary=\"this is for formatting of the bottom links.\"")) {
 					break;
-				} else if (!inputLineLower.contains("</th>")){
+				} else if (!inputLineLower.contains("</th>")) {
 					if (!inRow) {
 						inRow = inputLineLower.contains("<tr>");
 					} else {
 						if (inputLineLower.contains("</tr>")) {
 							inRow = false;
 							String[] classInfo = input.split("\\|");
-							if (classInfo.length > 10) { // Because there's some classes that happen multiple times a day, or at different times on different days.
+							if (classInfo.length > 10) { // Because there's some classes that happen multiple times a day, or at
+															// different times on different days.
 								if (classInfo[0].trim().isEmpty()) {
 									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
 								} else {
-									previousClass = new Class(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
+									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
 									classes.add(previousClass);
 								}
 							}
@@ -167,14 +212,14 @@ public class Scraper {
 							String value = getInternalValue(inputLine).replaceAll("\n", "").replaceAll("&nbsp;", "").trim() + "|";
 							if (inputLine.contains("colspan")) { // Because for some reason they just colspan TBA for days/time
 								int loops = Integer.parseInt(inputLine.split("colspan=\"")[1].split("\"")[0]);
-								for (int i=0; i<loops-1; i++) {
+								for (int i = 0; i < loops - 1; i++) {
 									input += value;
 								}
 							}
 							input += value;
 						}
 					}
-					
+
 				}
 			}
 		}
@@ -182,6 +227,12 @@ public class Scraper {
 		return classes;
 	}
 
+	/**
+	 * Returns a {@link java.io.BufferedReader} for a given webpage, can be used for reading the source of the page
+	 * @param url The URL to get the BufferedReader for.
+	 * @return Returns the BufferedReader for that website.
+	 * @throws IOException If something geso wrong accessing the website.
+	 */
 	private static BufferedReader getWebPage(String url) throws IOException {
 		// Add caching?
 		URL link = new URL(url);
@@ -192,6 +243,13 @@ public class Scraper {
 		return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
 	}
 
+	/**
+	 * Sends a web form to the website with a given map of arguments
+	 * @param url The URL to send the web form to
+	 * @param arguments The map of arguments to send within the web form
+	 * @return Returns a BufferedReader, tpyically for reading the source of the page
+	 * @throws IOException If something geos wrong accessing the website.
+	 */
 	private static BufferedReader sendWebForm(String url, Map<String, String> arguments) throws IOException {
 		StringJoiner argJoiner = new StringJoiner("&");
 		for (Map.Entry<String, String> argument : arguments.entrySet()) {
@@ -200,6 +258,13 @@ public class Scraper {
 		return sendWebForm(url, argJoiner);
 	}
 
+	/**
+	 * Sends a web form to the website with a given StringJoiner
+	 * @param url The URL to send the web form to
+	 * @param arguments The StringJoiner of arguments to send within the web form
+	 * @return Returns a BufferedReader, tpyically for reading the source of the page
+	 * @throws IOException If something geos wrong accessing the website.
+	 */
 	private static BufferedReader sendWebForm(String url, StringJoiner arguments) throws IOException {
 		byte[] form = arguments.toString().getBytes(StandardCharsets.UTF_8);
 
@@ -216,12 +281,25 @@ public class Scraper {
 		return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
 	}
 
+	/**
+	 * A helper function used to create the web form for getting all classes within a semester
+	 * @param joiner The joiner to use
+	 * @param key The key for the argument
+	 * @param value The value for the argument
+	 * @return Returns that StringJoiner
+	 * @throws UnsupportedEncodingException If something goes wrong when encoding the strings
+	 */
 	private static StringJoiner joinerHelper(StringJoiner joiner, String key, String value) throws UnsupportedEncodingException {
 		return joiner.add(URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8"));
 	}
 
+	/**
+	 * Gets the values within tags.
+	 * @param str The line to get the tag for
+	 * @return Returns the most inner tag
+	 */
 	private static String getInternalValue(String str) {
 		String[] split = str.split(">");
-		return split[split.length/2].split("<")[0];
+		return split[split.length / 2].split("<")[0];
 	}
 }

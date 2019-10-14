@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class Class implements Serializable {
+public class Course implements Serializable {
 
 	private static final long serialVersionUID = -8811383389305817678L; // This is for serializable object compatability
 
@@ -30,7 +30,7 @@ public class Class implements Serializable {
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
-	public Class(String CRN, String subject, String courseNumber, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
+	public Course(String CRN, String subject, String courseNumber, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
 		this.endTime = new ArrayList<>();
