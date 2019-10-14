@@ -16,7 +16,7 @@ public class Course implements Serializable {
 
 	private int crn;
 	private String subject;
-	private int courseNumber;
+	private int courseCode;
 	private double[] credits;
 	private String title;
 	private ArrayList<String> days;
@@ -30,14 +30,14 @@ public class Course implements Serializable {
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
-	public Course(String CRN, String subject, String courseNumber, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
+	public Course(String CRN, String subject, String courseCode, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
 		this.endTime = new ArrayList<>();
 
 		this.crn = Integer.parseInt(CRN);
 		this.subject = subject;
-		this.courseNumber = Integer.parseInt(courseNumber);
+		this.courseCode = Integer.parseInt(courseCode);
 		this.credits = credits;
 		this.title = title;
 		this.days.add(days);
@@ -162,7 +162,7 @@ public class Course implements Serializable {
 
 	@Override
 	public String toString() {
-		return subject + courseNumber + " - " + title;
+		return subject + courseCode + " - " + title;
 	}
 
 }

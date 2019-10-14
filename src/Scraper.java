@@ -48,13 +48,14 @@ public class Scraper {
 	/**
 	 * The output of the getAllClasses method
 	 */
-	private static ArrayList<Course> classes = new ArrayList<>();
+	private static ArrayList<Course> courses = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
 		// System.out.println(getAllSemesters());
 		// System.out.println(getEditableSemesters());
 		// System.out.println(getCategories("201905"));
 		System.out.println(getAllClasses("201905").toString());
+		new ExampleOutputSaver().saveCourses(courses);
 	}
 
 	/**
@@ -204,7 +205,7 @@ public class Scraper {
 									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
 								} else {
 									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
-									classes.add(previousClass);
+									courses.add(previousClass);
 								}
 							}
 							input = "";
@@ -224,7 +225,7 @@ public class Scraper {
 			}
 		}
 		in.close();
-		return classes;
+		return courses;
 	}
 
 	/**
