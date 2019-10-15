@@ -48,7 +48,7 @@ public class Scraper {
 	/**
 	 * The output of the getAllClasses method
 	 */
-	private static ArrayList<Course> courses = new ArrayList<>();
+	private static MultiMap<String, Course> courses = new MultiMap<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
 		// System.out.println(getAllSemesters());
@@ -141,7 +141,7 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 * @throws ParseException If something goes wrong parsing the website.
 	 */
-	public static List<Course> getAllClasses(String semesterID) throws IOException, ParseException {
+	public static MultiMap<String, Course> getAllClasses(String semesterID) throws IOException, ParseException {
 		List<String> categories = getCategories(semesterID);
 
 		String year = semesterID.substring(0, 4);
@@ -200,12 +200,12 @@ public class Scraper {
 							inRow = false;
 							String[] classInfo = input.split("\\|");
 							if (classInfo.length > 10) { // Because there's some classes that happen multiple times a day, or at
-															// different times on different days.
-								if (classInfo[0].trim().isEmpty()) {
+														 // different times on different days.
+								if (classInfo[0].trim().isEmpty() && previousClass != null) {
 									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
 								} else {
 									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
-									courses.add(previousClass);
+									courses.put(previousClass.toString(), previousClass);
 								}
 							}
 							input = "";

@@ -24,7 +24,7 @@ public class ExampleOutputSaver {
 		}
 	}
 
-	public void saveCourses(List<Course> courses) throws FileNotFoundException, IOException {
+	public void saveCourses(MultiMap<String, Course> courses) throws FileNotFoundException, IOException {
 		setup();
 
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
@@ -34,10 +34,10 @@ public class ExampleOutputSaver {
 		out.close();
 	}
 
-	public List<Course> loadCourses() throws FileNotFoundException, IOException, ClassNotFoundException {
+	public MultiMap<String, Course> loadCourses() throws FileNotFoundException, IOException, ClassNotFoundException {
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
 
-		List<Course> courses = (List<Course>) in.readObject();
+		MultiMap<String, Course> courses = (MultiMap<String, Course>) in.readObject();
 
 		in.close();
 		return courses;

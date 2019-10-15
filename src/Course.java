@@ -7,10 +7,12 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-public class Course implements Serializable {
+public class Course implements Cloneable, Serializable, Comparable<Course> {
 
 	private static final long serialVersionUID = -8811383389305817678L; // This is for serializable object compatability
 
@@ -71,25 +73,27 @@ public class Course implements Serializable {
 	}
 
 	public List<String> getDays() {
-		ArrayList<String> days = new ArrayList<>(6);
+		ArrayList<String> result = new ArrayList<>(6);
 		if (!this.days.contains("TBA") || !this.days.contains(" ")) {
-			if (this.days.contains("M")) {
-				days.add("Monday");
-			}
-			if (this.days.contains("T")) {
-				days.add("Tuesday");
-			}
-			if (this.days.contains("W")) {
-				days.add("Wednesday");
-			}
-			if (this.days.contains("R")) {
-				days.add("Thursday");
-			}
-			if (this.days.contains("F")) {
-				days.add("Friday");
+			for(String day : result) {
+				if (day.contains("M")) {
+					result.add("Monday");
+				}
+				if (day.contains("T")) {
+					result.add("Tuesday");
+				}
+				if (day.contains("W")) {
+					result.add("Wednesday");
+				}
+				if (day.contains("R")) {
+					result.add("Thursday");
+				}
+				if (day.contains("F")) {
+					result.add("Friday");
+				}
 			}
 		}
-		return Collections.unmodifiableList(days); // Create an immutable list
+		return Collections.unmodifiableList(result.stream().distinct().collect(Collectors.toList())); // Create an immutable list that has duplicates removed
 	}
 
 	public LocalTime getStartTime(int i) {
@@ -165,4 +169,9 @@ public class Course implements Serializable {
 		return subject + courseCode + " - " + title;
 	}
 
+	@Override
+	public int compareTo(Course otherCourse) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
