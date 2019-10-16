@@ -7,32 +7,76 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class Course implements Cloneable, Serializable, Comparable<Course> {
+public class Course implements Serializable, Comparable<Course> {
 
+	/**
+	 * This is for serializable object compatability
+	 */
 	private static final long serialVersionUID = -8811383389305817678L; // This is for serializable object compatability
 
+	/**
+	 * The int used for tracking the crn, this is used to sign up for the class
+	 */
 	private int crn;
+	/**
+	 * The string used to track what department the class is part of
+	 */
 	private String subject;
+	/**
+	 * This is the "level" of the course, like 3141
+	 */
 	private int courseCode;
+	/**
+	 * Since some courses have a variable amount of credits this will store that
+	 */
 	private double[] credits;
+	/**
+	 * The name of the course like "Team Software Project"
+	 */
 	private String title;
+	/**
+	 * An array that corresponds to the days the course is on.
+	 * This directly correlates with the start/endTime lists.
+	 */
 	private ArrayList<String> days;
+	/**
+	 * An array that corresponds to the time the course starts.
+	 * This directly coorelates with the day/endTime lists.
+	 */
 	private ArrayList<LocalTime> startTime;
+	/**
+	 * An array that corresponds to the time the course ends.
+	 * This directly coorelates with the day/startTime lists.
+	 */
 	private ArrayList<LocalTime> endTime;
+	/**
+	 * The remaining spots that the class has
+	 */
 	private int remaining;
+	/**
+	 * The instructor that teaches this course
+	 */
 	private String instructor;
+	/**
+	 * The date that the course starts on
+	 */
 	private Date startDate;
+	/**
+	 * The date that the course ends on
+	 */
 	private Date endDate;
-	private int fee;
+	/**
+	 * The fee of the course
+	 */
+	private double fee;
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
-	public Course(String CRN, String subject, String courseCode, double[] credits, String title, String days, String time, String remaining, String instructor, String date, int fee) throws ParseException {
+	public Course(String CRN, String subject, String courseCode, double[] credits, String title, String days, String time, String remaining, String instructor, String date, double fee) throws ParseException {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
 		this.endTime = new ArrayList<>();
@@ -120,7 +164,7 @@ public class Course implements Cloneable, Serializable, Comparable<Course> {
 		return endDate;
 	}
 
-	public int getFee() {
+	public double getFee() {
 		return fee;
 	}
 
