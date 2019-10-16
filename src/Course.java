@@ -76,7 +76,7 @@ public class Course implements Serializable, Comparable<Course> {
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
-	public Course(String CRN, String subject, String courseCode, double[] credits, String title, String days, String time, String remaining, String instructor, String date, double fee) throws ParseException {
+	public Course(String CRN, String subject, String courseCode, ArrayList<Double> credits, String title, String days, String time, String remaining, String instructor, String date, double fee) throws ParseException {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
 		this.endTime = new ArrayList<>();
@@ -84,7 +84,11 @@ public class Course implements Serializable, Comparable<Course> {
 		this.crn = Integer.parseInt(CRN);
 		this.subject = subject;
 		this.courseCode = Integer.parseInt(courseCode);
-		this.credits = credits;
+		this.credits = new double[credits.size()];
+		for(int i=0; i<credits.size(); i++) {
+			this.credits[i] = credits.get(i);
+		}
+
 		this.title = title;
 		this.days.add(days);
 

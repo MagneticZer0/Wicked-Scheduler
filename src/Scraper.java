@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,7 +213,12 @@ public class Scraper {
 											fee += NumberFormat.getInstance().parse(dollarSplit[1]).doubleValue();
 										}
 									}
-									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
+									ArrayList<Double> credits = new ArrayList<>();
+									String[] credSplit = classInfo[5].split("-");
+									for(String s : credSplit) {
+										credits.add(Double.parseDouble(s));
+									}
+									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
 									courses.put(previousClass.toString(), previousClass);
 								}
 							}
