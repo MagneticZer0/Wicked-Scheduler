@@ -1,14 +1,16 @@
 public class ScheduleMaker {
-    private String getCC() {
+    
+	// Get Course code from GUI
+	private String getCC() {
     	
     }
     
-    public String findCC() {
+    // Find Course code in CouseList
+    public String findCC( String courseCode ) {
     	
     }
     
     public static void main(String[] args) {
     	
     }
-    
 }
