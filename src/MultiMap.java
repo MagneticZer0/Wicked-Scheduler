@@ -5,10 +5,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This is an extension of Java's HashMap, it maps one key to one, or many,
+ * different values. Values cannot be duplicated for a given key.
+ * 
+ * @author MagneticZero
+ *
+ * @param <K> The type of keys maintained by the MultiMap
+ * @param <V> The type of mapped values
+ */
 public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 
-	private static final long serialVersionUID = 5254866262621327527L; // This is for serializable object compatability
+	/**
+	 * This is for serializable object compatability
+	 */
+	private static final long serialVersionUID = 5254866262621327527L;
 
+	/**
+	 * The internal implementation of the MultiMap is a HashMap that maps keys to a
+	 * Set of values, I use Set because there's no need for having duplicates values
+	 * as far as I can think of.
+	 */
 	private HashMap<K, Set<V>> internalMap = new HashMap<>();
 
 	/**
@@ -241,4 +258,35 @@ public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 		return list;
 	}
 
+	/**
+	 * Compares the specified object with this map for equality. Returns
+	 * <tt>true</tt> if the given object is also a map and the two maps represent
+	 * the same mappings. More formally, two maps <tt>m1</tt> and <tt>m2</tt>
+	 * represent the same mappings if <tt>m1.entrySet().equals(m2.entrySet())</tt>.
+	 * This ensures that the <tt>equals</tt> method works properly across different
+	 * implementations of the <tt>Map</tt> interface.
+	 *
+	 * <p>
+	 * This implementation first checks if the specified object is this map; if so
+	 * it returns <tt>true</tt>. Then, it checks if the specified object is a map
+	 * whose size is identical to the size of this map; if not, it returns
+	 * <tt>false</tt>. If so, it iterates over this map's <tt>entrySet</tt>
+	 * collection, and checks that the specified map contains each mapping that this
+	 * map contains. If the specified map fails to contain such a mapping,
+	 * <tt>false</tt> is returned. If the iteration completes, <tt>true</tt> is
+	 * returned.
+	 *
+	 * @param o object to be compared for equality with this map
+	 * @return <tt>true</tt> if the specified object is equal to this map
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		} else if (!(o instanceof MultiMap)) {
+			return false;
+		} else {
+			return super.equals(o);
+		}
+	}
 }

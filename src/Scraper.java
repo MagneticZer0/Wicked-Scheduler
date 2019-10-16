@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class Scraper {
 		// System.out.println(getAllSemesters());
 		// System.out.println(getEditableSemesters());
 		// System.out.println(getCategories("201905"));
-		System.out.println(getAllClasses("201905").toString());
+		System.out.println(getAllClasses("202001").toString());
 		new ExampleOutputSaver().saveCourses(courses);
 	}
 
@@ -204,7 +205,14 @@ public class Scraper {
 								if (classInfo[0].trim().isEmpty() && previousClass != null) {
 									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
 								} else {
-									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, 0);
+									double fee = 0;
+									if (classInfo.length > 15) {
+										for(int i=classInfo.length-1; i>15; i--) {
+											String[] dollarSplit = classInfo[i].split("\\$");
+											fee += NumberFormat.getInstance().parse(dollarSplit[1]).doubleValue();
+										}
+									}
+									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], null, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
 									courses.put(previousClass.toString(), previousClass);
 								}
 							}
