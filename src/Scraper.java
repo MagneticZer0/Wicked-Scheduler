@@ -9,8 +9,12 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -49,13 +53,19 @@ public class Scraper {
 	/**
 	 * The output of the getAllClasses method
 	 */
-	private static MultiMap<String, Course> courses = new MultiMap<>();
+	public static MultiMap<String, Course> courses = new MultiMap<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
 		// System.out.println(getAllSemesters());
 		// System.out.println(getEditableSemesters());
 		// System.out.println(getCategories("201905"));
 		System.out.println(getAllClasses("202001").toString());
+		for(Course.CourseTimeIterator it = (Course.CourseTimeIterator) courses.get("GE3850 - Geohydrology Lab").get(0).iterator(); it.hasNext(); ) {
+			System.out.println(it.getDay());
+			for(LocalTime[] time : it.next()) {
+				System.out.println(Arrays.deepToString(time) + " " + it.getDay());
+			}
+		}
 		new ExampleOutputSaver().saveCourses(courses);
 	}
 
@@ -217,7 +227,7 @@ public class Scraper {
 									for(String s : credSplit) {
 										credits.add(Double.parseDouble(s));
 									}
-									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
+									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], classInfo[3].contains("L"), credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
 									courses.put(previousClass.toString(), previousClass);
 								}
 							}
