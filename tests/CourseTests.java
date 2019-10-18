@@ -1,4 +1,4 @@
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ public class CourseTests {
 	public void TBANoConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "TBA", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "TBA", "12", "No one", "01/12-01/13|2019", 500);
-		assertFalse("Courses at exact same times should be conflicting!", first.conflicts(second));
+		assertFalse(first.conflicts(second), "Courses at exact same times should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test exact course conflict with [{arguments}]")
@@ -31,7 +31,7 @@ public class CourseTests {
 	public void exactCourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses at exact same times should be conflicting!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses at exact same times should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test overlapping course conflict with [{arguments}]")
@@ -39,7 +39,7 @@ public class CourseTests {
 	public void overlapCourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:35 pm-2:35 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses at overlapping same times should be conflicting!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses at overlapping same times should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test super overlapping course conflict with [{arguments}]")
@@ -47,7 +47,7 @@ public class CourseTests {
 	public void superOverlapCourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "12:35 pm-3:35 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses at super overlapping same times should be conflicting!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses at super overlapping same times should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test start/end course conflict with [{arguments}]")
@@ -55,7 +55,7 @@ public class CourseTests {
 	public void startEndCourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "2:15 pm-3:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses at end when one starts should be conflicting!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses at end when one starts should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test start/end walk time course conflict with [{arguments}]")
@@ -63,7 +63,7 @@ public class CourseTests {
 	public void startEnd5CourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "2:20 pm-3:20 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses at end without 5 minutes in between should be conflicting!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses at end without 5 minutes in between should be conflicting!");
 	}
 
 	@ParameterizedTest(name = "Test different dates no conflict with [{arguments}]")
@@ -71,7 +71,7 @@ public class CourseTests {
 	public void differentDatesNoConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "2:15 pm-3:15 pm", "12", "No one", "01/14-01/15|2019", 500);
-		assertFalse("Courses should not be conflicting if on different dates!", first.conflicts(second));
+		assertFalse(first.conflicts(second), "Courses should not be conflicting if on different dates!");
 	}
 
 	@ParameterizedTest(name = "Test different days no conflict with [{arguments}]")
@@ -79,7 +79,7 @@ public class CourseTests {
 	public void differentDaysNoConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", invert(days), "2:15 pm-3:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertFalse("Courses should not be conflicting if on different days!", first.conflicts(second));
+		assertFalse(first.conflicts(second), "Courses should not be conflicting if on different days!");
 	}
 
 	@ParameterizedTest(name = "Test same day no conflict with [{arguments}]")
@@ -87,7 +87,7 @@ public class CourseTests {
 	public void sameDaysNoConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "3:15 pm-4:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertFalse("Courses should not be conflicting if on same days with no conflicts!", first.conflicts(second));
+		assertFalse(first.conflicts(second), "Courses should not be conflicting if on same days with no conflicts!");
 	}
 
 	@ParameterizedTest(name = "Test same day no conflict multiple times with [{arguments}]")
@@ -96,7 +96,7 @@ public class CourseTests {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		first.addDayandTime(days + "|5:15 pm-6:15 pm");
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "3:15 pm-4:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertFalse("Courses should not be conflicting if on same days with multiple times and no conflicts!", first.conflicts(second));
+		assertFalse(first.conflicts(second), "Courses should not be conflicting if on same days with multiple times and no conflicts!");
 	}
 
 	@ParameterizedTest(name = "Test same day conflict multiple times with [{arguments}]")
@@ -105,53 +105,53 @@ public class CourseTests {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		first.addDayandTime(days + "|4:15 pm-6:15 pm");
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "3:15 pm-4:15 pm", "12", "No one", "01/12-01/13|2019", 500);
-		assertTrue("Courses should be conflicting if on same days with multiple times and conflicts!", first.conflicts(second));
+		assertTrue(first.conflicts(second), "Courses should be conflicting if on same days with multiple times and conflicts!");
 	}
 
 	@Test
 	public void courseCRN() {
-		assertEquals("Course CRN is not correct!", 4, tester.getCRN());
+		assertEquals(4, tester.getCRN(), "Course CRN is not correct!");
 	}
 
 	@Test
 	public void getCredits() {
-		assertEquals("Course credits is not correct!", 48, tester.getCredits()[0], 0);
+		assertEquals(48, tester.getCredits()[0], 0, "Course credits is not correct!");
 	}
 
 	@Test
 	public void getDays() {
 		List<String> results = tester.getDays();
-		assertTrue("Course getDays does not return all days!", results.containsAll(Arrays.asList("Monday", "Wednesday", "Thursday")));
+		assertTrue(results.containsAll(Arrays.asList("Monday", "Wednesday", "Thursday")), "Course getDays does not return all days!");
 	}
 
 	@Test
 	public void getRemaining() {
-		assertEquals("Course getRemaining doesn't return the correct value", 2, tester.getRemaining());
+		assertEquals(2, tester.getRemaining(), "Course getRemaining doesn't return the correct value");
 	}
 
 	@Test
 	public void getInstructor() {
-		assertEquals("Course getInstructor doesn't return the correct value", "Gang, Yang", tester.getInstructor());
+		assertEquals("Gang, Yang", tester.getInstructor(), "Course getInstructor doesn't return the correct value");
 	}
 
 	@Test
 	public void getStartDate() {
-		assertEquals("Course getStartDate doesn't return the correct value", "Sat Jan 18 00:00:00 EST 2020", tester.getStartDate().toString());
+		assertEquals("Sat Jan 18 00:00:00 EST 2020", tester.getStartDate().toString(), "Course getStartDate doesn't return the correct value");
 	}
 
 	@Test
 	public void getEndDate() {
-		assertEquals("Course getEndDate doesn't return the correct value", "Fri Jan 17 00:00:00 EST 2020", tester.getEndDate().toString());
+		assertEquals("Fri Jan 17 00:00:00 EST 2020", tester.getEndDate().toString(), "Course getEndDate doesn't return the correct value");
 	}
 
 	@Test
 	public void getFee() {
-		assertEquals("Course getFee doesn't return the correct value", 47000, tester.getFee(), 0);
+		assertEquals(47000, tester.getFee(), 0, "Course getFee doesn't return the correct value");
 	}
 
 	@Test
 	public void tostring() {
-		assertEquals("Course toString doesn't return correct representation!", "FA20 - Yang Gang Lab", tester.toString());
+		assertEquals("FA20 - Yang Gang Lab", tester.toString(), "Course toString doesn't return correct representation!");
 	}
 
 	private String invert(String input) {

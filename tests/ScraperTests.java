@@ -1,5 +1,4 @@
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -62,21 +61,21 @@ public class ScraperTests {
 
 	@Test
 	public void getAllSemesters() throws IOException {
-		assertAll("getAllSemesters map is incorrect", () -> assertTrue("Fall 2001 is not in semesters!", semesters.keySet().contains("Fall 2001 (View only)")), () -> assertEquals("Fall 2001 id does not match expected!", "200108", semesters.get("Fall 2001 (View only)")));
+		assertAll("getAllSemesters map is incorrect", () -> assertTrue(semesters.keySet().contains("Fall 2001 (View only)"), "Fall 2001 is not in semesters!"), () -> assertEquals("200108", semesters.get("Fall 2001 (View only)"), "Fall 2001 id does not match expected!"));
 	}
 
 	@Test
 	public void getEditableSemesters() {
-		assertFalse("getEditableSemesters contains a key with view only!", editSemesters.keySet().stream().anyMatch(e -> e.contains("view only")));
+		assertFalse(editSemesters.keySet().stream().anyMatch(e -> e.contains("view only")), "getEditableSemesters contains a key with view only!");
 	}
 
 	@Test
 	public void getCategories() {
-		assertEquals("getCategories size is incorrect!", 30, categories.size());
+		assertEquals(30, categories.size(), "getCategories size is incorrect!");
 	}
 
 	@Test
 	public void getAllClasses() {
-		assertEquals("getAllClasses didn't get all classes!", 3515, courses.allValues().size());
+		assertEquals(3515, courses.allValues().size(), "getAllClasses didn't get all classes!");
 	}
 }
