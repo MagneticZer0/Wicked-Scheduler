@@ -22,10 +22,10 @@ public class UI extends Application {
 		firststage.setHeight(700);
 		firststage.initStyle(StageStyle.DECORATED);
 		
-		MenuItem Item0 = new MenuItem("Blood");
-		MenuItem Item1 = new MenuItem("for");
-		MenuItem Item2 = new MenuItem("the");
-		MenuItem Item3 = new MenuItem("BloodGod");
+		MenuItem Item0 = new MenuItem("B");
+		MenuItem Item1 = new MenuItem("f");
+		MenuItem Item2 = new MenuItem("t");
+		MenuItem Item3 = new MenuItem("BG");
 		MenuButton dropdown1 = new MenuButton("File", null, Item0, Item1, Item2, Item3);
 		HBox hBox = new HBox(dropdown1);
 		
