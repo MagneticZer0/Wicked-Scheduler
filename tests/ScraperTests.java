@@ -17,6 +17,11 @@ public class ScraperTests {
 	static List<String> categories;
 	static MultiMap<String, Course> courses;
 
+	/**
+	 * This code may look complex, but it's just so that all 4 lines of code (The
+	 * ones that have Scraper) are executed in parallel as opposed to sequentially
+	 * just to save some testing time.
+	 */
 	@BeforeAll
 	public static void setup() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(4);
