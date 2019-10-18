@@ -45,7 +45,6 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 */
 	@Override
 	public boolean containsKey(Object arg0) {
-		System.out.println(arg0);
 		return internalMap.containsKey(arg0);
 	}
 
@@ -170,15 +169,17 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 *         <tt>key</tt>.)
 	 */
 	public List<V> put(K arg0, V arg1) {
-		List<V> List = null;
+		List<V> list = null;
 		if (internalMap.get(arg0) == null) {
-			List = new ArrayList<>();
+			list = new ArrayList<>();
 		} else {
-			List = internalMap.get(arg0);
+			list = internalMap.get(arg0);
 		}
-		List.add(arg1);
-		put(arg0, List);
-		return List;
+		if (!list.contains(arg1)) {
+			list.add(arg1);
+		}
+		put(arg0, list);
+		return list;
 	}
 
 	/**

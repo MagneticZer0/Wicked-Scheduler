@@ -61,7 +61,6 @@ public class Scraper {
 		// System.out.println(getCategories("201905"));
 		System.out.println(getAllClasses("202001").toString());
 		for(Course.CourseTimeIterator it = (Course.CourseTimeIterator) courses.get("GE3850 - Geohydrology Lab").get(0).iterator(); it.hasNext(); ) {
-			System.out.println(it.getDay());
 			for(LocalTime[] time : it.next()) {
 				System.out.println(Arrays.deepToString(time) + " " + it.getDay());
 			}

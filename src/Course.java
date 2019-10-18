@@ -86,7 +86,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * This is the minimum amount of time between classes before they're considered
 	 * to be overlapping I. E. This is a total of 5 minutes between classes
 	 */
-	private final TemporalAmount travelTime = Duration.ofMinutes(5).dividedBy(2);
+	private final TemporalAmount travelTime = Duration.ofMinutes(5);
 
 	// Date must be in format M1/D1-M2/D2|YEAR
 	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
@@ -220,12 +220,33 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return Collections.unmodifiableList(result);
 	}
 
-	public boolean conficts(Course other) {
+	/**
+	 * The method that front facing users call to test if courses conflict. This
+	 * method is to make sure that x.conflicts(y) is equal to y.conflicts(x) because
+	 * of the implementation of the conflicts method is is not reflexive.
+	 * 
+	 * @param other The other course to check conflicts with
+	 * @return Returns a boolean based on if a course conflicts with the other
+	 */
+	public boolean conflicts(Course other) {
+		return this.confictsHelper(other) || other.confictsHelper(this);
+	}
+
+	/**
+	 * This tests to see if two courses conflict with each other. A conflict is
+	 * defined as a course and other that has overlapping dates, overlapping days,
+	 * as well as overlapping times. A conflict also occurs if there is not at least
+	 * 5 minutes in between classes, but this is configurable.
+	 * 
+	 * @param other The other course to check conflicts with
+	 * @return Returns a boolean based on if a course conflicts with the other
+	 */
+	private boolean confictsHelper(Course other) {
 		if (datesConflict(this.startDate, this.endDate, other.startDate, other.endDate)) {
 			for (Course.CourseTimeIterator thisTimes = (Course.CourseTimeIterator) this.iterator(); thisTimes.hasNext();) {
 				for (LocalTime[] thisTime : thisTimes.next()) {
 					for (LocalTime[] otherTime : other.getTimes(thisTimes.getDay())) {
-						if (timesConflict(thisTime[0], thisTime[1], otherTime[0], otherTime[1])) {
+						if (timesConflict(thisTime[0], thisTime[1], otherTime[0], otherTime[1]) || travelTimeConflict(thisTime[0], thisTime[1], otherTime[0], otherTime[1])) {
 							return true;
 						}
 					}
@@ -298,6 +319,20 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * I could have made this into 1 big if statement, but I think that this is
+	 * better as it's easier to read
+	 * 
+	 * @param startDate1 The first start time
+	 * @param endDate1   The first end time
+	 * @param startDate2 The second start time
+	 * @param endDate2   The second end time
+	 * @return Return true if the classes overlap after accounting for travel time.
+	 */
+	private boolean travelTimeConflict(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
+		return timesConflict(startTime1.plus(travelTime), endTime1.plus(travelTime), startTime2, endTime2) || timesConflict(startTime1, endTime1, startTime2.minus(travelTime), endTime2.minus(travelTime));
 	}
 
 	/**
