@@ -88,8 +88,27 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 */
 	private final TemporalAmount travelTime = Duration.ofMinutes(5);
 
-	// Date must be in format M1/D1-M2/D2|YEAR
-	// Time must be in format h1:m1 a/pm1-h2:m2 a/pm2
+	/**
+	 * Creates a course based on the information provided. Some strings are expected
+	 * to be in a certain format, the format will be given
+	 * 
+	 * @param CRN        The CRN for the course, this is used for signing up for the
+	 *                   class
+	 * @param subject    The department the class is in
+	 * @param courseCode The class number, I.E. 3141 for the course
+	 * @param isLab      Is this course a lab course?
+	 * @param credits    The number of credits the class is worth
+	 * @param title      The name of the class I.E. "Team Software Project"
+	 * @param days       The days that the class is held
+	 * @param time       The times that the class is held. Must be in format h1:m1
+	 *                   a/pm1-h2:m2 a/pm2
+	 * @param remaining  The amount of spots remaining within the class
+	 * @param instructor The instructor for the class
+	 * @param date       The dates that the class is held. Must be in format
+	 *                   M1/D1-M2/D2|YEAR
+	 * @param fee        The fee to take the class
+	 * @throws ParseException If the data is not formatted in the way expected.
+	 */
 	public Course(String CRN, String subject, String courseCode, boolean isLab, List<Double> credits, String title, String days, String time, String remaining, String instructor, String date, double fee) throws ParseException {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
@@ -127,14 +146,30 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		this.isLab = isLab;
 	}
 
+	/**
+	 * Returns the CRN, as an int
+	 * 
+	 * @return The CRN
+	 */
 	public int getCRN() {
 		return crn;
 	}
 
+	/**
+	 * Returns the amount of credits the class is worth.
+	 * 
+	 * @return Most times this array is only of size 1, sometimes it is of size 2
+	 *         for variable credit classes.
+	 */
 	public double[] getCredits() {
 		return credits;
 	}
 
+	/**
+	 * Gets the days that the class is held on in full string representation.
+	 * 
+	 * @return The days the class is held in an unmodifiable list.
+	 */
 	public List<String> getDays() {
 		ArrayList<String> result = new ArrayList<>(6);
 		if (!this.days.contains("TBA") || !this.days.contains(" ")) {
@@ -159,30 +194,69 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return Collections.unmodifiableList(result.stream().distinct().collect(Collectors.toList())); // Create an immutable list that has duplicates removed
 	}
 
+	/**
+	 * Returns the start time corresponding the the i'th index
+	 * 
+	 * @param i The index
+	 * @return Returns a LocalTime object for that class start time
+	 */
 	public LocalTime getStartTime(int i) {
 		return startTime.get(i);
 	}
 
+	/**
+	 * Returns the end time corresponding the the i'th index
+	 * 
+	 * @param i The index
+	 * @return Returns a LocalTime object for that class end time
+	 */
 	public LocalTime getEndTime(int i) {
 		return endTime.get(i);
 	}
 
+	/**
+	 * Returns the amount of spots left in the class
+	 * 
+	 * @return An int of the amount of spots
+	 */
 	public int getRemaining() {
 		return remaining;
 	}
 
+	/**
+	 * Returns the instructor for the course
+	 * 
+	 * @return The instructor, as a String
+	 */
 	public String getInstructor() {
 		return instructor;
 	}
 
+	/**
+	 * This is the date that the class starts on, most (if not all, I'm not sure)
+	 * start on the first day of the semester
+	 * 
+	 * @return A date representing the start date of class
+	 */
 	public Date getStartDate() {
 		return startDate;
 	}
 
+	/**
+	 * This is the date that the class ends, classes can be half or full semesters
+	 * (and maybe more, not sure).
+	 * 
+	 * @return A date representing the end date of class
+	 */
 	public Date getEndDate() {
 		return endDate;
 	}
 
+	/**
+	 * The fee that it costs to take this class, typically applies to lab courses
+	 * 
+	 * @return The fee as an int
+	 */
 	public double getFee() {
 		return fee;
 	}
@@ -208,9 +282,14 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		}
 	}
 
+	/**
+	 * Returns the times that the class takes place on that day (start and end).
+	 * 
+	 * @param day The day, this is the single character string representation
+	 * @return A list of LocalTime[]'s in which arr[0] = start time and arr[1] = end
+	 *         time
+	 */
 	public List<LocalTime[]> getTimes(String day) {
-		// returns the times that the class happens on a certain day or if doesn't it
-		// returns 1:37 AM
 		ArrayList<LocalTime[]> result = new ArrayList<>();
 		for (int i = 0; i < days.size(); i++) {
 			if (days.get(i).contains(day)) {
@@ -368,26 +447,58 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return subject + courseCode + " - " + title + (isLab ? " Lab" : ""); // Appends lab to the end if the course is a lab
 	}
 
+	/**
+	 * Compares a class based on the amount of sections that are available for the
+	 * class in the Scraper, I.E. the Scraper.getAllCourses must be run first!
+	 */
 	@Override
 	public int compareTo(Course other) {
 		return Scraper.courses.get(this.toString()).size() - Scraper.courses.get(other.toString()).size();
 	}
 
+	/**
+	 * Returns an iterator that allows you to iterate through the times that the
+	 * class takes place on that day starting from Monday and going through Friday
+	 */
 	@Override
 	public Iterator<List<LocalTime[]>> iterator() {
 		return new CourseTimeIterator();
 	}
 
+	/**
+	 * This iterator goes through each day in the week and will return to you the
+	 * times that the class takes place on that day.
+	 * 
+	 * @author MagneticZero
+	 *
+	 */
 	public class CourseTimeIterator implements Iterator<List<LocalTime[]>> {
 
+		/**
+		 * The days the iterator has to go through still, in reverse order to save
+		 * computation power of removing an element from an array list
+		 */
 		private ArrayList<String> days = new ArrayList<>(Arrays.asList("F", "R", "W", "T", "M"));
+		/**
+		 * The current day the iterator is on
+		 */
 		private String day = "M";
 
+		/**
+		 * Returns a boolean based on if there are still days to iterate through
+		 * 
+		 * @return Is there any days left to iterate through?
+		 */
 		@Override
 		public boolean hasNext() {
 			return !days.isEmpty();
 		}
 
+		/**
+		 * Returns the times that the class is held on the next element's day
+		 * 
+		 * @return
+		 */
 		@Override
 		public List<LocalTime[]> next() {
 			if (hasNext()) {
@@ -399,6 +510,11 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			}
 		}
 
+		/**
+		 * Returns the current day that the iterator is on
+		 * 
+		 * @return The day the iterator is on
+		 */
 		public String getDay() {
 			return day;
 		}
