@@ -2,11 +2,21 @@ import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class CourseTests {
+
+	Course tester;
+
+	@BeforeEach
+	public void setup() throws ParseException {
+		tester = new Course("4", "FA", "20", true, Arrays.asList(48d), "Yang Gang", "MWR", "4:00 am-6:00 pm", "2", "Gang, Yang", "01/18-01/17|2020", 47000);
+	}
 
 	@ParameterizedTest(name = "Test TBA no conflict with [{arguments}]")
 	@ValueSource(strings = {"M", "T", "MT", "W", "MW", "TW", "MTW", "R", "MR", "TR", "MTR", "WR", "MWR", "TWR", "MTWR", "F", "MF", "TF", "MTF", "WF", "MWF", "TWF", "MTWF", "RF", "MRF", "TRF", "MTRF", "WRF", "MWRF", "TWRF", "MTWRF"})
@@ -89,6 +99,60 @@ public class CourseTests {
 		assertFalse("Courses should not be conflicting if on same days with multiple times and no conflicts!", first.conflicts(second));
 	}
 
+	@ParameterizedTest(name = "Test same day conflict multiple times with [{arguments}]")
+	@ValueSource(strings = {"M", "T", "MT", "W", "MW", "TW", "MTW", "R", "MR", "TR", "MTR", "WR", "MWR", "TWR", "MTWR", "F", "MF", "TF", "MTF", "WF", "MWF", "TWF", "MTWF", "RF", "MRF", "TRF", "MTRF", "WRF", "MWRF", "TWRF", "MTWRF"})
+	public void sameDaysMultipleTimesConflict(String days) throws ParseException {
+		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
+		first.addDayandTime(days + "|4:15 pm-6:15 pm");
+		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "3:15 pm-4:15 pm", "12", "No one", "01/12-01/13|2019", 500);
+		assertTrue("Courses should be conflicting if on same days with multiple times and conflicts!", first.conflicts(second));
+	}
+
+	@Test
+	public void courseCRN() {
+		assertEquals("Course CRN is not correct!", 4, tester.getCRN());
+	}
+
+	@Test
+	public void getCredits() {
+		assertEquals("Course credits is not correct!", 48, tester.getCredits()[0], 0);
+	}
+
+	@Test
+	public void getDays() {
+		List<String> results = tester.getDays();
+		assertTrue("Course getDays does not return all days!", results.containsAll(Arrays.asList("Monday", "Wednesday", "Thursday")));
+	}
+
+	@Test
+	public void getRemaining() {
+		assertEquals("Course getRemaining doesn't return the correct value", 2, tester.getRemaining());
+	}
+
+	@Test
+	public void getInstructor() {
+		assertEquals("Course getInstructor doesn't return the correct value", "Gang, Yang", tester.getInstructor());
+	}
+
+	@Test
+	public void getStartDate() {
+		assertEquals("Course getStartDate doesn't return the correct value", "Sat Jan 18 00:00:00 EST 2020", tester.getStartDate().toString());
+	}
+
+	@Test
+	public void getEndDate() {
+		assertEquals("Course getEndDate doesn't return the correct value", "Fri Jan 17 00:00:00 EST 2020", tester.getEndDate().toString());
+	}
+
+	@Test
+	public void getFee() {
+		assertEquals("Course getFee doesn't return the correct value", 47000, tester.getFee(), 0);
+	}
+
+	@Test
+	public void tostring() {
+		assertEquals("Course toString doesn't return correct representation!", "FA20 - Yang Gang Lab", tester.toString());
+	}
 
 	private String invert(String input) {
 		String result = "MTWRF";

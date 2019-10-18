@@ -9,12 +9,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -56,16 +52,7 @@ public class Scraper {
 	public static MultiMap<String, Course> courses = new MultiMap<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
-		// System.out.println(getAllSemesters());
-		// System.out.println(getEditableSemesters());
-		// System.out.println(getCategories("201905"));
-		System.out.println(getAllClasses("202001").toString());
-		for(Course.CourseTimeIterator it = (Course.CourseTimeIterator) courses.get("GE3850 - Geohydrology Lab").get(0).iterator(); it.hasNext(); ) {
-			for(LocalTime[] time : it.next()) {
-				System.out.println(Arrays.deepToString(time) + " " + it.getDay());
-			}
-		}
-		new ExampleOutputSaver().saveCourses(courses);
+		// new ExampleOutputSaver().saveCourses(courses);
 	}
 
 	/**

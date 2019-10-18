@@ -34,7 +34,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	/**
 	 * This is the "level" of the course, like 3141
 	 */
-	private int courseCode;
+	private String courseCode;
 	/**
 	 * Since some courses have a variable amount of credits this will store that
 	 */
@@ -97,7 +97,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 
 		this.crn = Integer.parseInt(CRN);
 		this.subject = subject;
-		this.courseCode = Integer.parseInt(courseCode);
+		this.courseCode = courseCode;
 		this.credits = new double[credits.size()];
 		for (int i = 0; i < credits.size(); i++) {
 			this.credits[i] = credits.get(i);
@@ -138,7 +138,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	public List<String> getDays() {
 		ArrayList<String> result = new ArrayList<>(6);
 		if (!this.days.contains("TBA") || !this.days.contains(" ")) {
-			for (String day : result) {
+			for (String day : days) {
 				if (day.contains("M")) {
 					result.add("Monday");
 				}
@@ -229,7 +229,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @return Returns a boolean based on if a course conflicts with the other
 	 */
 	public boolean conflicts(Course other) {
-		return this.confictsHelper(other) || other.confictsHelper(this);
+		return this.conflictsHelper(other) || other.conflictsHelper(this);
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @param other The other course to check conflicts with
 	 * @return Returns a boolean based on if a course conflicts with the other
 	 */
-	private boolean confictsHelper(Course other) {
+	private boolean conflictsHelper(Course other) {
 		if (datesConflict(this.startDate, this.endDate, other.startDate, other.endDate)) {
 			for (Course.CourseTimeIterator thisTimes = (Course.CourseTimeIterator) this.iterator(); thisTimes.hasNext();) {
 				for (LocalTime[] thisTime : thisTimes.next()) {
