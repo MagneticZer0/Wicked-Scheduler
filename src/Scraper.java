@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import collections.MultiMap;
+
 /**
  * The Scraper is what does all the data scraping it will access multiple links
  * through the use of web forms and take the information needed from each
@@ -52,7 +54,12 @@ public class Scraper {
 	public static MultiMap<String, Course> courses = new MultiMap<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
-		// new ExampleOutputSaver().saveCourses(courses);
+//		System.out.println(getAllSemesters().toString() + "\n");
+//		getAllClasses(getAllSemesters().get("Fall 2001 (View only)")); // Returns all classes for the Fall 2001 semester
+//		for(Map.Entry<String, List<Course>> entry : courses.entrySet()) {
+//			System.out.println(entry.toString());
+//		}
+//		new ExampleOutputSaver().saveCourses(courses); // Save output
 	}
 
 	/**

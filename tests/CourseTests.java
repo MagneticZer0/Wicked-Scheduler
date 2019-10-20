@@ -4,8 +4,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -59,7 +58,7 @@ public class CourseTests {
 	}
 
 	@ParameterizedTest(name = "Test start/end walk time course conflict with [{arguments}]")
-	@ValueSource(strings = {"M"})
+	@ValueSource(strings = {"M", "T", "MT", "W", "MW", "TW", "MTW", "R", "MR", "TR", "MTR", "WR", "MWR", "TWR", "MTWR", "F", "MF", "TF", "MTF", "WF", "MWF", "TWF", "MTWF", "RF", "MRF", "TRF", "MTRF", "WRF", "MWRF", "TWRF", "MTWRF"})
 	public void startEnd5CourseConflict(String days) throws ParseException {
 		Course first = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "1:15 pm-2:15 pm", "12", "No one", "01/12-01/13|2019", 500);
 		Course second = new Course("0", "EV", "0", false, Arrays.asList(1d), "Test", days, "2:20 pm-3:20 pm", "12", "No one", "01/12-01/13|2019", 500);
