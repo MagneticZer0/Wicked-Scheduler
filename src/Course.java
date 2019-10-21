@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import collections.BiPredicateMultiMap;
+import collections.MultiMap;
 
 public class Course implements Serializable, Comparable<Course>, Iterable<List<LocalTime[]>> {
 
@@ -518,5 +522,17 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		public String getDay() {
 			return day;
 		}
+	}
+
+	public static <T extends Course> MultiMap<Course, Course> getConflicts(T[] courses) {
+		BiPredicateMultiMap<Course> map = new BiPredicateMultiMap<>((x, y) -> x.conflicts(y));
+		for(Course course : courses) {
+			map.put(course);
+		}
+		return map;
+	}
+
+	public static <T extends Course> MultiMap<Course, Course> getConflicts(Collection<T> courses) {
+		return getConflicts((T[]) courses.toArray(new Object[courses.size()]));
 	}
 }
