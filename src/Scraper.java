@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import collections.MultiMap;
+
 /**
  * The Scraper is what does all the data scraping it will access multiple links
  * through the use of web forms and take the information needed from each
@@ -49,14 +51,15 @@ public class Scraper {
 	/**
 	 * The output of the getAllClasses method
 	 */
-	private static MultiMap<String, Course> courses = new MultiMap<>();
+	public static MultiMap<String, Course> courses = new MultiMap<>();
 
 	public static void main(String[] args) throws IOException, ParseException {
-		// System.out.println(getAllSemesters());
-		// System.out.println(getEditableSemesters());
-		// System.out.println(getCategories("201905"));
-		System.out.println(getAllClasses("202001").toString());
-		new ExampleOutputSaver().saveCourses(courses);
+//		System.out.println(getAllSemesters().toString() + "\n");
+//		getAllClasses(getAllSemesters().get("Fall 2001 (View only)")); // Returns all classes for the Fall 2001 semester
+//		for(Map.Entry<String, List<Course>> entry : courses.entrySet()) {
+//			System.out.println(entry.toString());
+//		}
+//		new ExampleOutputSaver().saveCourses(courses); // Save output
 	}
 
 	/**
@@ -217,7 +220,7 @@ public class Scraper {
 									for(String s : credSplit) {
 										credits.add(Double.parseDouble(s));
 									}
-									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
+									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], classInfo[3].contains("L"), credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
 									courses.put(previousClass.toString(), previousClass);
 								}
 							}
