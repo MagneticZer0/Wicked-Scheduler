@@ -9,13 +9,25 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+
+
+/**
+ * @author Alex Grant, Coleman Clarstein
+ *
+ */
 public class UI extends Application {
-	//do gui things
 	
 	
+	/**
+	 * this function builds the GUI and displays it to the user once everything
+	 * has been initialized
+	 * 
+	 * @param firststage - a pre-made stage created by Application.launch
+	 * @return none
+	 */
 	public void start(Stage firststage) throws Exception {
 		// TODO Auto-generated method stub
-		firststage.setTitle("何???");
+		firststage.setTitle("Wicked Scheduler");
 		firststage.setX(250);
 		firststage.setY(50);
 		firststage.setWidth(1000);
@@ -37,6 +49,9 @@ public class UI extends Application {
 	}
 	
 	
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args){
 		Application.launch(args);	
 	}
