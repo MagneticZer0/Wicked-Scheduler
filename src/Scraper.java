@@ -53,14 +53,14 @@ public class Scraper {
 	 */
 	public static MultiMap<String, Course> courses = new MultiMap<>();
 
-	public static void main(String[] args) throws IOException, ParseException {
+//	public static void main(String[] args) throws IOException, ParseException {
 //		System.out.println(getAllSemesters().toString() + "\n");
 //		getAllClasses(getAllSemesters().get("Fall 2001 (View only)")); // Returns all classes for the Fall 2001 semester
 //		for(Map.Entry<String, List<Course>> entry : courses.entrySet()) {
 //			System.out.println(entry.toString());
 //		}
 //		new ExampleOutputSaver().saveCourses(courses); // Save output
-	}
+//	}
 
 	/**
 	 * Accesses the COURSE_SELECT_URL link and takes all the semesters that Michigan Tech offers
