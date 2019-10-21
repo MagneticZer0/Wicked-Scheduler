@@ -1,11 +1,8 @@
 import javafx.*;
 import javafx.application.Application;
 import javafx.scene.*;
-//import javafx.scene.Group;
-//import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -16,12 +13,12 @@ import javafx.stage.StageStyle;
  *
  */
 public class UI extends Application {
-	
-	
+
+
 	/**
 	 * this function builds the GUI and displays it to the user once everything
 	 * has been initialized
-	 * 
+	 *
 	 * @param firststage - a pre-made stage created by Application.launch
 	 * @return none
 	 */
@@ -33,26 +30,25 @@ public class UI extends Application {
 		firststage.setWidth(1000);
 		firststage.setHeight(700);
 		firststage.initStyle(StageStyle.DECORATED);
-		
-		MenuItem Item0 = new MenuItem("B");
-		MenuItem Item1 = new MenuItem("f");
-		MenuItem Item2 = new MenuItem("t");
-		MenuItem Item3 = new MenuItem("BG");
-		MenuButton dropdown1 = new MenuButton("File", null, Item0, Item1, Item2, Item3);
-		HBox hBox = new HBox(dropdown1);
-		
+
+		TextField courseCode = new TextField("Input Course Code");
+		Button addCourse = new Button("Add Course");
+		addCourse.setOnAction(action -> {System.out.println(courseCode.getText());});
+
+		HBox hBox = new HBox(courseCode, addCourse);
+
 		VBox  vBox  = new VBox();
-		Scene scene1 = new Scene(hBox);
+		Scene scene1 = new Scene(hBox, 200, 100);
 		firststage.setScene(scene1);
-		
+
 		firststage.show();
 	}
-	
-	
+
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args){
-		Application.launch(args);	
+		Application.launch(args);
 	}
 }
