@@ -57,9 +57,9 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 0, 1, 1, 1);		
 		
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data" );
+		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data");
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
-		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter);
+		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
 			allCoursesFilter.setPredicate(d -> {
 				for(String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
@@ -83,7 +83,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesSearch, 2, 1, 1, 1);	
 		
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
-		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesList);
+		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesList.sorted());
 		desiredCoursesSelection.setMaxWidth(firststage.getWidth()/8);
 		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
 		
@@ -101,12 +101,10 @@ public class UI extends Application {
 		addCourse.setOnAction(action -> {
 			desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 			allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
-			Collections.sort(desiredCoursesList); // Put it back in alphabetical order
 		});
 		removeCourse.setOnAction(action -> {
 			allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
-			Collections.sort(allCoursesList); // Put it back in alphabetical order
 		});
 		
 		// display the GUI
