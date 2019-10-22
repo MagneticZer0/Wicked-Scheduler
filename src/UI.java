@@ -1,5 +1,8 @@
 import javafx.*;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -23,24 +26,68 @@ public class UI extends Application {
 	 * @return none
 	 */
 	public void start(Stage firststage) throws Exception {
-		// TODO Auto-generated method stub
+		
+		// set window properties
 		firststage.setTitle("Wicked Scheduler");
 		firststage.setX(250);
 		firststage.setY(50);
 		firststage.setWidth(1000);
 		firststage.setHeight(700);
+		firststage.setResizable(false);
 		firststage.initStyle(StageStyle.DECORATED);
 
-		TextField courseCode = new TextField("Input Course Code");
+		// create a grid for GUI elements
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setAlignment(Pos.CENTER);
+		
+		// elements regarding all courses
+		Label allCoursesLabel = new Label("Offered Courses:");
+		grid.add(allCoursesLabel, 0, 0, 1, 1);		
+		
+		TextField allCoursesSearch = new TextField();
+		allCoursesSearch.setPromptText("Input Course Code");
+		allCoursesSearch.setMaxWidth(firststage.getWidth()/8);
+		grid.add(allCoursesSearch, 0, 1, 1, 1);		
+		
+		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
+		allCoursesList.addAll("CS1121", "CS1122", "CS2321", "CS2311" );
+		ListView<String> allCoursesSelection = new ListView<String>( allCoursesList );
+		allCoursesSelection.setMaxWidth(firststage.getWidth()/8);
+		grid.add(allCoursesSelection, 0, 2, 1, 4);
+		
+		// elements regarding desired courses
+		Label desiredCoursesLabel = new Label("Desired Courses:");
+		grid.add(desiredCoursesLabel, 2, 0, 1, 1);	
+		
+		TextField desiredCoursesSearch = new TextField();
+		desiredCoursesSearch.setPromptText("Input Course Code");
+		desiredCoursesSearch.setMaxWidth(firststage.getWidth()/8);
+		grid.add(desiredCoursesSearch, 2, 1, 1, 1);	
+		
+		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
+		ListView<String> desiredCoursesSelection = new ListView<String>( desiredCoursesList );
+		desiredCoursesSelection.setMaxWidth(firststage.getWidth()/8);
+		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
+		
 		Button addCourse = new Button("Add Course");
-		addCourse.setOnAction(action -> {System.out.println(courseCode.getText());});
-
-		HBox hBox = new HBox(courseCode, addCourse);
-
-		VBox  vBox  = new VBox();
-		Scene scene1 = new Scene(hBox, 200, 100);
+		addCourse.setStyle("-fx-background-color: #32CD32;");
+		addCourse.setMaxWidth(firststage.getWidth()/8);
+		grid.add(addCourse, 1, 3, 1, 1);
+		
+		Button removeCourse = new Button("Remove Course");
+		removeCourse.setStyle("-fx-background-color: #ff0000;");
+		removeCourse.setMaxWidth(firststage.getWidth()/8);
+		grid.add(removeCourse, 1, 4, 1, 1);
+		
+		// buttons
+		addCourse.setOnAction(action -> {desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());});
+		removeCourse.setOnAction(action -> {desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());});
+		
+		// display the GUI
+		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
-
 		firststage.show();
 	}
 
