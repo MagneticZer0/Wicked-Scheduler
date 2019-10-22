@@ -2,9 +2,12 @@ import javafx.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -52,8 +55,19 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 0, 1, 1, 1);		
 		
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-		allCoursesList.addAll("CS1121", "CS1122", "CS2321", "CS2311" );
-		ListView<String> allCoursesSelection = new ListView<String>( allCoursesList );
+		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2321 - Data", "CS2311 - Discrete" );
+		FilteredList<String> filter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
+		ListView<String> allCoursesSelection = new ListView<>(filter);
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
+			filter.setPredicate(d -> {
+				for(String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
+					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) {
+						return true; // Display all values if it's empty
+					}
+				}
+				return false;
+			});
+		});
 		allCoursesSelection.setMaxWidth(firststage.getWidth()/8);
 		grid.add(allCoursesSelection, 0, 2, 1, 4);
 		
@@ -67,7 +81,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesSearch, 2, 1, 1, 1);	
 		
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
-		ListView<String> desiredCoursesSelection = new ListView<String>( desiredCoursesList );
+		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesList);
 		desiredCoursesSelection.setMaxWidth(firststage.getWidth()/8);
 		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
 		
