@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import collections.MultiMap;
 
 public class ScheduleMaker {
     ArrayList<Course> currentCourse = new ArrayList<>();
