@@ -1,3 +1,4 @@
+import collections.MultiMap;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,7 +49,14 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 0, 1, 1, 1);
 
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data");
+		
+		// this block should be added in the semester select action where "200108" is replaced by the desired semester  //
+		MultiMap<String,Course> allCourses = Scraper.getAllClasses("200108");											//	
+		for(String code : allCourses.keySet() ) {																		//
+			allCoursesList.add( code );																					//
+		}																												//
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
