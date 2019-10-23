@@ -96,18 +96,32 @@ public class UI extends Application {
 			});
 		});
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
-		desiredCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
+		desiredCoursesSelection.setMaxWidth(firststage.getWidth() /8 );
 		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
 
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
-		addCourse.setMaxWidth(firststage.getWidth() / 8);
+		addCourse.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(addCourse, 1, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #ff0000;");
-		removeCourse.setMaxWidth(firststage.getWidth() / 8);
+		removeCourse.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(removeCourse, 1, 4, 1, 1);
+		
+		Button schedule = new Button("Create Schedule");
+		schedule.setMaxWidth(firststage.getWidth()/4);
+		grid.add(schedule, 1, 7, 1, 1);
+		
+		//semester list
+		MenuItem semester0 = new MenuItem("Fall 2019");
+		MenuItem semester1 = new MenuItem("Spring 2020");
+		MenuItem semester2 = new MenuItem("Summer 2020");
+		MenuItem semester3 = new MenuItem("Fall 2020");
+		MenuItem semester4 = new MenuItem("Spring 2021");
+		MenuButton semesters = new MenuButton("Select Semester", null, semester0, semester1, semester2, semester3, semester4);
+		semesters.setMaxWidth(firststage.getWidth()/4);
+		grid.add(semesters, 1, 2 ,1, 1);
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -122,7 +136,11 @@ public class UI extends Application {
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
-
+		schedule.setOnAction(action -> {
+			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				//implement scheduling logic
+			}
+		});
 		// display the GUI
 		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
