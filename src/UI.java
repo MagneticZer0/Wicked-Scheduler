@@ -28,8 +28,9 @@ public class UI extends Application {
 		firststage.setX(250);
 		firststage.setY(50);
 		firststage.setWidth(1000);
+		firststage.setMinWidth(637);
 		firststage.setHeight(700);
-		firststage.setResizable(false);
+		firststage.setMinHeight(486);
 		firststage.initStyle(StageStyle.DECORATED);
 
 		// create a grid for GUI elements
@@ -40,66 +41,55 @@ public class UI extends Application {
 
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
-		grid.add(allCoursesLabel, 0, 0, 1, 1);
+		grid.add(allCoursesLabel, 0, 1, 1, 1);
 
 		TextField allCoursesSearch = new TextField();
 		allCoursesSearch.setPromptText("Input Course Code");
-		allCoursesSearch.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(allCoursesSearch, 0, 1, 1, 1);
+		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
 		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data");
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			allCoursesFilter.setPredicate(d -> {
-				for (String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
-					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) { // Case Insensitive
-						return true; // Display all values if it's empty
-					}
-				}
-				return false;
-			});
+				allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
+			);
 		});
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
-		allCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(allCoursesSelection, 0, 2, 1, 4);
+		allCoursesSelection.setMinWidth(firststage.getWidth() / 4);
+		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
 		// elements regarding desired courses
 		Label desiredCoursesLabel = new Label("Desired Courses:");
-		grid.add(desiredCoursesLabel, 2, 0, 1, 1);
+		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
 
 		TextField desiredCoursesSearch = new TextField();
 		desiredCoursesSearch.setPromptText("Input Course Code");
-		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(desiredCoursesSearch, 2, 1, 1, 1);
+		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			desiredCoursesFilter.setPredicate(d -> {
-				for (String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
-					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) { // Case Insensitive
-						return true; // Display all values if it's empty
-					}
-				}
-				return false;
-			});
+			desiredCoursesFilter.setPredicate(d -> 
+				newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
+			);
 		});
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
-		desiredCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
+		desiredCoursesSelection.setMinWidth(firststage.getWidth() / 4);
+		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
 
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
-		addCourse.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(addCourse, 1, 3, 1, 1);
+		addCourse.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(addCourse, 2, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #ff0000;");
 		removeCourse.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(removeCourse, 1, 4, 1, 1);
+		grid.add(removeCourse, 2, 4, 1, 1);
 
 		// buttons
 		addCourse.setOnAction(action -> {
