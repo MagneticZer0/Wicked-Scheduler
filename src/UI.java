@@ -1,20 +1,13 @@
-import java.util.Collections;
-
-import javafx.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-
 
 /**
  * @author Alex Grant, Coleman Clarstein
@@ -22,16 +15,14 @@ import javafx.stage.StageStyle;
  */
 public class UI extends Application {
 
-
 	/**
-	 * this function builds the GUI and displays it to the user once everything
-	 * has been initialized
+	 * this function builds the GUI and displays it to the user once everything has
+	 * been initialized
 	 *
 	 * @param firststage - a pre-made stage created by Application.launch
-	 * @return none
 	 */
 	public void start(Stage firststage) throws Exception {
-		
+
 		// set window properties
 		firststage.setTitle("Wicked Scheduler");
 		firststage.setX(250);
@@ -46,78 +37,128 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
-		
+
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
-		grid.add(allCoursesLabel, 0, 0, 1, 1);		
-		
+		grid.add(allCoursesLabel, 0, 0, 1, 1);
+
 		TextField allCoursesSearch = new TextField();
 		allCoursesSearch.setPromptText("Input Course Code");
-		allCoursesSearch.setMaxWidth(firststage.getWidth()/8);
-		grid.add(allCoursesSearch, 0, 1, 1, 1);		
-		
+		allCoursesSearch.setMaxWidth(firststage.getWidth() / 8);
+		grid.add(allCoursesSearch, 0, 1, 1, 1);
+
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
 		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data");
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
 			allCoursesFilter.setPredicate(d -> {
-				for(String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
-					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) {
+				for (String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
+					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) { // Case Insensitive
 						return true; // Display all values if it's empty
 					}
 				}
 				return false;
 			});
+			if (allCoursesFilter.isEmpty()) {
+				if (!allCoursesList.contains("No classes found!")) {
+					allCoursesList.add("No classes found!");
+				}
+				allCoursesFilter.setPredicate(d -> d.contains("No classes found!"));
+				allCoursesSelection.setDisable(true);
+			} else if (allCoursesSelection.isDisable()) {
+				allCoursesSelection.setDisable(false);
+				allCoursesList.remove("No classes found!");
+			}
 		});
-		allCoursesSelection.setMaxWidth(firststage.getWidth()/8);
+		allCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(allCoursesSelection, 0, 2, 1, 4);
-		
+
 		// elements regarding desired courses
 		Label desiredCoursesLabel = new Label("Desired Courses:");
-		grid.add(desiredCoursesLabel, 2, 0, 1, 1);	
-		
+		grid.add(desiredCoursesLabel, 2, 0, 1, 1);
+
 		TextField desiredCoursesSearch = new TextField();
 		desiredCoursesSearch.setPromptText("Input Course Code");
-		desiredCoursesSearch.setMaxWidth(firststage.getWidth()/8);
-		grid.add(desiredCoursesSearch, 2, 1, 1, 1);	
-		
+		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 8);
+		grid.add(desiredCoursesSearch, 2, 1, 1, 1);
+
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
-		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesList.sorted());
-		desiredCoursesSelection.setMaxWidth(firststage.getWidth()/8);
+		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
+		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
+		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
+			desiredCoursesFilter.setPredicate(d -> {
+				for (String s : d.split(" - ")) { // Allows you to search by code or title (CS1121 or Intro)
+					if (newVal == null || newVal.isEmpty() || s.toLowerCase().contains(newVal.toLowerCase())) { // Case Insensitive
+						return true; // Display all values if it's empty
+					}
+				}
+				return false;
+			});
+			if (desiredCoursesFilter.isEmpty()) {
+				if (!desiredCoursesList.contains("No classes found!")) {
+					desiredCoursesList.add("No classes found!");
+				}
+				desiredCoursesFilter.setPredicate(d -> d.contains("No classes found!"));
+				desiredCoursesSelection.setDisable(true);
+			} else if (desiredCoursesSelection.isDisable()) {
+				desiredCoursesSelection.setDisable(false);
+				desiredCoursesList.remove("No classes found!");
+			}
+		});
+		desiredCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
-		
+
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
-		addCourse.setMaxWidth(firststage.getWidth()/8);
+		addCourse.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(addCourse, 1, 3, 1, 1);
-		
+
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #ff0000;");
-		removeCourse.setMaxWidth(firststage.getWidth()/8);
+		removeCourse.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(removeCourse, 1, 4, 1, 1);
-		
+
 		// buttons
 		addCourse.setOnAction(action -> {
-			desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
-			allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
+			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
+				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
+				if (allCoursesList.isEmpty()) {
+					allCoursesList.add("No classes found!");
+					allCoursesSelection.setDisable(true);
+				}
+				if (desiredCoursesSelection.isDisable()) {
+					desiredCoursesSelection.setDisable(false);
+					desiredCoursesList.remove("No classes found!");
+				}
+			}
 		});
 		removeCourse.setOnAction(action -> {
-			allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
-			desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
+			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
+				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
+				if (desiredCoursesList.isEmpty()) {
+					desiredCoursesList.add("No classes found!");
+					desiredCoursesSelection.setDisable(true);
+				}
+				if (allCoursesSelection.isDisable()) {
+					allCoursesSelection.setDisable(false);
+					allCoursesList.remove("No classes found!");
+				}
+			}
 		});
-		
+
 		// display the GUI
 		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
 		firststage.show();
 	}
 
-
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		Application.launch(args);
 	}
 }
