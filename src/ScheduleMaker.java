@@ -41,8 +41,8 @@ public class ScheduleMaker {
     	//courses = getCC();
     	
     	// Testing
-    	courses.add("EE 3131");
-    	courses.add("EE 2174");
+    	courses.add("EE3131 - Electronics");
+    	courses.add("CS3141 - Team Software Project");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		try {
