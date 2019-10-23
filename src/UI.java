@@ -92,16 +92,16 @@ public class UI extends Application {
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
 		addCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(addCourse, 1, 3, 1, 1);
+		grid.add(addCourse, 2, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #ff0000;");
 		removeCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(removeCourse, 1, 4, 1, 1);
+		grid.add(removeCourse, 2, 4, 1, 1);
 
 		Button schedule = new Button("Create Schedule");
 		schedule.setMaxWidth(firststage.getWidth()/4);
-		grid.add(schedule, 1, 7, 1, 1);
+		grid.add(schedule, 2, 7, 1, 1);
 		
 		//semester list
 		MenuItem semester0 = new MenuItem("Fall 2019");
@@ -110,8 +110,8 @@ public class UI extends Application {
 		MenuItem semester3 = new MenuItem("Fall 2020");
 		MenuItem semester4 = new MenuItem("Spring 2021");
 		MenuButton semesters = new MenuButton("Select Semester", null, semester0, semester1, semester2, semester3, semester4);
-		semesters.setMaxWidth(firststage.getWidth()/4);
-		grid.add(semesters, 1, 2 ,1, 1);
+		semesters.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(semesters, 2, 2 ,1, 1);
 
 		// buttons
 		addCourse.setOnAction(action -> {

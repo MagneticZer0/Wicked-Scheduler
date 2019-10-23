@@ -55,7 +55,7 @@ public class Scraper {
 
 //	public static void main(String[] args) throws IOException, ParseException {
 //		System.out.println(getAllSemesters().toString() + "\n");
-//		getAllClasses(getAllSemesters().get("Fall 2001 (View only)")); // Returns all classes for the Fall 2001 semester
+//		getAllClasses(getAllSemesters().get("Fall 2001")); // Returns all classes for the Fall 2001 semester
 //		for(Map.Entry<String, List<Course>> entry : courses.entrySet()) {
 //			System.out.println(entry.toString());
 //		}
@@ -82,24 +82,13 @@ public class Scraper {
 				searching = true;
 			} else if (searching) {
 				if (regexPattern.matcher(inputLine).lookingAt()) {
-					output.put(inputLine.split("<OPTION VALUE=\".*?>")[1].split("</OPTION>")[0], inputLine.split("<OPTION VALUE=\"")[1].split("\">")[0]);
+					output.put(inputLine.split("<OPTION VALUE=\".*?>")[1].split("</OPTION>")[0].replaceAll(" \\(View only\\)", ""), inputLine.split("<OPTION VALUE=\"")[1].split("\">")[0]);
 				} else {
 					break;
 				}
 			}
 		}
 		in.close();
-		return output;
-	}
-
-	/**
-	 * Does what getAllSemesters does but only returns the ones that don't contain (View only)
-	 * @return A hashmap of semester names to semester IDs.
-	 * @throws IOException If something goes wrong accessing the website.
-	 */
-	public static Map<String, String> getEditableSemesters() throws IOException {
-		Map<String, String> output = getAllSemesters();
-		output.keySet().removeIf(e -> e.contains("View only"));
 		return output;
 	}
 
