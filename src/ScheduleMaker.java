@@ -7,6 +7,7 @@ import collections.MultiMap;
 
 public class ScheduleMaker {
     static ArrayList<Course> currentCourse = new ArrayList<>();
+    private static MultiMap<String, Course> allCourses;
 	 
     /**
      * Get Course code from GUI
@@ -26,7 +27,9 @@ public class ScheduleMaker {
      */
     public static void findCC( String courseName, String semesterID ) {
     	try {
-    		MultiMap<String, Course> allCourses = Scraper.getAllClasses(semesterID);
+    		if( allCourses == null ) {
+    			allCourses = Scraper.getAllClasses(semesterID);
+    		}    		
     		currentCourse.addAll(allCourses.get(courseName));
     		System.out.println("Add course " + allCourses.get(courseName));
     	} catch ( ParseException | IOException ex ) {
@@ -37,16 +40,18 @@ public class ScheduleMaker {
     
     public static void main(String[] args) {
     	ArrayList<String> courses = new ArrayList<>(); // Store the courses from the GUI
+    	
     	// Create the arraylist of selected courses
     	//courses = getCC();
     	
     	// Testing
     	courses.add("EE3131 - Electronics");
-    	courses.add("CS3141 - Team Software Project");
+    	courses.add("CS3411 - Systems Programming");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		try {
-    			findCC( courses.get(j), Scraper.getAllSemesters().get("Spring 2019 (View only)"));
+    			//System.out.println(Scraper.getAllSemesters().toString());
+    			findCC( courses.get(j), Scraper.getAllSemesters().get("Fall 2019"));
     		} catch (IOException ex) {
     			
     		}
@@ -55,17 +60,21 @@ public class ScheduleMaker {
     	// Compare each element in list for a conflict
     	for(int i = 0; i < currentCourse.size(); i++) {
     		for(int j = 0; j < currentCourse.size(); j++) {
+    			if(i == j) {
+    				// Skip
+    				continue;
+    			}
     			if(currentCourse.get(i).conflicts(currentCourse.get(j))) {
     				// Error, classes conflict notify user
-    				System.out.println("Conflict Occured");
+    				System.out.println("Conflict Occured " + currentCourse.get(i) + " " + currentCourse.get(j));
     				return;
     			}
     		}
     	}
     	
     	System.out.println(currentCourse.size());
-    	//System.out.println(currentCourse.get(0).getCRN());
-    	//System.out.println(currentCourse.get(1).getCRN());
+    	System.out.println(currentCourse.get(0).getCRN());
+    	System.out.println(currentCourse.get(1).getCRN());
     	
     	// Build schedule to GUI?   	
     	

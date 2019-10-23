@@ -1,3 +1,4 @@
+import collections.MultiMap;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,7 +50,14 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
 		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-		allCoursesList.addAll("CS1121 - Intro", "CS1122 - Intro Pt. 2", "CS2311 - Discrete", "CS2321 - Data");
+
+		// this block should be added in the semester select action where "200108" is replaced by the desired semester  //
+		MultiMap<String,Course> allCourses = Scraper.getAllClasses("200108");											//
+		for(String code : allCourses.keySet() ) {																		//
+			allCoursesList.add( code );																					//
+		}																												//
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -73,7 +81,7 @@ public class UI extends Application {
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			desiredCoursesFilter.setPredicate(d -> 
+			desiredCoursesFilter.setPredicate(d ->
 				newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
 			);
 		});
@@ -84,12 +92,26 @@ public class UI extends Application {
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
 		addCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(addCourse, 2, 3, 1, 1);
+		grid.add(addCourse, 1, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #ff0000;");
-		removeCourse.setMaxWidth(firststage.getWidth() / 8);
-		grid.add(removeCourse, 2, 4, 1, 1);
+		removeCourse.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(removeCourse, 1, 4, 1, 1);
+
+		Button schedule = new Button("Create Schedule");
+		schedule.setMaxWidth(firststage.getWidth()/4);
+		grid.add(schedule, 1, 7, 1, 1);
+		
+		//semester list
+		MenuItem semester0 = new MenuItem("Fall 2019");
+		MenuItem semester1 = new MenuItem("Spring 2020");
+		MenuItem semester2 = new MenuItem("Summer 2020");
+		MenuItem semester3 = new MenuItem("Fall 2020");
+		MenuItem semester4 = new MenuItem("Spring 2021");
+		MenuButton semesters = new MenuButton("Select Semester", null, semester0, semester1, semester2, semester3, semester4);
+		semesters.setMaxWidth(firststage.getWidth()/4);
+		grid.add(semesters, 1, 2 ,1, 1);
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -104,7 +126,11 @@ public class UI extends Application {
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
-
+		schedule.setOnAction(action -> {
+			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				//implement scheduling logic
+			}
+		});
 		// display the GUI
 		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
