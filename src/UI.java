@@ -60,17 +60,8 @@ public class UI extends Application {
 				}
 				return false;
 			});
-			if (allCoursesFilter.isEmpty()) {
-				if (!allCoursesList.contains("No classes found!")) {
-					allCoursesList.add("No classes found!");
-				}
-				allCoursesFilter.setPredicate(d -> d.contains("No classes found!"));
-				allCoursesSelection.setDisable(true);
-			} else if (allCoursesSelection.isDisable()) {
-				allCoursesSelection.setDisable(false);
-				allCoursesList.remove("No classes found!");
-			}
 		});
+		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(allCoursesSelection, 0, 2, 1, 4);
 
@@ -95,17 +86,8 @@ public class UI extends Application {
 				}
 				return false;
 			});
-			if (desiredCoursesFilter.isEmpty()) {
-				if (!desiredCoursesList.contains("No classes found!")) {
-					desiredCoursesList.add("No classes found!");
-				}
-				desiredCoursesFilter.setPredicate(d -> d.contains("No classes found!"));
-				desiredCoursesSelection.setDisable(true);
-			} else if (desiredCoursesSelection.isDisable()) {
-				desiredCoursesSelection.setDisable(false);
-				desiredCoursesList.remove("No classes found!");
-			}
 		});
+		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMaxWidth(firststage.getWidth() / 8);
 		grid.add(desiredCoursesSelection, 2, 2, 1, 4);
 
@@ -124,28 +106,12 @@ public class UI extends Application {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
-				if (allCoursesList.isEmpty()) {
-					allCoursesList.add("No classes found!");
-					allCoursesSelection.setDisable(true);
-				}
-				if (desiredCoursesSelection.isDisable()) {
-					desiredCoursesSelection.setDisable(false);
-					desiredCoursesList.remove("No classes found!");
-				}
 			}
 		});
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
-				if (desiredCoursesList.isEmpty()) {
-					desiredCoursesList.add("No classes found!");
-					desiredCoursesSelection.setDisable(true);
-				}
-				if (allCoursesSelection.isDisable()) {
-					allCoursesSelection.setDisable(false);
-					allCoursesList.remove("No classes found!");
-				}
 			}
 		});
 
