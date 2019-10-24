@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -101,7 +102,8 @@ public class UI extends Application {
 
 		Button schedule = new Button("Create Schedule");
 		schedule.setMaxWidth(firststage.getWidth()/4);
-		grid.add(schedule, 2, 7, 1, 1);
+		grid.add(schedule, 2, 5, 1, 1);
+		GridPane.setValignment(schedule, VPos.BOTTOM);
 		
 		//semester list
 		MenuItem semester0 = new MenuItem("Fall 2019");
