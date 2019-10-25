@@ -299,7 +299,7 @@ public class Scraper {
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirString + "coursesMap.ser"))) {
 			out.writeObject(allCoursesMap);
 		} catch (IOException e) {
-			e.printStackTrace(); //
+			e.printStackTrace(); // If you can't access the file or it doesn't exist start fresh!
 		}
 	}
 
