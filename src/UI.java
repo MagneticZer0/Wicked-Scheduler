@@ -23,6 +23,7 @@ import javafx.stage.StageStyle;
 public class UI extends Application {
 
 	private ObservableList<String> allCoursesList = FXCollections.observableArrayList();
+	private ObservableList<String> allSemestersList = FXCollections.observableArrayList();
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 
@@ -49,6 +50,7 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
+		//grid.setGridLinesVisible(true);
 
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
@@ -60,6 +62,7 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
 		allCoursesList = FXCollections.observableArrayList();
+		allSemestersList = FXCollections.observableArrayList();
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
@@ -112,6 +115,7 @@ public class UI extends Application {
 		ObservableList<String> semesterOptions = FXCollections.observableArrayList();
 		semesterOptions.addAll("Spring 1", "Spring 2", "Spring3");
 		ComboBox<String> semesters = new ComboBox<>(semesterOptions);
+		semesters.setPromptText("Select Semester"); 
 		semesters.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(semesters, 2, 2, 1, 1);
 
@@ -139,6 +143,27 @@ public class UI extends Application {
 		firststage.show();
 	}
 
+	private void loadSemester( ) {
+		checkLoading();
+		allCoursesList.clear();
+
+		new Thread(() -> {
+			try {
+				Scraper.getAllSemesters();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Platform.runLater(() -> {
+				try {
+					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
+			});
+		}).start();
+	}
+	
 	private void loadCourses(String semesterID) {
 		checkLoading();
 		allCoursesList.clear();
