@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+
 import collections.MultiMap;
 
 import collections.MultiMap;
@@ -29,10 +31,11 @@ public class ScheduleMaker {
     	try {
     		if( allCourses == null ) {
     			allCourses = Scraper.getAllClasses(semesterID);
+    			//Collections.sort(allCourses);
     		}    		
     		currentCourse.addAll(allCourses.get(courseName));
     		System.out.println("Add course " + allCourses.get(courseName));
-    	} catch ( ParseException | IOException ex ) {
+    	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
     		System.exit(0);
     	}
@@ -45,6 +48,7 @@ public class ScheduleMaker {
     	//courses = getCC();
     	
     	// Testing
+    	
     	courses.add("EE3131 - Electronics");
     	courses.add("CS3411 - Systems Programming");
     	
@@ -56,6 +60,9 @@ public class ScheduleMaker {
     			
     		}
     	}
+    	
+    	Collections.sort(currentCourse);
+    	
     	
     	// Compare each element in list for a conflict
     	for(int i = 0; i < currentCourse.size(); i++) {
@@ -73,8 +80,9 @@ public class ScheduleMaker {
     	}
     	
     	System.out.println(currentCourse.size());
-    	System.out.println(currentCourse.get(0).getCRN());
-    	System.out.println(currentCourse.get(1).getCRN());
+    	for(int i = 0; i < currentCourse.size(); i++) {
+    		System.out.println(currentCourse.get(i));
+    	}
     	
     	// Build schedule to GUI?   	
     	
