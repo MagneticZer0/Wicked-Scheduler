@@ -111,9 +111,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @param date       The dates that the class is held. Must be in format
 	 *                   M1/D1-M2/D2|YEAR
 	 * @param fee        The fee to take the class
-	 * @throws ParseException If the data is not formatted in the way expected.
 	 */
-	public Course(String CRN, String subject, String courseCode, boolean isLab, List<Double> credits, String title, String days, String time, String remaining, String instructor, String date, double fee) throws ParseException {
+	public Course(String CRN, String subject, String courseCode, boolean isLab, List<Double> credits, String title, String days, String time, String remaining, String instructor, String date, double fee) {
 		this.days = new ArrayList<>();
 		this.startTime = new ArrayList<>();
 		this.endTime = new ArrayList<>();
@@ -421,17 +420,20 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	/**
 	 * 
 	 * @param date Must be in format MM/dd/yyyy
-	 * @return
-	 * @throws ParseException
+	 * @return Returns a LocalDate object representing the date the class takes place. If an exception occurs parsing the date it will instead return 1/1/1970 00:00:00
 	 */
-	private Date parseDate(String date) throws ParseException {
-		return new SimpleDateFormat("MM/dd/yyyy").parse(date);
+	private Date parseDate(String date) {
+		try {
+			return new SimpleDateFormat("MM/dd/yyyy").parse(date);
+		} catch (ParseException e) {
+			return new Date(Long.MIN_VALUE);
+		}
 	}
 
 	/**
 	 * 
 	 * @param time Must be in format HH:mm am/pm
-	 * @return
+	 * @return Returns a LocalTime object that signifies that time to the class takes place
 	 */
 	private LocalTime parseTime(String time) {
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("h:mm a").toFormatter(Locale.ENGLISH);

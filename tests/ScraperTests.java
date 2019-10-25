@@ -13,7 +13,6 @@ import collections.MultiMap;
 public class ScraperTests {
 
 	static Map<String, String> semesters;
-	static Map<String, String> editSemesters;
 	static List<String> categories;
 	static MultiMap<String, Course> courses;
 
@@ -28,14 +27,6 @@ public class ScraperTests {
 		new Thread(() -> {
 			try {
 				semesters = Scraper.getAllSemesters();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			latch.countDown();
-		}).start();
-		new Thread(() -> {
-			try {
-				editSemesters = Scraper.getEditableSemesters();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -63,11 +54,6 @@ public class ScraperTests {
 	@Test
 	public void getAllSemesters() throws IOException {
 		assertAll("getAllSemesters map is incorrect", () -> assertTrue(semesters.keySet().contains("Fall 2001 (View only)"), "Fall 2001 is not in semesters!"), () -> assertEquals("200108", semesters.get("Fall 2001 (View only)"), "Fall 2001 id does not match expected!"));
-	}
-
-	@Test
-	public void getEditableSemesters() {
-		assertFalse(editSemesters.keySet().stream().anyMatch(e -> e.contains("view only")), "getEditableSemesters contains a key with view only!");
 	}
 
 	@Test

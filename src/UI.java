@@ -1,5 +1,9 @@
+import java.io.IOException;
+import java.text.ParseException;
+
 import collections.MultiMap;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -17,20 +21,23 @@ import javafx.stage.StageStyle;
  */
 public class UI extends Application {
 
+	private ObservableList<String> allCoursesList = FXCollections.observableArrayList();
+	private ListView<String> allCoursesSelection = null;
+
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
 	 * been initialized
 	 *
 	 * @param firststage - a pre-made stage created by Application.launch
 	 */
-	public void start(Stage firststage) throws Exception {
+	public void start(Stage firststage) {
 
 		// set window properties
 		firststage.setTitle("Wicked Scheduler");
 		firststage.setX(250);
 		firststage.setY(50);
 		firststage.setWidth(1000);
-		firststage.setMinWidth(637);
+		firststage.setMinWidth(650);
 		firststage.setHeight(700);
 		firststage.setMinHeight(486);
 		firststage.initStyle(StageStyle.DECORATED);
@@ -50,17 +57,10 @@ public class UI extends Application {
 		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
-		ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-
-		// this block should be added in the semester select action where "200108" is replaced by the desired semester  //
-		MultiMap<String,Course> allCourses = Scraper.getAllClasses("200108");											//
-		for(String code : allCourses.keySet() ) {																		//
-			allCoursesList.add( code );																					//
-		}																												//
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		allCoursesList = FXCollections.observableArrayList();
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
-		ListView<String> allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
+		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
 				allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
 			);
@@ -68,6 +68,8 @@ public class UI extends Application {
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
+
+		loadCourses("200108");
 
 		// elements regarding desired courses
 		Label desiredCoursesLabel = new Label("Desired Courses:");
@@ -137,6 +139,26 @@ public class UI extends Application {
 		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
 		firststage.show();
+	}
+
+	private void loadCourses(String semesterID) {
+		allCoursesSelection.setPlaceholder(new Label("Loading classes..."));
+		new Thread(() -> {
+			try {
+				Scraper.getAllClasses(semesterID);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Platform.runLater(() -> {
+				allCoursesList.clear();
+				try {
+					allCoursesList.addAll(Scraper.getAllClasses(semesterID).keySet());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
+			});
+		}).start();
 	}
 
 	/**

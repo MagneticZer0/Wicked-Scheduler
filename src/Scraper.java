@@ -1,6 +1,12 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,7 +43,8 @@ public class Scraper {
 	 */
 	private static final String CATEGORY_SELECT_URL = "https://www.banweb.mtu.edu/owassb/bwckgens.p_proc_term_date";
 	/**
-	 * The tertiary page, this display all classes available for the category choosen.
+	 * The tertiary page, this display all classes available for the category
+	 * choosen.
 	 */
 	private static final String CLASS_LIST_URL = "https://www.banweb.mtu.edu/owassb/bzckschd.p_get_crse_unsec";
 	/**
@@ -45,13 +52,26 @@ public class Scraper {
 	 */
 	private static final String DUMMY_VALUE = "dummy";
 	/**
-	 * Use agent used when visiting the website, this makes it think we're using Chrome.
+	 * Use agent used when visiting the website, this makes it think we're using
+	 * Chrome.
 	 */
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 	/**
 	 * The output of the getAllClasses method
 	 */
 	public static MultiMap<String, Course> courses = new MultiMap<>();
+	/**
+	 * A map that maps a semesterID string to a MultiMap of all courses for that
+	 * semester
+	 */
+	private static HashMap<String, MultiMap<String, Course>> allCoursesMap = null;
+
+	/**
+	 * Make the constructor private since everything in Scraper is static
+	 */
+	private Scraper() {
+		throw new UnsupportedOperationException(); // Just in case they try to do it through reflection
+	}
 
 //	public static void main(String[] args) throws IOException, ParseException {
 //		System.out.println(getAllSemesters().toString() + "\n");
@@ -63,7 +83,9 @@ public class Scraper {
 //	}
 
 	/**
-	 * Accesses the COURSE_SELECT_URL link and takes all the semesters that Michigan Tech offers
+	 * Accesses the COURSE_SELECT_URL link and takes all the semesters that Michigan
+	 * Tech offers
+	 * 
 	 * @return A Hashmap of semester names to semester IDs.
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
@@ -93,8 +115,11 @@ public class Scraper {
 	}
 
 	/**
-	 * Gets all categories within a given semster by searching it by the semester ID.
-	 * @param semesterID The semester ID for the semester, this is given by the map given by {@link getAllSemesters()}
+	 * Gets all categories within a given semster by searching it by the semester
+	 * ID.
+	 * 
+	 * @param semesterID The semester ID for the semester, this is given by the map
+	 *                   given by {@link getAllSemesters()}
 	 * @return Returns a list of available categories.
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
@@ -128,13 +153,20 @@ public class Scraper {
 	}
 
 	/**
-	 * Returns all classes of all categories within a given semester by the semester ID.
-	 * @param semesterID The semester Id for the semester, this is given by the map given by {@link getAllSemesters()} 
+	 * Returns all classes of all categories within a given semester by the semester
+	 * ID.
+	 * 
+	 * @param semesterID The semester Id for the semester, this is given by the map
+	 *                   given by {@link getAllSemesters()}
 	 * @return Returns a list of Class objects for the given semester
 	 * @throws IOException If something goes wrong accessing the website.
-	 * @throws ParseException If something goes wrong parsing the website.
 	 */
-	public static MultiMap<String, Course> getAllClasses(String semesterID) throws IOException, ParseException {
+	public static MultiMap<String, Course> getAllClasses(String semesterID) throws IOException {
+		courses.clear();
+		loadCourses();
+		if (allCoursesMap.get(semesterID) != null) {
+			return allCoursesMap.get(semesterID);
+		}
 		List<String> categories = getCategories(semesterID);
 
 		String year = semesterID.substring(0, 4);
@@ -193,20 +225,24 @@ public class Scraper {
 							inRow = false;
 							String[] classInfo = input.split("\\|");
 							if (classInfo.length > 10) { // Because there's some classes that happen multiple times a day, or at
-														 // different times on different days.
+															// different times on different days.
 								if (classInfo[0].trim().isEmpty() && previousClass != null) {
 									previousClass.addDayandTime(classInfo[7] + "|" + classInfo[8]);
 								} else {
 									double fee = 0;
 									if (classInfo.length > 15) {
-										for(int i=classInfo.length-1; i>15; i--) {
+										for (int i = classInfo.length - 1; i > 15; i--) {
 											String[] dollarSplit = classInfo[i].split("\\$");
-											fee += NumberFormat.getInstance().parse(dollarSplit[1]).doubleValue();
+											try {
+												fee += NumberFormat.getInstance().parse(dollarSplit[1]).doubleValue();
+											} catch (ParseException e) {
+												fee += 0; // If there's an exception parsing just make it 0
+											}
 										}
 									}
 									ArrayList<Double> credits = new ArrayList<>();
 									String[] credSplit = classInfo[5].split("-");
-									for(String s : credSplit) {
+									for (String s : credSplit) {
 										credits.add(Double.parseDouble(s));
 									}
 									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], classInfo[3].contains("L"), credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
@@ -230,33 +266,73 @@ public class Scraper {
 			}
 		}
 		in.close();
+		allCoursesMap.put(semesterID, courses);
+		saveCourses();
 		return courses;
 	}
 
 	/**
-	 * Returns a {@link java.io.BufferedReader} for a given webpage, can be used for reading the source of the page
+	 * Writes the allCoursesMap object to the disk
+	 */
+	private static void saveCourses() {
+		String dirString = System.getProperty("user.home") + "\\Wicked-Scheduler\\";
+		File directory = new File(dirString); // Create directory
+		if (!directory.exists()) {
+			directory.mkdir();
+		}
+
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirString + "coursesMap.ser"))) {
+			out.writeObject(allCoursesMap);
+		} catch (IOException e) {
+			e.printStackTrace(); //
+		}
+	}
+
+	/**
+	 * Loads the allCoursesMap object from disk to memory
+	 */
+	private static void loadCourses() {
+		File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
+		if (coursesMap.exists()) {
+			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
+				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
+			} catch (IOException | ClassNotFoundException e) {
+				allCoursesMap = new HashMap<>(); // If we can't read it just start fresh
+			}
+		}
+	}
+
+	/**
+	 * Returns a {@link java.io.BufferedReader} for a given webpage, can be used for
+	 * reading the source of the page
+	 * 
 	 * @param url The URL to get the BufferedReader for.
 	 * @return Returns the BufferedReader for that website.
-	 * @throws IOException If something geso wrong accessing the website.
 	 */
-	private static BufferedReader getWebPage(String url) throws IOException {
-		// Add caching?
-		URL link = new URL(url);
-		URLConnection connection = link.openConnection();
-		connection.setRequestProperty("User-Agent", USER_AGENT); // Make the website think that you're using Chrome
-		// Maybe add a timeout somewhere
+	private static BufferedReader getWebPage(String url) {
+		try {
+			URL link = new URL(url);
+			URLConnection connection = link.openConnection();
+			connection.setRequestProperty("User-Agent", USER_AGENT); // Make the website think that you're using Chrome
+			// Maybe add a timeout somewhere
 
-		return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
+			return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
+		} catch (IOException e) {
+			e.printStackTrace(); // It shouldn't ever get here, but if it does I wanna know why
+			System.exit(-1); // Exit gracefully
+			return null; // Because the IDE was complaining about a return
+		}
 	}
 
 	/**
 	 * Sends a web form to the website with a given map of arguments
-	 * @param url The URL to send the web form to
+	 * 
+	 * @param url       The URL to send the web form to
 	 * @param arguments The map of arguments to send within the web form
-	 * @return Returns a BufferedReader, tpyically for reading the source of the page
-	 * @throws IOException If something geos wrong accessing the website.
+	 * @return Returns a BufferedReader, tpyically for reading the source of the
+	 *         page
 	 */
-	private static BufferedReader sendWebForm(String url, Map<String, String> arguments) throws IOException {
+	private static BufferedReader sendWebForm(String url, Map<String, String> arguments) {
 		StringJoiner argJoiner = new StringJoiner("&");
 		for (Map.Entry<String, String> argument : arguments.entrySet()) {
 			joinerHelper(argJoiner, argument.getKey(), argument.getValue());
@@ -266,41 +342,54 @@ public class Scraper {
 
 	/**
 	 * Sends a web form to the website with a given StringJoiner
-	 * @param url The URL to send the web form to
+	 * 
+	 * @param url       The URL to send the web form to
 	 * @param arguments The StringJoiner of arguments to send within the web form
-	 * @return Returns a BufferedReader, tpyically for reading the source of the page
-	 * @throws IOException If something geos wrong accessing the website.
+	 * @return Returns a BufferedReader, tpyically for reading the source of the
+	 *         page
 	 */
-	private static BufferedReader sendWebForm(String url, StringJoiner arguments) throws IOException {
-		byte[] form = arguments.toString().getBytes(StandardCharsets.UTF_8);
+	private static BufferedReader sendWebForm(String url, StringJoiner arguments) {
+		try {
+			byte[] form = arguments.toString().getBytes(StandardCharsets.UTF_8);
 
-		URL link = new URL(url);
-		HttpURLConnection connection = (HttpURLConnection) link.openConnection();
+			URL link = new URL(url);
+			HttpURLConnection connection = (HttpURLConnection) link.openConnection();
 
-		connection.setRequestMethod("POST");
-		connection.setDoOutput(true);
-		connection.setFixedLengthStreamingMode(form.length);
-		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + StandardCharsets.UTF_8);
-		connection.connect();
-		connection.getOutputStream().write(form);
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setFixedLengthStreamingMode(form.length);
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + StandardCharsets.UTF_8);
+			connection.connect();
+			connection.getOutputStream().write(form);
 
-		return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
+			return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
+		} catch (IOException e) {
+			e.printStackTrace(); // It shouldn't ever get here, but if it does I wanna know why
+			System.exit(-1); // Exit gracefully
+			return null; // Because the IDE was complaining about a return
+		}
 	}
 
 	/**
-	 * A helper function used to create the web form for getting all classes within a semester
+	 * A helper function used to create the web form for getting all classes within
+	 * a semester
+	 * 
 	 * @param joiner The joiner to use
-	 * @param key The key for the argument
-	 * @param value The value for the argument
+	 * @param key    The key for the argument
+	 * @param value  The value for the argument
 	 * @return Returns that StringJoiner
-	 * @throws UnsupportedEncodingException If something goes wrong when encoding the strings
 	 */
-	private static StringJoiner joinerHelper(StringJoiner joiner, String key, String value) throws UnsupportedEncodingException {
-		return joiner.add(URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8"));
+	private static StringJoiner joinerHelper(StringJoiner joiner, String key, String value) {
+		try {
+			return joiner.add(URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			return joiner.add(key + "=" + value); // As far as I know none of them need formatting anyways
+		}
 	}
 
 	/**
 	 * Gets the values within tags.
+	 * 
 	 * @param str The line to get the tag for
 	 * @return Returns the most inner tag
 	 */
