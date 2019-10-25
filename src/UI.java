@@ -108,12 +108,9 @@ public class UI extends Application {
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 
 		// semester list
-		MenuItem semester0 = new MenuItem("Fall 2019");
-		MenuItem semester1 = new MenuItem("Spring 2020");
-		MenuItem semester2 = new MenuItem("Summer 2020");
-		MenuItem semester3 = new MenuItem("Fall 2020");
-		MenuItem semester4 = new MenuItem("Spring 2021");
-		MenuButton semesters = new MenuButton("Select Semester", null, semester0, semester1, semester2, semester3, semester4);
+		ObservableList<String> semesterOptions = FXCollections.observableArrayList();
+		semesterOptions.addAll("Spring 1", "Spring 2", "Spring3");
+		ComboBox<String> semesters = new ComboBox<>(semesterOptions);
 		semesters.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(semesters, 2, 2, 1, 1);
 
