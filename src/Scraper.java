@@ -154,7 +154,8 @@ public class Scraper {
 
 	/**
 	 * Returns all classes of all categories within a given semester by the semester
-	 * ID.
+	 * ID. Also updates the cache files if new things are added. It will also allow
+	 * you to force update cache files if you want to.
 	 * 
 	 * @param semesterID The semester Id for the semester, this is given by the map
 	 *                   given by {@link getAllSemesters()}
@@ -162,9 +163,24 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
 	public static MultiMap<String, Course> getAllClasses(String semesterID) throws IOException {
+		return getAllClasses(semesterID, false);
+	}
+
+	/**
+	 * Returns all classes of all categories within a given semester by the semester
+	 * ID. Also updates the cache files if new things are added
+	 * 
+	 * @param semesterID  The semester Id for the semester, this is given by the map
+	 *                    given by {@link getAllSemesters()}
+	 * @param forceUpdate If the Scraper should just update the list of classes
+	 *                    anyways
+	 * @return Returns a list of Class objects for the given semester
+	 * @throws IOException If something goes wrong accessing the website.
+	 */
+	public static MultiMap<String, Course> getAllClasses(String semesterID, boolean forceUpdate) throws IOException {
 		courses.clear();
 		loadCourses();
-		if (allCoursesMap.get(semesterID) != null) {
+		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
 			return allCoursesMap.get(semesterID);
 		}
 		List<String> categories = getCategories(semesterID);
