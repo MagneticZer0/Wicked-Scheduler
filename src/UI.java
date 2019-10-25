@@ -23,6 +23,7 @@ public class UI extends Application {
 
 	private ObservableList<String> allCoursesList = FXCollections.observableArrayList();
 	private ListView<String> allCoursesSelection = null;
+	private VBox loadingBox = null;
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -62,7 +63,7 @@ public class UI extends Application {
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-				allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
+			allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
 			);
 		});
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
@@ -84,8 +85,7 @@ public class UI extends Application {
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			desiredCoursesFilter.setPredicate(d ->
-				newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
+			desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
 			);
 		});
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
@@ -103,11 +103,11 @@ public class UI extends Application {
 		grid.add(removeCourse, 2, 4, 1, 1);
 
 		Button schedule = new Button("Create Schedule");
-		schedule.setMaxWidth(firststage.getWidth()/4);
+		schedule.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
-		
-		//semester list
+
+		// semester list
 		MenuItem semester0 = new MenuItem("Fall 2019");
 		MenuItem semester1 = new MenuItem("Spring 2020");
 		MenuItem semester2 = new MenuItem("Summer 2020");
@@ -115,7 +115,7 @@ public class UI extends Application {
 		MenuItem semester4 = new MenuItem("Spring 2021");
 		MenuButton semesters = new MenuButton("Select Semester", null, semester0, semester1, semester2, semester3, semester4);
 		semesters.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(semesters, 2, 2 ,1, 1);
+		grid.add(semesters, 2, 2, 1, 1);
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -132,7 +132,7 @@ public class UI extends Application {
 		});
 		schedule.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
-				//implement scheduling logic
+				// implement scheduling logic
 			}
 		});
 		// display the GUI
@@ -142,7 +142,10 @@ public class UI extends Application {
 	}
 
 	private void loadCourses(String semesterID) {
-		allCoursesSelection.setPlaceholder(new Label("Loading classes..."));
+		checkLoading();
+		allCoursesList.clear();
+		allCoursesSelection.setPlaceholder(loadingBox);
+
 		new Thread(() -> {
 			try {
 				Scraper.getAllClasses(semesterID);
@@ -150,7 +153,6 @@ public class UI extends Application {
 				e.printStackTrace();
 			}
 			Platform.runLater(() -> {
-				allCoursesList.clear();
 				try {
 					allCoursesList.addAll(Scraper.getAllClasses(semesterID).keySet());
 				} catch (Exception e) {
@@ -159,6 +161,17 @@ public class UI extends Application {
 				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 			});
 		}).start();
+	}
+
+	private void checkLoading() {
+		if (loadingBox == null) {
+			loadingBox = new VBox();
+			loadingBox.getChildren().add(new Label("Loading classes..."));
+			loadingBox.getChildren().add(new ProgressIndicator());
+			loadingBox.setAlignment(Pos.CENTER);
+			loadingBox.setSpacing(10);
+			allCoursesSelection.setPlaceholder(loadingBox);
+		}
 	}
 
 	/**

@@ -420,7 +420,9 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	/**
 	 * 
 	 * @param date Must be in format MM/dd/yyyy
-	 * @return Returns a LocalDate object representing the date the class takes place. If an exception occurs parsing the date it will instead return 1/1/1970 00:00:00
+	 * @return Returns a LocalDate object representing the date the class takes
+	 *         place. If an exception occurs parsing the date it will instead return
+	 *         1/1/1970 00:00:00
 	 */
 	private Date parseDate(String date) {
 		try {
@@ -433,7 +435,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	/**
 	 * 
 	 * @param time Must be in format HH:mm am/pm
-	 * @return Returns a LocalTime object that signifies that time to the class takes place
+	 * @return Returns a LocalTime object that signifies that time to the class
+	 *         takes place
 	 */
 	private LocalTime parseTime(String time) {
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("h:mm a").toFormatter(Locale.ENGLISH);
@@ -528,7 +531,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 
 	public static <T extends Course> MultiMap<Course, Course> getConflicts(T[] courses) {
 		BiPredicateMultiMap<Course> map = new BiPredicateMultiMap<>((x, y) -> x.conflicts(y));
-		for(Course course : courses) {
+		for (Course course : courses) {
 			map.put(course);
 		}
 		return map;

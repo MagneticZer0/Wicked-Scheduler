@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 import collections.MultiMap;
 
 public class ExampleOutputSaver {
-	
+
 	String file = System.getProperty("user.home") + "\\Wicked-Scheduler\\" + "courses.ser";
 
 	public void setup() throws IOException {
