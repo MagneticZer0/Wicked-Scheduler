@@ -180,6 +180,7 @@ public class Scraper {
 		courses.clear();
 		loadCourses();
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
+			courses = allCoursesMap.get(semesterID);
 			return allCoursesMap.get(semesterID);
 		}
 		List<String> categories = getCategories(semesterID);
