@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
 
 import collections.MultiMap;
 import javafx.application.Application;
@@ -169,6 +170,16 @@ public class UI extends Application {
 			loadingBox.setSpacing(10);
 			allCoursesSelection.setPlaceholder(loadingBox);
 		}
+	}
+
+	private String defaultSemester() {
+		Calendar date = Calendar.getInstance();
+		if (date.get(Calendar.MONTH) >= 8 && date.get(Calendar.MONTH) <= 12) {
+			return "Spring " + date.get(Calendar.YEAR)+1;
+		} else {
+			return "Fall " + date.get(Calendar.YEAR);
+		}
+		
 	}
 
 	/**
