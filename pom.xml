@@ -64,5 +64,10 @@
   		<version>1.5.1</version>
   		<scope>test</scope>
   	</dependency>
+  	<dependency>
+  		<groupId>com.calendarfx</groupId>
+  		<artifactId>view</artifactId>
+  		<version>11.8.3</version>
+  	</dependency>
   </dependencies>
 </project>

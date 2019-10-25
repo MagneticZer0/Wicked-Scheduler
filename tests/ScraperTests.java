@@ -43,7 +43,7 @@ public class ScraperTests {
 		new Thread(() -> {
 			try {
 				courses = Scraper.getAllClasses("200108");
-			} catch (IOException | ParseException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			latch.countDown();

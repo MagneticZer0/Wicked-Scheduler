@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,7 +56,7 @@ public class Scraper {
 	 */
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 	/**
-	 * The output of the getAllClasses method
+	 * The most recent output of the getAllClasses method
 	 */
 	public static MultiMap<String, Course> courses = new MultiMap<>();
 	/**
@@ -309,12 +308,10 @@ public class Scraper {
 	 */
 	private static void loadCourses() {
 		File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
-		if (coursesMap.exists()) {
-			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
-				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
-			} catch (IOException | ClassNotFoundException e) {
-				allCoursesMap = new HashMap<>(); // If we can't read it just start fresh
-			}
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
+			allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			allCoursesMap = new HashMap<>(); // If we can't read it just start fresh
 		}
 	}
 
