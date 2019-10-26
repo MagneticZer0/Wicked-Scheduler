@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
 
 import collections.MultiMap;
 import javafx.application.Application;
@@ -50,7 +53,7 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
-		//grid.setGridLinesVisible(true);
+		// grid.setGridLinesVisible(true);
 
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
@@ -60,9 +63,6 @@ public class UI extends Application {
 		allCoursesSearch.setPromptText("Input Course Code");
 		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
-
-		allCoursesList = FXCollections.observableArrayList();
-		allSemestersList = FXCollections.observableArrayList();
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
@@ -112,12 +112,37 @@ public class UI extends Application {
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 
 		// semester list
-		ObservableList<String> semesterOptions = FXCollections.observableArrayList();
-		semesterOptions.addAll("Spring 1", "Spring 2", "Spring3");
-		ComboBox<String> semesters = new ComboBox<>(semesterOptions);
-		semesters.setPromptText("Select Semester"); 
+		ComboBox<String> semesters = new ComboBox<>(allSemestersList.sorted(new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				return value(arg0)-value(arg1);
+			}
+
+			private int value(String str) {
+				int value = 0;
+				String[] spl = str.split(" ");
+				switch (spl[0]) {
+					case "Spring":
+						value += 1;
+						break;
+					case "Summer":
+						value += 2;
+						break;
+					case "Fall":
+						value += 3;
+						break;
+					case "Winter":
+						value += 4;
+				}
+				return value + Integer.parseInt(spl[1]) * 10;
+			}
+		}));
+		semesters.setPromptText("Select Semester");
 		semesters.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(semesters, 2, 2, 1, 1);
+
+		loadSemesters();
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -143,19 +168,12 @@ public class UI extends Application {
 		firststage.show();
 	}
 
-	private void loadSemester( ) {
-		checkLoading();
-		allCoursesList.clear();
-
+	private void loadSemesters() {
 		new Thread(() -> {
-			try {
-				Scraper.getAllSemesters();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			Map<String, String> semesters = Scraper.getAllSemesters();
 			Platform.runLater(() -> {
 				try {
-					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+					allSemestersList.addAll(semesters.keySet());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -163,7 +181,7 @@ public class UI extends Application {
 			});
 		}).start();
 	}
-	
+
 	private void loadCourses(String semesterID) {
 		checkLoading();
 		allCoursesList.clear();
@@ -200,11 +218,11 @@ public class UI extends Application {
 	private String defaultSemester() {
 		Calendar date = Calendar.getInstance();
 		if (date.get(Calendar.MONTH) >= 8 && date.get(Calendar.MONTH) <= 12) {
-			return "Spring " + date.get(Calendar.YEAR)+1;
+			return "Spring " + date.get(Calendar.YEAR) + 1;
 		} else {
 			return "Fall " + date.get(Calendar.YEAR);
 		}
-		
+
 	}
 
 	/**

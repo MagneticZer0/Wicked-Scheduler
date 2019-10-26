@@ -88,7 +88,7 @@ public class Scraper {
 	 * @return A Hashmap of semester names to semester IDs.
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
-	public static Map<String, String> getAllSemesters() throws IOException {
+	public static Map<String, String> getAllSemesters() {
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
 		boolean searching = false;
@@ -98,18 +98,23 @@ public class Scraper {
 		Pattern regexPattern = Pattern.compile(regex);
 
 		String inputLine = null;
-		while ((inputLine = in.readLine()) != null) {
-			if (inputLine.contains("term_input_id") && inputLine.contains("p_term")) {
-				searching = true;
-			} else if (searching) {
-				if (regexPattern.matcher(inputLine).lookingAt()) {
-					output.put(inputLine.split("<OPTION VALUE=\".*?>")[1].split("</OPTION>")[0].replaceAll(" \\(View only\\)", ""), inputLine.split("<OPTION VALUE=\"")[1].split("\">")[0]);
-				} else {
-					break;
+		try {
+			while ((inputLine = in.readLine()) != null) {
+				if (inputLine.contains("term_input_id") && inputLine.contains("p_term")) {
+					searching = true;
+				} else if (searching) {
+					if (regexPattern.matcher(inputLine).lookingAt()) {
+						output.put(inputLine.split("<OPTION VALUE=\".*?>")[1].split("</OPTION>")[0].replaceAll(" \\(View only\\)", ""), inputLine.split("<OPTION VALUE=\"")[1].split("\">")[0]);
+					} else {
+						break;
+					}
 				}
 			}
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace(); // It shouldn't get here, but if it does print it out.
 		}
-		in.close();
+		output.remove("None");
 		return output;
 	}
 
