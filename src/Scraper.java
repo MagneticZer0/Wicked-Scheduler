@@ -56,6 +56,14 @@ public class Scraper {
 	 */
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 	/**
+	 * Stores the list of semesters to semester IDs
+	 */
+	private static Map<String, String> semesters = null;
+	/**
+	 * Stores the last semester ID used to get classes for, used from improved efficiency
+	 */
+	private static String lastSemesterID = "";
+	/**
 	 * The most recent output of the getAllClasses method
 	 */
 	public static MultiMap<String, Course> courses = new MultiMap<>();
@@ -89,6 +97,9 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
 	public static Map<String, String> getAllSemesters() {
+		if (semesters != null) {
+			return semesters;
+		}
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
 		boolean searching = false;
@@ -115,6 +126,7 @@ public class Scraper {
 			e.printStackTrace(); // It shouldn't get here, but if it does print it out.
 		}
 		output.remove("None");
+		semesters = output;
 		return output;
 	}
 
@@ -182,6 +194,11 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
 	public static MultiMap<String, Course> getAllClasses(String semesterID, boolean forceUpdate) throws IOException {
+		if (lastSemesterID.equals(semesterID)) {
+			return courses;
+		} else {
+			lastSemesterID = semesterID;
+		}
 		courses.clear();
 		loadCourses();
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {

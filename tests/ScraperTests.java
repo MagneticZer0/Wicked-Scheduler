@@ -1,7 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -25,11 +24,7 @@ public class ScraperTests {
 	public static void setup() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(4);
 		new Thread(() -> {
-			try {
-				semesters = Scraper.getAllSemesters();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			semesters = Scraper.getAllSemesters();
 			latch.countDown();
 		}).start();
 		new Thread(() -> {

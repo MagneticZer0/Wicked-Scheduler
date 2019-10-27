@@ -1,16 +1,13 @@
 import java.io.IOException;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
-
-import collections.MultiMap;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
@@ -29,6 +26,7 @@ public class UI extends Application {
 	private ObservableList<String> allSemestersList = FXCollections.observableArrayList();
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
+	private ComboBox<String> semesters = null;
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -74,8 +72,6 @@ public class UI extends Application {
 		allCoursesSelection.setMinWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
-		loadCourses("200108");
-
 		// elements regarding desired courses
 		Label desiredCoursesLabel = new Label("Desired Courses:");
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
@@ -96,27 +92,12 @@ public class UI extends Application {
 		desiredCoursesSelection.setMinWidth(firststage.getWidth() / 4);
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
 
-		Button addCourse = new Button("Add Course");
-		addCourse.setStyle("-fx-background-color: #32CD32;");
-		addCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(addCourse, 2, 3, 1, 1);
-
-		Button removeCourse = new Button("Remove Course");
-		removeCourse.setStyle("-fx-background-color: #ff0000;");
-		removeCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(removeCourse, 2, 4, 1, 1);
-
-		Button schedule = new Button("Create Schedule");
-		schedule.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(schedule, 2, 5, 1, 1);
-		GridPane.setValignment(schedule, VPos.BOTTOM);
-
 		// semester list
-		ComboBox<String> semesters = new ComboBox<>(allSemestersList.sorted(new Comparator<String>() {
+		SortedList<String> sortedSemesters = allSemestersList.sorted(new Comparator<String>() {
 
 			@Override
 			public int compare(String arg0, String arg1) {
-				return value(arg0)-value(arg1);
+				return value(arg1) - value(arg0); // Normally arg0 - arg1, but I want reverse order
 			}
 
 			private int value(String str) {
@@ -137,12 +118,33 @@ public class UI extends Application {
 				}
 				return value + Integer.parseInt(spl[1]) * 10;
 			}
-		}));
+		});
+		semesters = new ComboBox<>(sortedSemesters.filtered(d -> sortedSemesters.indexOf(d) < 5)); // Only do 5 most relevant
 		semesters.setPromptText("Select Semester");
 		semesters.setMaxWidth(firststage.getWidth() / 4);
+		semesters.setOnAction(e -> {
+			desiredCoursesList.clear();
+			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
+		});
 		grid.add(semesters, 2, 2, 1, 1);
 
 		loadSemesters();
+		semesters.setValue(defaultSemester());
+
+		Button addCourse = new Button("Add Course");
+		addCourse.setStyle("-fx-background-color: #32CD32;");
+		addCourse.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(addCourse, 2, 3, 1, 1);
+
+		Button removeCourse = new Button("Remove Course");
+		removeCourse.setStyle("-fx-background-color: #ff0000;");
+		removeCourse.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(removeCourse, 2, 4, 1, 1);
+
+		Button schedule = new Button("Create Schedule");
+		schedule.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(schedule, 2, 5, 1, 1);
+		GridPane.setValignment(schedule, VPos.BOTTOM);
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -158,8 +160,14 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
-				// implement scheduling logic
+			for (String str : desiredCoursesList) {
+				try {
+					for (Course c : Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(str)) {
+						System.out.printf("%s - %s - %s\n", c.toString(), Arrays.toString(c.getCredits()), c.getCRN());
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		// display the GUI
@@ -170,14 +178,10 @@ public class UI extends Application {
 
 	private void loadSemesters() {
 		new Thread(() -> {
-			Map<String, String> semesters = Scraper.getAllSemesters();
+			Scraper.getAllSemesters();
 			Platform.runLater(() -> {
-				try {
-					allSemestersList.addAll(semesters.keySet());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
+				allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
 		}).start();
 	}
@@ -218,7 +222,7 @@ public class UI extends Application {
 	private String defaultSemester() {
 		Calendar date = Calendar.getInstance();
 		if (date.get(Calendar.MONTH) >= 8 && date.get(Calendar.MONTH) <= 12) {
-			return "Spring " + date.get(Calendar.YEAR) + 1;
+			return "Spring " + (date.get(Calendar.YEAR) + 1);
 		} else {
 			return "Fall " + date.get(Calendar.YEAR);
 		}
