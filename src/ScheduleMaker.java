@@ -10,6 +10,7 @@ import collections.MultiMap;
 public class ScheduleMaker {
     static ArrayList<Course> currentCourse = new ArrayList<>();
     private static MultiMap<String, Course> allCourses;
+    private static int numCourses;
 	 
     /**
      * Get Course code from GUI
@@ -30,10 +31,12 @@ public class ScheduleMaker {
     public static void findCC( String courseName, String semesterID ) {
     	try {
     		if( allCourses == null ) {
+    			Scraper.loadCourses();
     			allCourses = Scraper.getAllClasses(semesterID);
     			//Collections.sort(allCourses);
     		}    		
     		currentCourse.addAll(allCourses.get(courseName));
+    		numCourses++;
     		System.out.println("Add course " + allCourses.get(courseName));
     	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
@@ -43,22 +46,19 @@ public class ScheduleMaker {
     
     public static void main(String[] args) {
     	ArrayList<String> courses = new ArrayList<>(); // Store the courses from the GUI
+    	ArrayList<Course> finalCourseList = new ArrayList<>();
     	
     	// Create the arraylist of selected courses
     	//courses = getCC();
     	
     	// Testing
     	
-    	courses.add("EE3131 - Electronics");
     	courses.add("CS3411 - Systems Programming");
+    	courses.add("EE3131 - Electronics");
     	
     	for(int j = 0; j < courses.size(); j++) {
-    		try {
-    			//System.out.println(Scraper.getAllSemesters().toString());
-    			findCC( courses.get(j), Scraper.getAllSemesters().get("Fall 2019"));
-    		} catch (IOException ex) {
-    			
-    		}
+    		//System.out.println(Scraper.getAllSemesters().toString());
+			findCC( courses.get(j), Scraper.getAllSemesters().get("Fall 2019"));
     	}
     	
     	Collections.sort(currentCourse);
@@ -82,6 +82,45 @@ public class ScheduleMaker {
     	System.out.println(currentCourse.size());
     	for(int i = 0; i < currentCourse.size(); i++) {
     		System.out.println(currentCourse.get(i));
+    	}
+    	
+    	// This array will store the number of course repeats in order of sorted appearance
+    	int[] arr = new int[numCourses];
+    	for(int i = 0; i < numCourses; i++) {
+    		arr[i] = 1; // At least one
+    		while(currentCourse.get(i) == currentCourse.get(i + 1)) {
+    			arr[i]++;
+    		}
+    	}
+    	
+    	
+    	// Build schedule
+    	// Go through the number of courses to have
+    	for(int i = 0; i < numCourses; i++) {
+    		// Go through the multiple times of that class
+    		for(int j = 0; j < arr[i]; j++) {
+    			// Add the first class
+    			if(i == 0) {
+    				finalCourseList.add(currentCourse.get(i+j));
+    			} else {
+    				if(finalCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j))) {
+    					// Conflict go to next option
+    					if(j == arr[i] - 1) {
+    						// If on the last option of a class and can't add it ERROR
+    						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
+    					}
+    					continue;
+    				} else {
+    					finalCourseList.add(currentCourse.get(i + j));
+    					break;
+    				}
+    			}
+    		}
+    	}
+    	
+    	System.out.println(finalCourseList.size());
+    	for(int i = 0; i < finalCourseList.size(); i++) {
+    		System.out.println(finalCourseList.get(i));
     	}
     	
     	// Build schedule to GUI?   	
