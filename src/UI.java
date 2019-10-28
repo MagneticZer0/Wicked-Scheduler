@@ -161,7 +161,7 @@ public class UI extends Application {
 		});
 		schedule.setOnAction(action -> {
 			for (String str : desiredCoursesList) {
-				try {
+				try { // Test code right here
 					for (Course c : Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(str)) {
 						System.out.printf("%s - %s - %s\n", c.toString(), Arrays.toString(c.getCredits()), c.getCRN());
 					}
