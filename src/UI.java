@@ -1,7 +1,10 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,6 +30,7 @@ public class UI extends Application {
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
+	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -160,15 +164,14 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			for (String str : desiredCoursesList) {
-				try { // Test code right here
-					for (Course c : Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(str)) {
-						System.out.printf("%s - %s - %s\n", c.toString(), Arrays.toString(c.getCredits()), c.getCRN());
-					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+			List<String> desiredCourses = desiredCoursesSelection.getItems();
+			int i =0;
+			while (desiredCourses.get(i) != null) {
+				preScheduledClasses.add(desiredCourses.get(i));
 			}
+			//send classes to alex
+			//recieve schedules
+			//do stuff with schedules
 		});
 		// display the GUI
 		Scene scene1 = new Scene(grid, 200, 100);
@@ -183,9 +186,17 @@ public class UI extends Application {
 
 	private void loadSemesters() {
 		new Thread(() -> {
+			try {
 			Scraper.getAllSemesters();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 			Platform.runLater(() -> {
+				try {
 				allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+				} catch (Exception e){
+					e.printStackTrace();
+				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
 		}).start();
