@@ -200,7 +200,7 @@ public class Scraper {
 			lastSemesterID = semesterID;
 		}
 		courses.clear();
-		loadCourses();
+
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
 			courses = allCoursesMap.get(semesterID);
 			return allCoursesMap.get(semesterID);
@@ -305,14 +305,14 @@ public class Scraper {
 		}
 		in.close();
 		allCoursesMap.put(semesterID, courses);
-		saveCourses();
+
 		return courses;
 	}
 
 	/**
 	 * Writes the allCoursesMap object to the disk
 	 */
-	private static void saveCourses() {
+	public static void saveCourses() {
 		String dirString = System.getProperty("user.home") + "\\Wicked-Scheduler\\";
 		File directory = new File(dirString); // Create directory
 		if (!directory.exists()) {
@@ -329,7 +329,7 @@ public class Scraper {
 	/**
 	 * Loads the allCoursesMap object from disk to memory
 	 */
-	private static void loadCourses() {
+	public static void loadCourses() {
 		File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
 			allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();

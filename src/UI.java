@@ -176,6 +176,11 @@ public class UI extends Application {
 		firststage.show();
 	}
 
+	@Override
+	public void stop() {
+		Scraper.saveCourses();
+	}
+
 	private void loadSemesters() {
 		new Thread(() -> {
 			Scraper.getAllSemesters();
@@ -192,6 +197,7 @@ public class UI extends Application {
 		allCoursesSelection.setPlaceholder(loadingBox);
 
 		new Thread(() -> {
+			Scraper.loadCourses();
 			try {
 				Scraper.getAllClasses(semesterID);
 			} catch (Exception e) {
