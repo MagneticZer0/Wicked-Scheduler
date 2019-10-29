@@ -42,6 +42,7 @@ public class UI extends Application {
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
+	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -176,25 +177,24 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			for (String str : desiredCoursesList) {
-				try { // Test code right here
-					for (Course c : Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(str)) {
-						System.out.printf("%s - %s - %s\n", c.toString(), Arrays.toString(c.getCredits()), c.getCRN());
-					}
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+			List<String> desiredCourses = desiredCoursesSelection.getItems();
+			int i =0;
+			while (desiredCourses.get(i) != null) {
+				preScheduledClasses.add(desiredCourses.get(i));
 			}
+			//send classes to alex
+			//recieve schedules
+			//do stuff with schedules
 		});
-		
-		// YES THIS CODE IS MESSY, I WILL CLEAN IT UP LATER... 
+
+		// YES THIS CODE IS MESSY, I WILL CLEAN IT UP LATER...
 		// I'M STILL TRYING TO FIGURE OUT HOW TO USE CALENDARFX
-		
+
 		//Event<String> class1 = new Event<String>("Class 1");
 		// the calendar view code should be its own function eventually
 		//Tab tab2 = new Tab("Schedule 2");
 		//Tab tab3 = new Tab("Schedule 3");
-		
+
 		//com.calendarfx.model.Calendar calendar = new com.calendarfx.model.Calendar("classes calendar");
 		//CalendarSource source = new CalendarSource("classes source");
 		//Entry<String> entry = new Entry<String>("test");
@@ -205,16 +205,16 @@ public class UI extends Application {
 		//entry.setInterval(interval);
 		//calendar.addEntry(entry);
 		//source.getCalendars().add(calendar);
-		
+
 		//CalendarView schedule2 = new CalendarView();
 		//CalendarView schedule3 = new CalendarView();
-		
+
 		//Calendar classes;
-		
+
 		//Entry<String> class1 = new Entry<>("class 1");
 		//Entry<String> class2 = new Entry<>("class 2");
 		//Entry<String> class3 = new Entry<>("class 3");
-		
+
 		//tab2.setContent(schedule2);
 		//tab3.setContent(schedule3);
 
@@ -228,14 +228,14 @@ public class UI extends Application {
 			entry.setTitle( titles[i] );
 		}
 		tab1.setContent(calendarView);
-		
+
 		schedules.getTabs().addAll( tab1 );
 		grid.add(schedules, 6, 0, 5, 5);
-		
-		
+
+
 		// display the GUI
-		Scene scene1 = new Scene(grid, 200, 100);
-		firststage.setScene(scene1);
+		Scene scene = new Scene(grid, 200, 100);
+		firststage.setScene(scene);
 		firststage.show();
 	}
 
@@ -246,9 +246,17 @@ public class UI extends Application {
 
 	private void loadSemesters() {
 		new Thread(() -> {
+			try {
 			Scraper.getAllSemesters();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 			Platform.runLater(() -> {
+				try {
 				allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+				} catch (Exception e){
+					e.printStackTrace();
+				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
 		}).start();

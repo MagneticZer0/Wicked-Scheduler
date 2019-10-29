@@ -1,5 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class ScraperTests {
 	 */
 	@BeforeAll
 	public static void setup() throws InterruptedException {
-		CountDownLatch latch = new CountDownLatch(4);
+		CountDownLatch latch = new CountDownLatch(3);
 		new Thread(() -> {
 			semesters = Scraper.getAllSemesters();
 			latch.countDown();
@@ -37,6 +38,7 @@ public class ScraperTests {
 		}).start();
 		new Thread(() -> {
 			try {
+				Scraper.loadCourses();
 				courses = Scraper.getAllClasses("200108");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -48,7 +50,7 @@ public class ScraperTests {
 
 	@Test
 	public void getAllSemesters() throws IOException {
-		assertAll("getAllSemesters map is incorrect", () -> assertTrue(semesters.keySet().contains("Fall 2001 (View only)"), "Fall 2001 is not in semesters!"), () -> assertEquals("200108", semesters.get("Fall 2001 (View only)"), "Fall 2001 id does not match expected!"));
+		assertAll("getAllSemesters map is incorrect", () -> assertTrue(semesters.keySet().contains("Fall 2001"), "Fall 2001 is not in semesters!"), () -> assertEquals("200108", semesters.get("Fall 2001"), "Fall 2001 id does not match expected!"));
 	}
 
 	@Test
@@ -59,5 +61,11 @@ public class ScraperTests {
 	@Test
 	public void getAllClasses() {
 		assertEquals(3515, courses.allValues().size(), "getAllClasses didn't get all classes!");
+	}
+
+	@Test
+	public void saveCourses() {
+		Scraper.saveCourses();
+		assertTrue(new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser").exists(), "File saving didn't work correctly");
 	}
 }
