@@ -1,7 +1,21 @@
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+
+// use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
+import com.calendarfx.model.CalendarSource;
+import com.calendarfx.model.Entry;
+import com.calendarfx.model.Interval;
+import com.calendarfx.view.CalendarView;
+import impl.com.calendarfx.view.util.Util;
+import com.calendarfx.*;
+import java.time.Duration;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -13,11 +27,12 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 /**
- * @author Alex Grant, Coleman Clarstein
+ * @author Alex Grant, Coleman Clarstein, Harley Merkaj
  *
  */
 public class UI extends Application {
@@ -137,11 +152,12 @@ public class UI extends Application {
 		grid.add(addCourse, 2, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
-		removeCourse.setStyle("-fx-background-color: #ff0000;");
+		removeCourse.setStyle("-fx-background-color: #FF0000;");
 		removeCourse.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(removeCourse, 2, 4, 1, 1);
 
 		Button schedule = new Button("Create Schedule");
+		schedule.setStyle("-fx-background-color: #ADD8E6;");
 		schedule.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
@@ -170,6 +186,53 @@ public class UI extends Application {
 				}
 			}
 		});
+		
+		// YES THIS CODE IS MESSY, I WILL CLEAN IT UP LATER... 
+		// I'M STILL TRYING TO FIGURE OUT HOW TO USE CALENDARFX
+		
+		//Event<String> class1 = new Event<String>("Class 1");
+		// the calendar view code should be its own function eventually
+		//Tab tab2 = new Tab("Schedule 2");
+		//Tab tab3 = new Tab("Schedule 3");
+		
+		//com.calendarfx.model.Calendar calendar = new com.calendarfx.model.Calendar("classes calendar");
+		//CalendarSource source = new CalendarSource("classes source");
+		//Entry<String> entry = new Entry<String>("test");
+		//entry.changeStartDate(LocalDate.now());
+		//entry.changeStartTime(LocalTime.now());
+		//entry.setMinimumDuration(Duration.parse("PT2H"));;
+		//Interval interval = new Interval(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
+		//entry.setInterval(interval);
+		//calendar.addEntry(entry);
+		//source.getCalendars().add(calendar);
+		
+		//CalendarView schedule2 = new CalendarView();
+		//CalendarView schedule3 = new CalendarView();
+		
+		//Calendar classes;
+		
+		//Entry<String> class1 = new Entry<>("class 1");
+		//Entry<String> class2 = new Entry<>("class 2");
+		//Entry<String> class3 = new Entry<>("class 3");
+		
+		//tab2.setContent(schedule2);
+		//tab3.setContent(schedule3);
+
+		TabPane schedules = new TabPane();
+		Tab tab1 = new Tab("Schedule 1");
+		CalendarView calendarView = new CalendarView();
+		calendarView.showWeekPage();
+		String [] titles = { "CS3712","CS4760","CS3411","CS3000","CS3331","HU3350" };
+		for ( int i = 0; i < 6; i++ ) {
+			Entry<String> entry = (Entry<String>) calendarView.createEntryAt(ZonedDateTime.now().plusDays(i));
+			entry.setTitle( titles[i] );
+		}
+		tab1.setContent(calendarView);
+		
+		schedules.getTabs().addAll( tab1 );
+		grid.add(schedules, 6, 0, 5, 5);
+		
+		
 		// display the GUI
 		Scene scene1 = new Scene(grid, 200, 100);
 		firststage.setScene(scene1);
