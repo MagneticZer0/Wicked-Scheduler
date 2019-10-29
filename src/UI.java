@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.List;
 
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
 import com.calendarfx.model.CalendarSource;
@@ -30,6 +31,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
