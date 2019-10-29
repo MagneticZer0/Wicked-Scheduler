@@ -1,9 +1,8 @@
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -174,8 +173,8 @@ public class UI extends Application {
 			//do stuff with schedules
 		});
 		// display the GUI
-		Scene scene1 = new Scene(grid, 200, 100);
-		firststage.setScene(scene1);
+		Scene scene = new Scene(grid, 200, 100);
+		firststage.setScene(scene);
 		firststage.show();
 	}
 

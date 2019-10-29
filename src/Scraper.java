@@ -201,10 +201,14 @@ public class Scraper {
 		}
 		courses.clear();
 
+		if (allCoursesMap == null) {
+			allCoursesMap = new HashMap<>();
+		}
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
 			courses = allCoursesMap.get(semesterID);
 			return allCoursesMap.get(semesterID);
 		}
+
 		List<String> categories = getCategories(semesterID);
 
 		String year = semesterID.substring(0, 4);
