@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,6 +16,8 @@ import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
 import com.calendarfx.model.Interval;
 import com.calendarfx.view.CalendarView;
+
+import impl.com.calendarfx.view.DateControlSkin;
 import impl.com.calendarfx.view.util.Util;
 import com.calendarfx.*;
 import java.time.Duration;
@@ -40,6 +43,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import javax.management.ReflectionException;
+
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
  *
@@ -52,6 +57,10 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
+	/**
+	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
+	 */
+	private final CountDownLatch DONOTUSE = new CountDownLatch(2);
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -83,7 +92,7 @@ public class UI extends Application {
 		grid.add(allCoursesLabel, 0, 1, 1, 1);
 
 		TextField allCoursesSearch = new TextField();
-		allCoursesSearch.setPromptText("Input Course Code");
+		allCoursesSearch.setPromptText("Search Courses");
 		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
@@ -102,7 +111,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
 
 		TextField desiredCoursesSearch = new TextField();
-		desiredCoursesSearch.setPromptText("Input Course Code");
+		desiredCoursesSearch.setPromptText("Search Desired Courses");
 		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
@@ -212,6 +221,7 @@ public class UI extends Application {
 				Tab tab = new Tab("Schedule " + (j+1) );
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(0).getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+				setInfo();
 				calendarView.showWeekPage();
 				
 				for ( int k = 0; k < finalSchedule.size(); k++ ) {
@@ -285,6 +295,21 @@ public class UI extends Application {
 		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
 		firststage.show();
+		DONOTUSE.countDown();
+	}
+
+	/**
+	 * This is a hacky way to disable the thing that CalendarFX ouputs to console
+	 * because I'm slightly annoyed by it.
+	 */
+	private void setInfo() {
+		try {
+			Field info = DateControlSkin.class.getDeclaredField("infoShown");
+			info.setAccessible(true);
+			info.set(null, true);
+		} catch (ReflectiveOperationException e) {
+			// Ignore
+		}
 	}
 
 	@Override
@@ -329,6 +354,7 @@ public class UI extends Application {
 					e.printStackTrace();
 				}
 				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
+				DONOTUSE.countDown();
 			});
 		}).start();
 	}

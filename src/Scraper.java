@@ -71,7 +71,7 @@ public class Scraper {
 	 * A map that maps a semesterID string to a MultiMap of all courses for that
 	 * semester
 	 */
-	private static HashMap<String, MultiMap<String, Course>> allCoursesMap = null;
+	private static HashMap<String, MultiMap<String, Course>> allCoursesMap = new HashMap<>();
 
 	/**
 	 * Make the constructor private since everything in Scraper is static
@@ -201,9 +201,6 @@ public class Scraper {
 		}
 		courses.clear();
 
-		if (allCoursesMap == null) {
-			allCoursesMap = new HashMap<>();
-		}
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
 			courses = allCoursesMap.get(semesterID);
 			return allCoursesMap.get(semesterID);

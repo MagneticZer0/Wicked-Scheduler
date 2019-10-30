@@ -55,6 +55,7 @@ public class ScheduleMaker {
     	
     	courses.add("CS3411 - Systems Programming");
     	courses.add("EE3131 - Electronics");
+    	courses.add("CS4321 - Introduction to Algorithms");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		//System.out.println(Scraper.getAllSemesters().toString());
@@ -86,13 +87,20 @@ public class ScheduleMaker {
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	int[] arr = new int[numCourses];
+    	int ind = 0;
     	for(int i = 0; i < numCourses; i++) {
     		arr[i] = 1; // At least one
-    		while(currentCourse.get(i) == currentCourse.get(i + 1)) {
+
+    		while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
     			arr[i]++;
+    			ind++;
+    			if(ind < currentCourse.size()) {
+    				break;
+    			}
     		}
-    	}
-    	
+    		
+    		ind++;
+    	}    	
     	
     	// Build schedule
     	// Go through the number of courses to have
@@ -103,6 +111,7 @@ public class ScheduleMaker {
     			if(i == 0) {
     				finalCourseList.add(currentCourse.get(i+j));
     			} else {
+    				System.out.println(currentCourse.get(i + j));
     				if(finalCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j))) {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {
