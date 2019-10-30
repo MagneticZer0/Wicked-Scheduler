@@ -1,8 +1,21 @@
-import java.util.ArrayList;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+
+// use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
+import com.calendarfx.model.CalendarSource;
+import com.calendarfx.model.Entry;
+import com.calendarfx.model.Interval;
+import com.calendarfx.view.CalendarView;
+import impl.com.calendarfx.view.util.Util;
+import com.calendarfx.*;
+import java.time.Duration;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -15,11 +28,18 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 /**
- * @author Alex Grant, Coleman Clarstein
+ * @author Alex Grant, Coleman Clarstein, Harley Merkaj
  *
  */
 public class UI extends Application {
@@ -144,14 +164,17 @@ public class UI extends Application {
 		grid.add(addCourse, 2, 3, 1, 1);
 
 		Button removeCourse = new Button("Remove Course");
-		removeCourse.setStyle("-fx-background-color: #ff0000;");
+		removeCourse.setStyle("-fx-background-color: #FF0000;");
 		removeCourse.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(removeCourse, 2, 4, 1, 1);
 
 		Button schedule = new Button("Create Schedule");
+		schedule.setStyle("-fx-background-color: #ADD8E6;");
 		schedule.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
+		
+		TabPane schedules = new TabPane();
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -167,15 +190,38 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
+			
 			List<String> desiredCourses = desiredCoursesSelection.getItems();
-			int i =0;
-			while (desiredCourses.get(i) != null) {
+
+			int i = 0;
+			while ( !desiredCourses.isEmpty() && i < desiredCourses.size() ) {
 				preScheduledClasses.add(desiredCourses.get(i));
+				i++;
 			}
+			
 			//send classes to alex
 			//recieve schedules
 			//do stuff with schedules
+			
+			for( int j = 0; j < 3; j++ ) {
+				
+				Tab tab = new Tab("Schedule " + (j+1) );
+				CalendarView calendarView = new CalendarView();
+				calendarView.showWeekPage();
+
+				for ( int k = 0; k < desiredCourses.size(); k++ ) {
+					Entry<String> entry = (Entry<String>) calendarView.createEntryAt(ZonedDateTime.now().plusDays(k+j));
+					entry.setTitle( desiredCourses.get(k) );
+				}
+
+				tab.setContent(calendarView);
+				schedules.getTabs().addAll( tab );
+			}
+			
 		});
+		
+		grid.add(schedules, 6, 0, 5, 5);
+		
 		// display the GUI
 		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);

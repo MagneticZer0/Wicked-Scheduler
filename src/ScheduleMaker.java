@@ -55,6 +55,7 @@ public class ScheduleMaker {
     	
     	courses.add("CS3411 - Systems Programming");
     	courses.add("EE3131 - Electronics");
+    	courses.add("CS4321 - Introduction to Algorithms");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		//System.out.println(Scraper.getAllSemesters().toString());
@@ -88,9 +89,16 @@ public class ScheduleMaker {
     	int[] arr = new int[numCourses];
     	for(int i = 0; i < numCourses; i++) {
     		arr[i] = 1; // At least one
-    		while(currentCourse.get(i) == currentCourse.get(i + 1)) {
+    		int ind = i;
+    		while(currentCourse.get(ind).equals(currentCourse.get(ind + 1))) {
+    			System.out.println("true");
     			arr[i]++;
+    			ind++;
     		}
+    	}
+    	System.out.println(numCourses);
+    	for(int i = 0; i < numCourses; i++) {
+    		System.out.println(arr[i]);
     	}
     	
     	
