@@ -30,6 +30,10 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
+	/**
+	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
+	 */
+	private final CountDownLatch DONOTUSE = new CountDownLatch(2);
 
 	/**
 	 * this function builds the GUI and displays it to the user once everything has
@@ -61,7 +65,7 @@ public class UI extends Application {
 		grid.add(allCoursesLabel, 0, 1, 1, 1);
 
 		TextField allCoursesSearch = new TextField();
-		allCoursesSearch.setPromptText("Input Course Code");
+		allCoursesSearch.setPromptText("Search Courses");
 		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
@@ -80,7 +84,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
 
 		TextField desiredCoursesSearch = new TextField();
-		desiredCoursesSearch.setPromptText("Input Course Code");
+		desiredCoursesSearch.setPromptText("Search Desired Courses");
 		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
@@ -176,6 +180,7 @@ public class UI extends Application {
 		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
 		firststage.show();
+		DONOTUSE.countDown();
 	}
 
 	@Override
@@ -220,6 +225,7 @@ public class UI extends Application {
 					e.printStackTrace();
 				}
 				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
+				DONOTUSE.countDown();
 			});
 		}).start();
 	}
