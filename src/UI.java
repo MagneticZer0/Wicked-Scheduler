@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar

@@ -24,8 +24,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -87,7 +85,7 @@ public class UITests {
 		TextField desiredSearch = ((TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> ((TextField) e).getPromptText().contains("Desired")).get(0));
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 5).get(0);
 
-		robot.moveTo(desiredSearch).clickOn().type(KeyCode.C, KeyCode.S);
+		robot.moveTo(desiredSearch).clickOn().write("CS");
 		assertThat(desiredCourses.getItems(), everyItem(containsIgnoringCase("cs")));
 		robot.eraseText(2);
 	}
@@ -111,7 +109,7 @@ public class UITests {
 	public void filterAllCourses() {
 		TextField allSearch = ((TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> !((TextField) e).getPromptText().contains("Desired")).get(0));
 
-		robot.moveTo(allSearch).clickOn().type(KeyCode.C, KeyCode.S);
+		robot.moveTo(allSearch).clickOn().write("CS");
 
 		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
 		assertThat(allCourses.getItems(), everyItem(containsIgnoringCase("cs")));
