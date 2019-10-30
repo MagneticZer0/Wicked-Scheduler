@@ -74,7 +74,7 @@ public class UITests {
 		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 0).get(0);
 
-		for(int i=0; i<5; i++) {
+		for (int i = 0; i < 5; i++) {
 			allCourses.getSelectionModel().selectFirst();
 			robot.moveTo(addCourse).clickOn();
 		}
@@ -99,7 +99,7 @@ public class UITests {
 
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 5).get(0);
 
-		for(int i=0; i<5; i++) {
+		for (int i = 0; i < 5; i++) {
 			desiredCourses.getSelectionModel().selectFirst();
 			robot.moveTo(removeCourse).clickOn();
 		}
@@ -131,7 +131,7 @@ public class UITests {
 		latch.set(ui, new CountDownLatch(1));
 
 		robot.moveTo(semesters).clickOn().moveBy(0, 100).clickOn();
-		
+
 		assertThat("Loading VBox is not being used!", allCourses.getPlaceholder(), is(getUIField("loadingBox", VBox.class)));
 		((CountDownLatch) latch.get(ui)).await();
 		assertAll("Changing semesters didn't work properly", () -> assertThat("Loading VBox is being used!", allCourses.getPlaceholder(), is(not(getUIField("loadingBox", VBox.class)))), () -> assertThat("Semester change was unsuccessful!", semesters.getSelectionModel().getSelectedItem(), is(not(curSem))));

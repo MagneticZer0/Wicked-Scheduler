@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,6 +14,8 @@ import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
 import com.calendarfx.model.Interval;
 import com.calendarfx.view.CalendarView;
+
+import impl.com.calendarfx.view.DateControlSkin;
 import impl.com.calendarfx.view.util.Util;
 import com.calendarfx.*;
 import java.time.Duration;
@@ -37,6 +40,8 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import javax.management.ReflectionException;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -207,6 +212,7 @@ public class UI extends Application {
 				
 				Tab tab = new Tab("Schedule " + (j+1) );
 				CalendarView calendarView = new CalendarView();
+				setInfo();
 				calendarView.showWeekPage();
 
 				for ( int k = 0; k < desiredCourses.size(); k++ ) {
@@ -227,6 +233,20 @@ public class UI extends Application {
 		firststage.setScene(scene);
 		firststage.show();
 		DONOTUSE.countDown();
+	}
+
+	/**
+	 * This is a hacky way to disable the thing that CalendarFX ouputs to console
+	 * because I'm slightly annoyed by it.
+	 */
+	private void setInfo() {
+		try {
+			Field info = DateControlSkin.class.getDeclaredField("infoShown");
+			info.setAccessible(true);
+			info.set(null, true);
+		} catch (ReflectiveOperationException e) {
+			// Ignore
+		}
 	}
 
 	@Override
