@@ -87,20 +87,20 @@ public class ScheduleMaker {
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	int[] arr = new int[numCourses];
+    	int ind = 0;
     	for(int i = 0; i < numCourses; i++) {
     		arr[i] = 1; // At least one
-    		int ind = i;
-    		while(currentCourse.get(ind).equals(currentCourse.get(ind + 1))) {
-    			System.out.println("true");
+
+    		while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
     			arr[i]++;
     			ind++;
+    			if(ind < currentCourse.size()) {
+    				break;
+    			}
     		}
-    	}
-    	System.out.println(numCourses);
-    	for(int i = 0; i < numCourses; i++) {
-    		System.out.println(arr[i]);
-    	}
-    	
+    		
+    		ind++;
+    	}    	
     	
     	// Build schedule
     	// Go through the number of courses to have
@@ -111,6 +111,7 @@ public class ScheduleMaker {
     			if(i == 0) {
     				finalCourseList.add(currentCourse.get(i+j));
     			} else {
+    				System.out.println(currentCourse.get(i + j));
     				if(finalCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j))) {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {

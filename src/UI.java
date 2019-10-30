@@ -3,6 +3,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -180,7 +181,7 @@ public class UI extends Application {
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		
-		TabPane schedules = new TabPane();
+		TabPane schedulesView = new TabPane();
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -209,25 +210,86 @@ public class UI extends Application {
 			//recieve schedules
 			//do stuff with schedules
 			
+			//pretend scheduler
+			ArrayList<Course> finalSchedule = new ArrayList<Course>();
+			for ( i = 0; i < desiredCourses.size(); i++ ) {
+				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
+			}
+			
 			for( int j = 0; j < 3; j++ ) {
 				
 				Tab tab = new Tab("Schedule " + (j+1) );
 				CalendarView calendarView = new CalendarView();
+				calendarView.showDate(finalSchedule.get(0).getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 				setInfo();
 				calendarView.showWeekPage();
+				
+				for ( int k = 0; k < finalSchedule.size(); k++ ) {
+					LocalTime timeTBA = LocalTime.parse("01:37"); // 01:37 time is TBA time
+					// Jan 1st 1970 is TBA date
+					
+					// get the next course to display
+					Course cur = finalSchedule.get(k);
+					
+					// if the class time is tba, don't display anything
+					LocalTime classTime = cur.getStartTime(0);
+					if ( classTime == timeTBA ) {
+						System.out.println("Time for class " + cur + " is TBA");
+						continue;
+					}
+					
+					// if the class time is tba, don't display anything
+					// NOT YET IMPLEMENTED
+					Date classDateTime = cur.getStartDate();
 
-				for ( int k = 0; k < desiredCourses.size(); k++ ) {
-					Entry<String> entry = (Entry<String>) calendarView.createEntryAt(ZonedDateTime.now().plusDays(k+j));
-					entry.setTitle( desiredCourses.get(k) );
+					// set the correct time for the class
+					ZonedDateTime classZonedDateTime = ZonedDateTime.now().withHour(classTime.getHour()); 
+					classZonedDateTime = classZonedDateTime.withMinute(classTime.getMinute());
+					classZonedDateTime = classZonedDateTime.withSecond(0);
+					classZonedDateTime = classZonedDateTime.withNano(0);
+					
+					// set the correct date for the class
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(classDateTime);
+					cal.get(Calendar.DAY_OF_WEEK);
+					classZonedDateTime = classZonedDateTime.withDayOfMonth(cal.get(Calendar.DAY_OF_MONTH));
+					classZonedDateTime = classZonedDateTime.withMonth(cal.get(Calendar.MONTH)+1);
+					classZonedDateTime = classZonedDateTime.withYear(cal.get(Calendar.YEAR));
+									
+					// create the entry/entries for the class
+					List<String> days = cur.getDays();
+					Entry<String> entry = null;
+					for(int d = 0; d < days.size(); d++) {
+						
+						String dotw = days.get(d); // dotw stands for day of the week
+						switch (dotw) {
+						case "Monday": 
+							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime);
+							break;
+						case "Tuesday":
+							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(1));
+							break;
+						case "Wednesday":
+							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(2));
+							break;
+						case "Thursday":
+							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(3));
+							break;
+						case "Friday":
+							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(4));
+							break;
+						}
+						entry.setTitle( finalSchedule.get(k).toString() + " CRN: " + cur.getCRN());
+					}
 				}
 
 				tab.setContent(calendarView);
-				schedules.getTabs().addAll( tab );
+				schedulesView.getTabs().addAll( tab );
 			}
 			
 		});
 		
-		grid.add(schedules, 6, 0, 5, 5);
+		grid.add(schedulesView, 6, 0, 5, 5);
 		
 		// display the GUI
 		Scene scene = new Scene(grid, 200, 100);
