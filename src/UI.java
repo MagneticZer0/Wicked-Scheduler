@@ -169,6 +169,8 @@ public class UI extends Application {
 		schedule.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
+		
+		TabPane schedules = new TabPane();
 
 		// buttons
 		addCourse.setOnAction(action -> {
@@ -184,62 +186,38 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
+			
 			List<String> desiredCourses = desiredCoursesSelection.getItems();
-			int i =0;
-			while (desiredCourses.get(i) != null) {
+
+			int i = 0;
+			while ( !desiredCourses.isEmpty() && i < desiredCourses.size() ) {
 				preScheduledClasses.add(desiredCourses.get(i));
+				i++;
 			}
+			
 			//send classes to alex
 			//recieve schedules
 			//do stuff with schedules
+			
+			for( int j = 0; j < 3; j++ ) {
+				
+				Tab tab = new Tab("Schedule " + (j+1) );
+				CalendarView calendarView = new CalendarView();
+				calendarView.showWeekPage();
+
+				for ( int k = 0; k < desiredCourses.size(); k++ ) {
+					Entry<String> entry = (Entry<String>) calendarView.createEntryAt(ZonedDateTime.now().plusDays(k+j));
+					entry.setTitle( desiredCourses.get(k) );
+				}
+
+				tab.setContent(calendarView);
+				schedules.getTabs().addAll( tab );
+			}
+			
 		});
-
-		// YES THIS CODE IS MESSY, I WILL CLEAN IT UP LATER...
-		// I'M STILL TRYING TO FIGURE OUT HOW TO USE CALENDARFX
-
-		//Event<String> class1 = new Event<String>("Class 1");
-		// the calendar view code should be its own function eventually
-		//Tab tab2 = new Tab("Schedule 2");
-		//Tab tab3 = new Tab("Schedule 3");
-
-		//com.calendarfx.model.Calendar calendar = new com.calendarfx.model.Calendar("classes calendar");
-		//CalendarSource source = new CalendarSource("classes source");
-		//Entry<String> entry = new Entry<String>("test");
-		//entry.changeStartDate(LocalDate.now());
-		//entry.changeStartTime(LocalTime.now());
-		//entry.setMinimumDuration(Duration.parse("PT2H"));;
-		//Interval interval = new Interval(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
-		//entry.setInterval(interval);
-		//calendar.addEntry(entry);
-		//source.getCalendars().add(calendar);
-
-		//CalendarView schedule2 = new CalendarView();
-		//CalendarView schedule3 = new CalendarView();
-
-		//Calendar classes;
-
-		//Entry<String> class1 = new Entry<>("class 1");
-		//Entry<String> class2 = new Entry<>("class 2");
-		//Entry<String> class3 = new Entry<>("class 3");
-
-		//tab2.setContent(schedule2);
-		//tab3.setContent(schedule3);
-
-		TabPane schedules = new TabPane();
-		Tab tab1 = new Tab("Schedule 1");
-		CalendarView calendarView = new CalendarView();
-		calendarView.showWeekPage();
-		String [] titles = { "CS3712","CS4760","CS3411","CS3000","CS3331","HU3350" };
-		for ( int i = 0; i < 6; i++ ) {
-			Entry<String> entry = (Entry<String>) calendarView.createEntryAt(ZonedDateTime.now().plusDays(i));
-			entry.setTitle( titles[i] );
-		}
-		tab1.setContent(calendarView);
-
-		schedules.getTabs().addAll( tab1 );
+		
 		grid.add(schedules, 6, 0, 5, 5);
-
-
+		
 		// display the GUI
 		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
