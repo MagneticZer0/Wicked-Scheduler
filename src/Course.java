@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -184,19 +185,19 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		if (!this.days.contains("TBA") || !this.days.contains(" ")) {
 			for (String day : days) {
 				if (day.contains("M")) {
-					result.add("Monday");
+					result.add("MO");
 				}
 				if (day.contains("T")) {
-					result.add("Tuesday");
+					result.add("TU");
 				}
 				if (day.contains("W")) {
-					result.add("Wednesday");
+					result.add("WE");
 				}
 				if (day.contains("R")) {
-					result.add("Thursday");
+					result.add("TH");
 				}
 				if (day.contains("F")) {
-					result.add("Friday");
+					result.add("FR");
 				}
 			}
 		}
@@ -444,6 +445,10 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return LocalTime.parse(time, formatter);
 	}
 
+	public boolean isSplitClass() {
+		return days.size() > 1;
+	}
+
 	/**
 	 * Returns a string representation for a course object. This will be the
 	 * department followed by the course number followed by the course name, I.E.
@@ -526,11 +531,6 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		 * @return The day the iterator is on
 		 */
 		public String getDay() {
-			return day;
-		}
-
-		public String getRRuleDay() {
-			String day = getDay();
 			if (day.equals("M")) {
 				return "MO";
 			} else if (day.equals("T")) {
@@ -541,6 +541,20 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 				return "TH";
 			} else {
 				return "FR";
+			}
+		}
+
+		public DayOfWeek getDayEnum() {
+			if (day.equals("M")) {
+				return DayOfWeek.MONDAY;
+			} else if (day.equals("T")) {
+				return DayOfWeek.TUESDAY;
+			} else if (day.equals("W")) {
+				return DayOfWeek.WEDNESDAY;
+			} else if (day.equals("R")) {
+				return DayOfWeek.THURSDAY;
+			} else {
+				return DayOfWeek.FRIDAY;
 			}
 		}
 	}

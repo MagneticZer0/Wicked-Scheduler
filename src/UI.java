@@ -2,10 +2,13 @@ import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 
+import com.calendarfx.model.CalendarEvent;
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
@@ -203,18 +206,28 @@ public class UI extends Application {
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(0).getStartDate());
 				calendarView.showWeekPage();
+				calendarView.addEventHandler(CalendarEvent.ANY, System.out::println);
 				
 				for (Course cur : finalSchedule) {
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
-						Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
-						for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
-							for (LocalTime[] time : times) {
-								ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate(), time[0], ZoneId.systemDefault());
-								Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
-								entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
-								entry.changeEndTime(time[1]);
-								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;");
-								entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+						if (!cur.isSplitClass()) {
+							ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate(), cur.getStartTime(0), ZoneId.systemDefault());
+							Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+							entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
+							entry.changeEndTime(cur.getEndTime(0));
+							entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replaceAll(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+							entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+						} else {
+							Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
+							for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
+								for (LocalTime[] time : times) {
+									ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate().with(TemporalAdjusters.nextOrSame(it.getDayEnum())), time[0], ZoneId.systemDefault());
+									Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+									entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
+									entry.changeEndTime(time[1]);
+									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+									entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+								}
 							}
 						}
 					}

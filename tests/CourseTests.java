@@ -120,7 +120,7 @@ public class CourseTests {
 	@Test
 	public void getDays() {
 		List<String> results = tester.getDays();
-		assertTrue(results.containsAll(Arrays.asList("Monday", "Wednesday", "Thursday")), "Course getDays does not return all days!");
+		assertTrue(results.containsAll(Arrays.asList("MO", "WE", "TH")), "Course getDays does not return all days!");
 	}
 
 	@Test
