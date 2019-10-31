@@ -1,7 +1,6 @@
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -22,11 +20,11 @@ import collections.MultiMap;
 
 public class Course implements Serializable, Comparable<Course>, Iterable<List<LocalTime[]>> {
 
-	/**
-	 * This is for serializable object compatability
-	 */
-	private static final long serialVersionUID = -8811383389305817678L; // This is for serializable object compatability
 
+	/**
+	 * This is used for Serializable compatability
+	 */
+	private static final long serialVersionUID = 8126578523819110122L;
 	/**
 	 * The int used for tracking the crn, this is used to sign up for the class
 	 */
@@ -73,11 +71,11 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	/**
 	 * The date that the course starts on
 	 */
-	private Date startDate;
+	private LocalDate startDate;
 	/**
 	 * The date that the course ends on
 	 */
-	private Date endDate;
+	private LocalDate endDate;
 	/**
 	 * The fee of the course
 	 */
@@ -91,6 +89,14 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * to be overlapping I. E. This is a total of 5 minutes between classes
 	 */
 	private final TemporalAmount travelTime = Duration.ofMinutes(5);
+	/**
+	 * Represents the LocalTime object to be used if the class time cannot be parsed or is TBA
+	 */
+	public static final LocalTime TBA_TIME = parseTime("1:37 am");
+	/**
+	 * Represents the Date object to be used if the class date cannot be parsed or is TBA
+	 */
+	public static final LocalDate TBA_DATE = LocalDate.MIN;
 
 	/**
 	 * Creates a course based on the information provided. Some strings are expected
@@ -133,8 +139,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			startTime.add(parseTime(timeSplit[0]));
 			endTime.add(parseTime(timeSplit[1]));
 		} else {
-			startTime.add(parseTime("1:37 am")); // This will be the TBA time
-			endTime.add(parseTime("1:37 am"));
+			startTime.add(TBA_TIME); // This will be the TBA time
+			endTime.add(TBA_TIME);
 		}
 
 		this.remaining = Integer.parseInt(remaining);
@@ -241,7 +247,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * 
 	 * @return A date representing the start date of class
 	 */
-	public Date getStartDate() {
+	public LocalDate getStartDate() {
 		return startDate;
 	}
 
@@ -251,7 +257,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * 
 	 * @return A date representing the end date of class
 	 */
-	public Date getEndDate() {
+	public LocalDate getEndDate() {
 		return endDate;
 	}
 
@@ -280,8 +286,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			startTime.add(parseTime(timeSplit[0]));
 			endTime.add(parseTime(timeSplit[1]));
 		} else {
-			startTime.add(parseTime("1:37 am"));
-			endTime.add(parseTime("1:37 am"));
+			startTime.add(TBA_TIME);
+			endTime.add(TBA_TIME);
 		}
 	}
 
@@ -350,18 +356,18 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @param endDate2   The second end date
 	 * @return Return true if the classes overlap in any way date wise.
 	 */
-	private boolean datesConflict(Date startDate1, Date endDate1, Date startDate2, Date endDate2) {
-		if (startDate1.after(startDate2) && startDate1.before(endDate2)) { // First class starts in middle of second class
+	private boolean datesConflict(LocalDate startDate1, LocalDate endDate1, LocalDate startDate2, LocalDate endDate2) {
+		if (startDate1.isAfter(startDate2) && startDate1.isBefore(endDate2)) { // First class starts in middle of second class
 			return true;
-		} else if (endDate1.after(startDate2) && endDate1.before(endDate2)) { // Second class starts in middle of first class
+		} else if (endDate1.isAfter(startDate2) && endDate1.isBefore(endDate2)) { // Second class starts in middle of first class
 			return true;
 		} else if (endDate1.equals(startDate2)) { // First class ends when second class starts
 			return true;
 		} else if (startDate1.equals(endDate2)) { // First class starts when second class ends
 			return true;
-		} else if (startDate1.before(startDate2) && endDate1.after(endDate2)) { // First class starts before and ends after the second class
+		} else if (startDate1.isBefore(startDate2) && endDate1.isAfter(endDate2)) { // First class starts before and ends after the second class
 			return true;
-		} else if (startDate1.after(startDate2) && endDate1.before(endDate2)) { // First class starts after and ends before the second class
+		} else if (startDate1.isAfter(startDate2) && endDate1.isBefore(endDate2)) { // First class starts after and ends before the second class
 			return true;
 		} else if (startDate1.equals(startDate2) && endDate1.equals(endDate2)) { // First class starts and ends at the same date as the second class
 			return true;
@@ -381,8 +387,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @return Return true if the classes overlap in any way time wise.
 	 */
 	private boolean timesConflict(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
-		LocalTime tbaTime = parseTime("1:37 am");
-		if (startTime1.equals(tbaTime) || endTime1.equals(tbaTime) || startTime2.equals(tbaTime) || endTime2.equals(tbaTime)) { // Is the time TBA? Just assume it doesn't conflict
+		if (startTime1.equals(TBA_TIME) || endTime1.equals(TBA_TIME) || startTime2.equals(TBA_TIME) || endTime2.equals(TBA_TIME)) { // Is the time TBA? Just assume it doesn't conflict
 			return false;
 		} else if (startTime1.isAfter(startTime2) && startTime1.isBefore(endTime2)) { // First class starts in middle of second class
 			return true;
@@ -424,12 +429,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 *         place. If an exception occurs parsing the date it will instead return
 	 *         1/1/1970 00:00:00
 	 */
-	private Date parseDate(String date) {
-		try {
-			return new SimpleDateFormat("MM/dd/yyyy").parse(date);
-		} catch (ParseException e) {
-			return new Date(Long.MIN_VALUE);
-		}
+	private LocalDate parseDate(String date) {
+		return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 	}
 
 	/**
@@ -438,7 +439,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @return Returns a LocalTime object that signifies that time to the class
 	 *         takes place
 	 */
-	private LocalTime parseTime(String time) {
+	private static LocalTime parseTime(String time) {
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("h:mm a").toFormatter(Locale.ENGLISH);
 		return LocalTime.parse(time, formatter);
 	}
@@ -487,7 +488,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		 * The days the iterator has to go through still, in reverse order to save
 		 * computation power of removing an element from an array list
 		 */
-		private ArrayList<String> days = new ArrayList<>(Arrays.asList("F", "R", "W", "T", "M"));
+		private ArrayList<String> days = new ArrayList<>(Arrays.asList("FIL", "F", "R", "W", "T", "M"));
 		/**
 		 * The current day the iterator is on
 		 */
@@ -500,7 +501,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		 */
 		@Override
 		public boolean hasNext() {
-			return !days.isEmpty();
+			return !days.isEmpty() || day.equals("F");
 		}
 
 		/**
@@ -526,6 +527,21 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		 */
 		public String getDay() {
 			return day;
+		}
+
+		public String getRRuleDay() {
+			String day = getDay();
+			if (day.equals("M")) {
+				return "MO";
+			} else if (day.equals("T")) {
+				return "TU";
+			} else if (day.equals("W")) {
+				return "WE";
+			} else if (day.equals("R")) {
+				return "TH";
+			} else {
+				return "FR";
+			}
 		}
 	}
 

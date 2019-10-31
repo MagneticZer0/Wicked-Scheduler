@@ -135,12 +135,12 @@ public class CourseTests {
 
 	@Test
 	public void getStartDate() {
-		assertEquals("Sat Jan 18 00:00:00 EST 2020", tester.getStartDate().toString(), "Course getStartDate doesn't return the correct value");
+		assertEquals("2020-01-18", tester.getStartDate().toString(), "Course getStartDate doesn't return the correct value");
 	}
 
 	@Test
 	public void getEndDate() {
-		assertEquals("Fri Jan 17 00:00:00 EST 2020", tester.getEndDate().toString(), "Course getEndDate doesn't return the correct value");
+		assertEquals("2020-01-17", tester.getEndDate().toString(), "Course getEndDate doesn't return the correct value");
 	}
 
 	@Test

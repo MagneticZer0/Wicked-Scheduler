@@ -1,26 +1,16 @@
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
-import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
-import com.calendarfx.model.Interval;
 import com.calendarfx.view.CalendarView;
 
 import impl.com.calendarfx.view.DateControlSkin;
-import impl.com.calendarfx.view.util.Util;
-import com.calendarfx.*;
-import java.time.Duration;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -33,17 +23,12 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import javax.management.ReflectionException;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -197,89 +182,41 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			
 			List<String> desiredCourses = desiredCoursesSelection.getItems();
 
-			int i = 0;
-			while ( !desiredCourses.isEmpty() && i < desiredCourses.size() ) {
-				preScheduledClasses.add(desiredCourses.get(i));
-				i++;
-			}
+			preScheduledClasses.addAll(desiredCourses);
 			
 			//send classes to alex
 			//recieve schedules
 			//do stuff with schedules
 			
 			//pretend scheduler
-			ArrayList<Course> finalSchedule = new ArrayList<Course>();
-			for ( i = 0; i < desiredCourses.size(); i++ ) {
+			ArrayList<Course> finalSchedule = new ArrayList<>();
+			for (int i = 0; i < desiredCourses.size(); i++ ) {
 				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			}
 			
 			for( int j = 0; j < 3; j++ ) {
 				
 				Tab tab = new Tab("Schedule " + (j+1) );
-				CalendarView calendarView = new CalendarView();
-				calendarView.showDate(finalSchedule.get(0).getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 				setInfo();
+				CalendarView calendarView = new CalendarView();
+				calendarView.showDate(finalSchedule.get(0).getStartDate());
 				calendarView.showWeekPage();
 				
-				for ( int k = 0; k < finalSchedule.size(); k++ ) {
-					LocalTime timeTBA = LocalTime.parse("01:37"); // 01:37 time is TBA time
-					// Jan 1st 1970 is TBA date
-					
-					// get the next course to display
-					Course cur = finalSchedule.get(k);
-					
-					// if the class time is tba, don't display anything
-					LocalTime classTime = cur.getStartTime(0);
-					if ( classTime == timeTBA ) {
-						System.out.println("Time for class " + cur + " is TBA");
-						continue;
-					}
-					
-					// if the class time is tba, don't display anything
-					// NOT YET IMPLEMENTED
-					Date classDateTime = cur.getStartDate();
-
-					// set the correct time for the class
-					ZonedDateTime classZonedDateTime = ZonedDateTime.now().withHour(classTime.getHour()); 
-					classZonedDateTime = classZonedDateTime.withMinute(classTime.getMinute());
-					classZonedDateTime = classZonedDateTime.withSecond(0);
-					classZonedDateTime = classZonedDateTime.withNano(0);
-					
-					// set the correct date for the class
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(classDateTime);
-					cal.get(Calendar.DAY_OF_WEEK);
-					classZonedDateTime = classZonedDateTime.withDayOfMonth(cal.get(Calendar.DAY_OF_MONTH));
-					classZonedDateTime = classZonedDateTime.withMonth(cal.get(Calendar.MONTH)+1);
-					classZonedDateTime = classZonedDateTime.withYear(cal.get(Calendar.YEAR));
-									
-					// create the entry/entries for the class
-					List<String> days = cur.getDays();
-					Entry<String> entry = null;
-					for(int d = 0; d < days.size(); d++) {
-						
-						String dotw = days.get(d); // dotw stands for day of the week
-						switch (dotw) {
-						case "Monday": 
-							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime);
-							break;
-						case "Tuesday":
-							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(1));
-							break;
-						case "Wednesday":
-							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(2));
-							break;
-						case "Thursday":
-							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(3));
-							break;
-						case "Friday":
-							entry = (Entry<String>) calendarView.createEntryAt(classZonedDateTime.plusDays(4));
-							break;
+				for (Course cur : finalSchedule) {
+					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
+						Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
+						for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
+							for (LocalTime[] time : times) {
+								ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate(), time[0], ZoneId.systemDefault());
+								Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+								entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
+								entry.changeEndTime(time[1]);
+								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;");
+								entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+							}
 						}
-						entry.setTitle( finalSchedule.get(k).toString() + " CRN: " + cur.getCRN());
 					}
 				}
 
