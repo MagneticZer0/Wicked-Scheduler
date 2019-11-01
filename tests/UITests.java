@@ -5,7 +5,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -23,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -67,7 +70,7 @@ public class UITests {
 	@Test
 	@Order(1)
 	public void addCourse() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InterruptedException {
-		Button addCourse = ((Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e.toString().contains("Add Course")).get(0));
+		Button addCourse = (Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e.toString().contains("Add Course")).get(0);
 
 		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 0).get(0);
@@ -82,7 +85,7 @@ public class UITests {
 	@Test
 	@Order(2)
 	public void filterDesiredCourses() {
-		TextField desiredSearch = ((TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> ((TextField) e).getPromptText().contains("Desired")).get(0));
+		TextField desiredSearch = (TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> ((TextField) e).getPromptText().contains("Desired")).get(0);
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 5).get(0);
 
 		robot.moveTo(desiredSearch).clickOn().write("CS");
@@ -93,7 +96,7 @@ public class UITests {
 	@Test
 	@Order(3)
 	public void removeCourse() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InterruptedException {
-		Button removeCourse = ((Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e.toString().contains("Remove Course")).get(0));
+		Button removeCourse = (Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e.toString().contains("Remove Course")).get(0);
 
 		ListView<String> desiredCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() == 5).get(0);
 
@@ -107,7 +110,7 @@ public class UITests {
 	@Test
 	@Order(4)
 	public void filterAllCourses() {
-		TextField allSearch = ((TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> !((TextField) e).getPromptText().contains("Desired")).get(0));
+		TextField allSearch = (TextField) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TextField).filtered(e -> !((TextField) e).getPromptText().contains("Desired")).get(0);
 
 		robot.moveTo(allSearch).clickOn().write("CS");
 
@@ -118,6 +121,29 @@ public class UITests {
 
 	@Test
 	@Order(5)
+	public void schedule() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, InterruptedException {
+		Button sched = (Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof Button).filtered(e -> ((Button) e).getText().equals("Create Schedule")).get(0);
+
+		Field latch = UI.class.getDeclaredField("DONOTUSE");
+		latch.setAccessible(true);
+		latch.set(ui, new CountDownLatch(1));
+
+		Button addCourse = (Button) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e.toString().contains("Add Course")).get(0);
+		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
+
+		for (int i = 0; i < 3; i++) {
+			allCourses.getSelectionModel().selectFirst();
+			robot.moveTo(addCourse).clickOn();
+		}
+
+		robot.moveTo(sched).clickOn();
+		((CountDownLatch) latch.get(ui)).await();
+		TabPane schedules = (TabPane) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof TabPane).get(0);
+		assertTrue(schedules.getChildrenUnmodifiable().size() % 3 == 1);
+	}
+
+	@Test
+	@Order(6)
 	public void changeSemester() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InterruptedException {
 		ComboBox<String> semesters = getUIField("semesters", ComboBox.class);
 		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
@@ -133,6 +159,11 @@ public class UITests {
 		assertThat("Loading VBox is not being used!", allCourses.getPlaceholder(), is(getUIField("loadingBox", VBox.class)));
 		((CountDownLatch) latch.get(ui)).await();
 		assertAll("Changing semesters didn't work properly", () -> assertThat("Loading VBox is being used!", allCourses.getPlaceholder(), is(not(getUIField("loadingBox", VBox.class)))), () -> assertThat("Semester change was unsuccessful!", semesters.getSelectionModel().getSelectedItem(), is(not(curSem))));
+	}
+
+	@AfterAll
+	public static void tearDown() throws TimeoutException {
+		FxToolkit.cleanupApplication(ui);
 	}
 
 	private static <T> T getUIField(String name, Class<T> type) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {

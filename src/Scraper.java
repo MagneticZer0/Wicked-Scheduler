@@ -60,7 +60,8 @@ public class Scraper {
 	 */
 	private static Map<String, String> semesters = null;
 	/**
-	 * Stores the last semester ID used to get classes for, used from improved efficiency
+	 * Stores the last semester ID used to get classes for, used from improved
+	 * efficiency
 	 */
 	private static String lastSemesterID = "";
 	/**

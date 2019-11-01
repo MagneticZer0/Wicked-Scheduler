@@ -36,14 +36,14 @@ public class MultiMapTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"A", "B"})
+	@ValueSource(strings = { "A", "B" })
 	public void containsKey2(String s) {
 		assertTrue(multimap.containsKey(s), "MultiMap doesn't contain keys put in!");
 	}
 
 	@Test
 	public void containsValue() {
-		assertAll("MultiMap doesn't contain values put in!", () -> assertTrue(multimap.containsValue(1), "MultiMap should contain int \"1\""), () -> assertTrue(multimap.containsValue(2), "MultiMap should contain int \"2\""));	
+		assertAll("MultiMap doesn't contain values put in!", () -> assertTrue(multimap.containsValue(1), "MultiMap should contain int \"1\""), () -> assertTrue(multimap.containsValue(2), "MultiMap should contain int \"2\""));
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class MultiMapTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"A, 1", "A, 2", "B, 2"})
+	@CsvSource({ "A, 1", "A, 2", "B, 2" })
 	public void get(String key, int value) {
 		assertTrue(multimap.get(key).contains(value), "MultiMap does not contain expected values");
 	}
@@ -85,7 +85,7 @@ public class MultiMapTests {
 
 	@Test
 	public void values() {
-		for(List<Integer> values : multimap.values()) {
+		for (List<Integer> values : multimap.values()) {
 			assertTrue(values.contains(2), "MultiMap values doesns't contain expected result");
 		}
 	}

@@ -59,8 +59,8 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 */
 	@Override
 	public boolean containsValue(Object arg0) {
-		for (List<V> List : internalMap.values()) {
-			for (V value : List) {
+		for (List<V> list : internalMap.values()) {
+			for (V value : list) {
 				if (value.equals(arg0)) {
 					return true;
 				}

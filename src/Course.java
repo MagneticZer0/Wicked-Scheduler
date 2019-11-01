@@ -21,7 +21,6 @@ import collections.MultiMap;
 
 public class Course implements Serializable, Comparable<Course>, Iterable<List<LocalTime[]>> {
 
-
 	/**
 	 * This is used for Serializable compatability
 	 */
@@ -91,11 +90,13 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 */
 	private final TemporalAmount travelTime = Duration.ofMinutes(5);
 	/**
-	 * Represents the LocalTime object to be used if the class time cannot be parsed or is TBA
+	 * Represents the LocalTime object to be used if the class time cannot be parsed
+	 * or is TBA
 	 */
 	public static final LocalTime TBA_TIME = parseTime("1:37 am");
 	/**
-	 * Represents the Date object to be used if the class date cannot be parsed or is TBA
+	 * Represents the Date object to be used if the class date cannot be parsed or
+	 * is TBA
 	 */
 	public static final LocalDate TBA_DATE = LocalDate.MIN;
 

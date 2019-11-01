@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 
-import com.calendarfx.model.CalendarEvent;
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
@@ -31,7 +30,6 @@ import javafx.stage.StageStyle;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
-
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -168,7 +166,7 @@ public class UI extends Application {
 		schedule.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
-		
+
 		TabPane schedulesView = new TabPane();
 
 		// buttons
@@ -188,26 +186,27 @@ public class UI extends Application {
 			List<String> desiredCourses = desiredCoursesSelection.getItems();
 
 			preScheduledClasses.addAll(desiredCourses);
-			
-			//send classes to alex
-			//recieve schedules
-			//do stuff with schedules
-			
-			//pretend scheduler
+
+			// send classes to alex
+			// recieve schedules
+			// do stuff with schedules
+
+			// pretend scheduler
 			ArrayList<Course> finalSchedule = new ArrayList<>();
-			for (int i = 0; i < desiredCourses.size(); i++ ) {
+			for (int i = 0; i < desiredCourses.size(); i++) {
 				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			}
-			
-			for( int j = 0; j < 3; j++ ) {
-				
-				Tab tab = new Tab("Schedule " + (j+1) );
+
+			for (int j = 1; j < 4; j++) {
+				if(finalSchedule.isEmpty()) {
+					break;
+				}
+				Tab tab = new Tab("Schedule " + j);
 				setInfo();
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(0).getStartDate());
 				calendarView.showWeekPage();
-				calendarView.addEventHandler(CalendarEvent.ANY, System.out::println);
-				
+
 				for (Course cur : finalSchedule) {
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
 						if (!cur.isSplitClass()) {
@@ -236,13 +235,13 @@ public class UI extends Application {
 				}
 
 				tab.setContent(calendarView);
-				schedulesView.getTabs().addAll( tab );
+				schedulesView.getTabs().addAll(tab);
 			}
-			
+			DONOTUSE.countDown();
 		});
-		
+
 		grid.add(schedulesView, 6, 0, 5, 5);
-		
+
 		// display the GUI
 		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
@@ -272,14 +271,14 @@ public class UI extends Application {
 	private void loadSemesters() {
 		new Thread(() -> {
 			try {
-			Scraper.getAllSemesters();
-			} catch (Exception e){
+				Scraper.getAllSemesters();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			Platform.runLater(() -> {
 				try {
-				allSemestersList.addAll(Scraper.getAllSemesters().keySet());
-				} catch (Exception e){
+					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
