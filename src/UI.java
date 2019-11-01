@@ -20,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
@@ -71,6 +72,7 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
+		Scene scene = new Scene(grid, 200, 100);
 		// grid.setGridLinesVisible(true);
 
 		// elements regarding all courses
@@ -167,8 +169,6 @@ public class UI extends Application {
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 
-		TabPane schedulesView = new TabPane();
-
 		// buttons
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
@@ -183,6 +183,12 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
+			GridPane gp2 = new GridPane();
+			gp2.setHgap(10);
+			gp2.setVgap(10);
+			gp2.setAlignment(Pos.CENTER);
+			scene.setRoot(gp2);
+			TabPane schedulesView = new TabPane();
 			List<String> desiredCourses = desiredCoursesSelection.getItems();
 
 			preScheduledClasses.addAll(desiredCourses);
@@ -237,13 +243,17 @@ public class UI extends Application {
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
+			Button test = new Button("BACK");
+			test.setOnAction(e -> {
+				scene.setRoot(grid);
+			});
+			gp2.add(test, 0, 0);
+			GridPane.setHalignment(test, HPos.LEFT);
+			gp2.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
 
-		grid.add(schedulesView, 6, 0, 5, 5);
-
 		// display the GUI
-		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
 		firststage.show();
 		DONOTUSE.countDown();
