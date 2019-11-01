@@ -204,6 +204,22 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return Collections.unmodifiableList(result.stream().distinct().collect(Collectors.toList())); // Create an immutable list that has duplicates removed
 	}
 
+	public DayOfWeek firstDay() {
+		List<String> days = getDays();
+		String day = days.get(0);
+		if (day.equals("MO")) {
+			return DayOfWeek.MONDAY;
+		} else if (day.equals("TU")) {
+			return DayOfWeek.TUESDAY;
+		} else if (day.equals("WE")) {
+			return DayOfWeek.WEDNESDAY;
+		} else if (day.equals("TH")) {
+			return DayOfWeek.THURSDAY;
+		} else {
+			return DayOfWeek.FRIDAY;
+		}
+	}
+
 	/**
 	 * Returns the start time corresponding the the i'th index
 	 * 
@@ -531,6 +547,15 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		 * @return The day the iterator is on
 		 */
 		public String getDay() {
+			return day;
+		}
+
+		/**
+		 * Returns the current day in RRule format that the iterator is on
+		 * 
+		 * @return The day the iterator is on
+		 */
+		public String getRRuleDay() {
 			if (day.equals("M")) {
 				return "MO";
 			} else if (day.equals("T")) {

@@ -211,12 +211,14 @@ public class UI extends Application {
 				for (Course cur : finalSchedule) {
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
 						if (!cur.isSplitClass()) {
-							ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate(), cur.getStartTime(0), ZoneId.systemDefault());
-							Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
-							entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
-							entry.changeEndTime(cur.getEndTime(0));
-							entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replaceAll(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
-							entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+							if (!cur.getStartTime(0).equals(Course.TBA_TIME) && !cur.getEndTime(0).equals(Course.TBA_TIME)) {
+								ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate().with(TemporalAdjusters.nextOrSame(cur.firstDay())), cur.getStartTime(0), ZoneId.systemDefault());
+								Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+								entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
+								entry.changeEndTime(cur.getEndTime(0));
+								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+								entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+							}
 						} else {
 							Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
 							for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
@@ -225,7 +227,7 @@ public class UI extends Application {
 									Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
 									entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
 									entry.changeEndTime(time[1]);
-									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
 									entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
 								}
 							}
