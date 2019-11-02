@@ -45,7 +45,6 @@ public class UI extends Application {
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
-	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -185,28 +184,32 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			GridPane gp2 = new GridPane();
-			gp2.setHgap(10);
-			gp2.setVgap(10);
-			gp2.setAlignment(Pos.CENTER);
-			scene.setRoot(gp2);
-			TabPane schedulesView = new TabPane();
-			List<String> desiredCourses = desiredCoursesSelection.getItems();
+			GridPane scheduleGridpane = new GridPane();
+			scheduleGridpane.setHgap(10);
+			scheduleGridpane.setVgap(10);
+			scheduleGridpane.setAlignment(Pos.CENTER);
+			scene.setRoot(scheduleGridpane);
 
-			preScheduledClasses.addAll(desiredCourses);
+			TabPane schedulesView = new TabPane();
+			schedulesView.minWidthProperty().bind(firststage.widthProperty().subtract(20));
+			schedulesView.minHeightProperty().bind(firststage.heightProperty().subtract(100));
+			GridPane.setValignment(schedulesView, VPos.BOTTOM);
+
+			List<String> desiredCourses = desiredCoursesSelection.getItems();
 
 			// send classes to alex
 			// recieve schedules
 			// do stuff with schedules
 
 			// pretend scheduler
+
 			ArrayList<Course> finalSchedule = new ArrayList<>();
 			for (int i = 0; i < desiredCourses.size(); i++) {
 				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			}
 
 			for (int j = 1; j < 4; j++) {
-				if(finalSchedule.isEmpty()) {
+				if (finalSchedule.isEmpty()) {
 					break;
 				}
 				Tab tab = new Tab("Schedule " + j);
@@ -217,7 +220,7 @@ public class UI extends Application {
 				CalendarSource sources = new CalendarSource("My Courses");
 				calendarView.getCalendarSources().add(sources);
 
-				int i=0;
+				int i = 0;
 				for (Course cur : finalSchedule) {
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);
@@ -251,13 +254,13 @@ public class UI extends Application {
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
-			Button test = new Button("BACK");
-			test.setOnAction(e -> {
+			Button backButton = new Button("BACK");
+			backButton.setOnAction(e -> {
 				scene.setRoot(grid);
 			});
-			gp2.add(test, 0, 0);
-			GridPane.setHalignment(test, HPos.LEFT);
-			gp2.add(schedulesView, 0, 1);
+			scheduleGridpane.add(backButton, 0, 0);
+			GridPane.setHalignment(backButton, HPos.LEFT);
+			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
 
