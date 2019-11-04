@@ -79,12 +79,12 @@ public class UI extends Application {
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
 		grid.add(allCoursesLabel, 0, 1, 1, 1);
-
 		TextField allCoursesSearch = new TextField();
+		
 		allCoursesSearch.setPromptText("Search Courses");
 		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
-
+		
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -151,38 +151,40 @@ public class UI extends Application {
 		});
 		grid.add(semesters, 2, 2, 1, 1);
 
+		// identify the upcoming semester and load it by deafult
 		loadSemesters();
 		semesters.setValue(defaultSemester());
 
+		// button for adding courses to the desired courses list
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
 		addCourse.setMaxWidth(firststage.getWidth() / 4);
 		grid.add(addCourse, 2, 3, 1, 1);
-
-		Button removeCourse = new Button("Remove Course");
-		removeCourse.setStyle("-fx-background-color: #FF0000;");
-		removeCourse.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(removeCourse, 2, 4, 1, 1);
-
-		Button schedule = new Button("Create Schedule");
-		schedule.setStyle("-fx-background-color: #ADD8E6;");
-		schedule.setMaxWidth(firststage.getWidth() / 4);
-		grid.add(schedule, 2, 5, 1, 1);
-		GridPane.setValignment(schedule, VPos.BOTTOM);
-
-		// buttons
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
+
+		// button for removing courses to the desired courses list
+		Button removeCourse = new Button("Remove Course");
+		removeCourse.setStyle("-fx-background-color: #FF0000;");
+		removeCourse.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
+		
+		// control for creating the schedule
+		Button schedule = new Button("Create Schedule");
+		schedule.setStyle("-fx-background-color: #ADD8E6;");
+		schedule.setMaxWidth(firststage.getWidth() / 4);
+		grid.add(schedule, 2, 5, 1, 1);
+		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
 			GridPane scheduleGridpane = new GridPane();
 			scheduleGridpane.setHgap(10);
@@ -208,10 +210,13 @@ public class UI extends Application {
 				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			}
 
+			// display schedules
 			for (int j = 1; j < 4; j++) {
 				if (finalSchedule.isEmpty()) {
 					break;
 				}
+				
+				// create the calendar
 				Tab tab = new Tab("Schedule " + j);
 				setInfo();
 				CalendarView calendarView = new CalendarView();
@@ -220,6 +225,7 @@ public class UI extends Application {
 				CalendarSource sources = new CalendarSource("My Courses");
 				calendarView.getCalendarSources().add(sources);
 
+				// add entries to the calendar
 				int i = 0;
 				for (Course cur : finalSchedule) {
 					Calendar cal = new Calendar(cur.toString());
@@ -254,6 +260,8 @@ public class UI extends Application {
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
+			
+			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
 			backButton.setOnAction(e -> {
 				scene.setRoot(grid);
@@ -289,6 +297,9 @@ public class UI extends Application {
 		Scraper.saveCourses();
 	}
 
+	/**
+	 * Loads the list of all semester codes from the scraper
+	 */
 	private void loadSemesters() {
 		new Thread(() -> {
 			try {
@@ -300,13 +311,17 @@ public class UI extends Application {
 				try {
 					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
 				} catch (Exception e) {
-					e.printStackTrace();
+		 			e.printStackTrace();
 				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
 		}).start();
 	}
 
+	/**
+	 * Loads all the course information for a given semester
+	 * @param semesterID - the semester from which the courses will be loaded
+	 */
 	private void loadCourses(String semesterID) {
 		checkLoading();
 		allCoursesList.clear();
@@ -331,6 +346,9 @@ public class UI extends Application {
 		}).start();
 	}
 
+	/**
+	 * Displays the loading circle for when loadCourses() is called
+	 */
 	private void checkLoading() {
 		if (loadingBox == null) {
 			loadingBox = new VBox();
@@ -342,6 +360,10 @@ public class UI extends Application {
 		}
 	}
 
+	/**
+	 * Determines which semester is the next semester in the academic calendar
+	 * @return the semester code for the upcoming semester
+	 */
 	private String defaultSemester() {
 		LocalDateTime now = LocalDateTime.now();
 		if (now.getMonthOfYear() >= 8 && now.getMonthOfYear() <= 12) {
