@@ -170,7 +170,7 @@ public class UI extends Application {
 		// button for removing courses to the desired courses list
 		Button removeCourse = new Button("Remove Course");
 		removeCourse.setStyle("-fx-background-color: #FF0000;");
-		removeCourse.setMaxWidth(firststage.getWidth() / 4);
+		removeCourse.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
@@ -182,7 +182,7 @@ public class UI extends Application {
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
 		schedule.setStyle("-fx-background-color: #ADD8E6;");
-		schedule.setMaxWidth(firststage.getWidth() / 4);
+		schedule.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
