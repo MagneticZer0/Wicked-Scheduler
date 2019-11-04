@@ -218,6 +218,6 @@ public class ScheduleMaker {
     	}
     	
     	// Build schedule to GUI?   	
-    	
+    	return finalCourseList;
     }
 }
