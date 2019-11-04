@@ -54,19 +54,19 @@ public class UI extends Application {
 	 * this function builds the GUI and displays it to the user once everything has
 	 * been initialized
 	 *
-	 * @param firststage - a pre-made stage created by Application.launch
+	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
-	public void start(Stage firststage) {
+	public void start(Stage primaryStage) {
 
 		// set window properties
-		firststage.setTitle("Wicked Scheduler");
-		firststage.setX(250);
-		firststage.setY(50);
-		firststage.setWidth(1000);
-		firststage.setMinWidth(650);
-		firststage.setHeight(700);
-		firststage.setMinHeight(486);
-		firststage.initStyle(StageStyle.DECORATED);
+		primaryStage.setTitle("Wicked Scheduler");
+		primaryStage.setX(250);
+		primaryStage.setY(50);
+		primaryStage.setWidth(1000);
+		primaryStage.setMinWidth(650);
+		primaryStage.setHeight(700);
+		primaryStage.setMinHeight(486);
+		primaryStage.initStyle(StageStyle.DECORATED);
 
 		// create a grid for GUI elements
 		GridPane grid = new GridPane();
@@ -80,11 +80,11 @@ public class UI extends Application {
 		Label allCoursesLabel = new Label("Offered Courses:");
 		grid.add(allCoursesLabel, 0, 1, 1, 1);
 		TextField allCoursesSearch = new TextField();
-		
+
 		allCoursesSearch.setPromptText("Search Courses");
-		allCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
+		allCoursesSearch.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
-		
+
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -92,7 +92,7 @@ public class UI extends Application {
 			);
 		});
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
-		allCoursesSelection.setMinWidth(firststage.getWidth() / 4);
+		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
 		// elements regarding desired courses
@@ -101,7 +101,7 @@ public class UI extends Application {
 
 		TextField desiredCoursesSearch = new TextField();
 		desiredCoursesSearch.setPromptText("Search Desired Courses");
-		desiredCoursesSearch.setMaxWidth(firststage.getWidth() / 4);
+		desiredCoursesSearch.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
@@ -112,7 +112,7 @@ public class UI extends Application {
 			);
 		});
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
-		desiredCoursesSelection.setMinWidth(firststage.getWidth() / 4);
+		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
 
 		// semester list
@@ -128,23 +128,23 @@ public class UI extends Application {
 				String[] spl = str.split(" ");
 				switch (spl[0]) {
 					case "Spring":
-						value += 1;
+						value = 1;
 						break;
 					case "Summer":
-						value += 2;
+						value = 2;
 						break;
 					case "Fall":
-						value += 3;
+						value = 3;
 						break;
-					case "Winter":
-						value += 4;
+					default:
+						value = 4;
 				}
 				return value + Integer.parseInt(spl[1]) * 10;
 			}
 		});
 		semesters = new ComboBox<>(sortedSemesters.filtered(d -> sortedSemesters.indexOf(d) < 5)); // Only do 5 most relevant
 		semesters.setPromptText("Select Semester");
-		semesters.setMaxWidth(firststage.getWidth() / 4);
+		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
 			desiredCoursesList.clear();
 			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
@@ -158,7 +158,7 @@ public class UI extends Application {
 		// button for adding courses to the desired courses list
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle("-fx-background-color: #32CD32;");
-		addCourse.setMaxWidth(firststage.getWidth() / 4);
+		addCourse.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(addCourse, 2, 3, 1, 1);
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
@@ -178,7 +178,7 @@ public class UI extends Application {
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
-		
+
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
 		schedule.setStyle("-fx-background-color: #ADD8E6;");
@@ -193,16 +193,16 @@ public class UI extends Application {
 			scene.setRoot(scheduleGridpane);
 
 			TabPane schedulesView = new TabPane();
-			schedulesView.minWidthProperty().bind(firststage.widthProperty().subtract(20));
-			schedulesView.minHeightProperty().bind(firststage.heightProperty().subtract(100));
+			schedulesView.minWidthProperty().bind(primaryStage.widthProperty().subtract(20));
+			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			List<String> desiredCourses = desiredCoursesSelection.getItems();
-
+			//List<String> desiredCourses = desiredCoursesSelection.getItems();
+			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
 			// send classes to alex
 			// recieve schedules
 			// do stuff with schedules
-
+			ScheduleMaker.build(desiredCourses, semesters.getValue());
 			// pretend scheduler
 
 			ArrayList<Course> finalSchedule = new ArrayList<>();
@@ -215,7 +215,7 @@ public class UI extends Application {
 				if (finalSchedule.isEmpty()) {
 					break;
 				}
-				
+
 				// create the calendar
 				Tab tab = new Tab("Schedule " + j);
 				setInfo();
@@ -260,7 +260,7 @@ public class UI extends Application {
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
-			
+
 			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
 			backButton.setOnAction(e -> {
@@ -273,8 +273,8 @@ public class UI extends Application {
 		});
 
 		// display the GUI
-		firststage.setScene(scene);
-		firststage.show();
+		primaryStage.setScene(scene);
+		primaryStage.show();
 		DONOTUSE.countDown();
 	}
 
