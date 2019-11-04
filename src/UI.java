@@ -1,13 +1,13 @@
 import java.lang.reflect.Field;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 
+import com.calendarfx.model.Calendar;
+import com.calendarfx.model.Calendar.Style;
+import com.calendarfx.model.CalendarSource;
 // use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
@@ -20,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
@@ -30,6 +31,8 @@ import javafx.stage.StageStyle;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+
+import org.joda.time.LocalDateTime;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -42,7 +45,6 @@ public class UI extends Application {
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
-	private ArrayList<String> preScheduledClasses = new ArrayList<String>();
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -71,6 +73,7 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
+		Scene scene = new Scene(grid, 200, 100);
 		// grid.setGridLinesVisible(true);
 
 		// elements regarding all courses
@@ -167,8 +170,6 @@ public class UI extends Application {
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 
-		TabPane schedulesView = new TabPane();
-
 		// buttons
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
@@ -183,22 +184,32 @@ public class UI extends Application {
 			}
 		});
 		schedule.setOnAction(action -> {
-			List<String> desiredCourses = desiredCoursesSelection.getItems();
+			GridPane scheduleGridpane = new GridPane();
+			scheduleGridpane.setHgap(10);
+			scheduleGridpane.setVgap(10);
+			scheduleGridpane.setAlignment(Pos.CENTER);
+			scene.setRoot(scheduleGridpane);
 
-			preScheduledClasses.addAll(desiredCourses);
+			TabPane schedulesView = new TabPane();
+			schedulesView.minWidthProperty().bind(firststage.widthProperty().subtract(20));
+			schedulesView.minHeightProperty().bind(firststage.heightProperty().subtract(100));
+			GridPane.setValignment(schedulesView, VPos.BOTTOM);
+
+			List<String> desiredCourses = desiredCoursesSelection.getItems();
 
 			// send classes to alex
 			// recieve schedules
 			// do stuff with schedules
 
 			// pretend scheduler
+
 			ArrayList<Course> finalSchedule = new ArrayList<>();
 			for (int i = 0; i < desiredCourses.size(); i++) {
 				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			}
 
 			for (int j = 1; j < 4; j++) {
-				if(finalSchedule.isEmpty()) {
+				if (finalSchedule.isEmpty()) {
 					break;
 				}
 				Tab tab = new Tab("Schedule " + j);
@@ -206,28 +217,34 @@ public class UI extends Application {
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(0).getStartDate());
 				calendarView.showWeekPage();
+				CalendarSource sources = new CalendarSource("My Courses");
+				calendarView.getCalendarSources().add(sources);
 
+				int i = 0;
 				for (Course cur : finalSchedule) {
+					Calendar cal = new Calendar(cur.toString());
+					sources.getCalendars().add(cal);
+					cal.setStyle(Style.getStyle(i++));
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
 						if (!cur.isSplitClass()) {
 							if (!cur.getStartTime(0).equals(Course.TBA_TIME) && !cur.getEndTime(0).equals(Course.TBA_TIME)) {
-								ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate().with(TemporalAdjusters.nextOrSame(cur.firstDay())), cur.getStartTime(0), ZoneId.systemDefault());
-								Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+								Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
+								entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(cur.firstDay())));
 								entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
 								entry.changeEndTime(cur.getEndTime(0));
 								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
-								entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+								cal.addEntry(entry);
 							}
 						} else {
 							Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
 							for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
 								for (LocalTime[] time : times) {
-									ZonedDateTime dateTime = ZonedDateTime.of(cur.getStartDate().with(TemporalAdjusters.nextOrSame(it.getDayEnum())), time[0], ZoneId.systemDefault());
-									Entry<String> entry = (Entry<String>) calendarView.createEntryAt(dateTime);
+									Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
+									entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(it.getDayEnum())));
 									entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
 									entry.changeEndTime(time[1]);
 									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
-									entry.setTitle(cur.toString() + " CRN: " + cur.getCRN());
+									cal.addEntry(entry);
 								}
 							}
 						}
@@ -237,13 +254,17 @@ public class UI extends Application {
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
+			Button backButton = new Button("BACK");
+			backButton.setOnAction(e -> {
+				scene.setRoot(grid);
+			});
+			scheduleGridpane.add(backButton, 0, 0);
+			GridPane.setHalignment(backButton, HPos.LEFT);
+			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
 
-		grid.add(schedulesView, 6, 0, 5, 5);
-
 		// display the GUI
-		Scene scene = new Scene(grid, 200, 100);
 		firststage.setScene(scene);
 		firststage.show();
 		DONOTUSE.countDown();
@@ -322,11 +343,11 @@ public class UI extends Application {
 	}
 
 	private String defaultSemester() {
-		Calendar date = Calendar.getInstance();
-		if (date.get(Calendar.MONTH) >= 8 && date.get(Calendar.MONTH) <= 12) {
-			return "Spring " + (date.get(Calendar.YEAR) + 1);
+		LocalDateTime now = LocalDateTime.now();
+		if (now.getMonthOfYear() >= 8 && now.getMonthOfYear() <= 12) {
+			return "Spring " + (now.getYear() + 1);
 		} else {
-			return "Fall " + date.get(Calendar.YEAR);
+			return "Fall " + now.getYear();
 		}
 
 	}
