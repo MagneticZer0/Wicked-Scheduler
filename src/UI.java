@@ -195,12 +195,12 @@ public class UI extends Application {
 			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			List<String> desiredCourses = desiredCoursesSelection.getItems();
-
+			//List<String> desiredCourses = desiredCoursesSelection.getItems();
+			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
 			// send classes to alex
 			// recieve schedules
 			// do stuff with schedules
-			ScheduleMaker.build((ArrayList<String>) desiredCourses, semesters.getValue());
+			ScheduleMaker.build(desiredCourses, semesters.getValue());
 			// pretend scheduler
 
 			ArrayList<Course> finalSchedule = new ArrayList<>();
