@@ -200,7 +200,7 @@ public class UI extends Application {
 			// send classes to alex
 			// recieve schedules
 			// do stuff with schedules
-
+			ScheduleMaker.build((ArrayList<String>) desiredCourses, semesters.getValue());
 			// pretend scheduler
 
 			ArrayList<Course> finalSchedule = new ArrayList<>();
