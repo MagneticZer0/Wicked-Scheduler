@@ -5,19 +5,11 @@ import java.util.Collections;
 import collections.MultiMap;
 
 public class ScheduleMaker {
-    static ArrayList<Course> currentCourse = new ArrayList<>();
+	
+    static ArrayList<Course> currentCourse = new ArrayList<>(); // Holds all courses at various times
     private static MultiMap<String, Course> allCourses;
     private static int numCourses;
-	 
-    /**
-     * Get Course code from GUI
-     * @return An ArrayList of the courses from the GUI
-     */
-	private static ArrayList<String> getCC() {
-		ArrayList<String> courses = new ArrayList<>();
-    	return courses;
-    }
-    
+	     
     /**
      * This method will retrieve the Course from the given name and semester and add it to the 
      * global ArrayList
@@ -69,16 +61,10 @@ public class ScheduleMaker {
     			if(currentCourse.get(i).conflicts(currentCourse.get(j))) {
     				// Error, classes conflict notify user
     				System.out.println("Conflict Occured " + currentCourse.get(i) + " " + currentCourse.get(j));
-    				return null;
+    				continue;
     			}
     		}
     	}
-    	
-    	/**
-    	System.out.println(currentCourse.size());
-    	for(int i = 0; i < currentCourse.size(); i++) {
-    		System.out.println(currentCourse.get(i));
-    	}**/
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	int[] arr = new int[numCourses];
@@ -124,9 +110,11 @@ public class ScheduleMaker {
     	return finalCourseList; 	
     }
     
-    public static ArrayList<Course> main(String[] args) {
+    public static void main(String[] args) {
     	ArrayList<String> courses = new ArrayList<>(); // Store the courses from the GUI
     	ArrayList<Course> finalCourseList = new ArrayList<>();
+    	ArrayList<Course> secondCourseList = new ArrayList<>();
+    	ArrayList<ArrayList<Course>> out = new ArrayList<>();
     	
     	// Create the arraylist of selected courses
     	//courses = getCC();
@@ -135,13 +123,13 @@ public class ScheduleMaker {
     	
     	courses.add("CS3411 - Systems Programming");
     	courses.add("EE3131 - Electronics");
-    	courses.add("CS4321 - Introduction to Algorithms");
+    	courses.add("ACC2000 - Accounting Principles I");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		//System.out.println(Scraper.getAllSemesters().toString());
 			findCC( courses.get(j), Scraper.getAllSemesters().get("Fall 2019"));
     	}
-    	
+    	// S
     	Collections.sort(currentCourse);
     	
     	
@@ -155,16 +143,16 @@ public class ScheduleMaker {
     			if(currentCourse.get(i).conflicts(currentCourse.get(j))) {
     				// Error, classes conflict notify user
     				System.out.println("Conflict Occured " + currentCourse.get(i) + " " + currentCourse.get(j));
-    				return null;
+    				return;
     			}
     		}
     	}
     	
-    	/**
+    	
     	System.out.println(currentCourse.size());
     	for(int i = 0; i < currentCourse.size(); i++) {
     		System.out.println(currentCourse.get(i));
-    	}**/
+    	}
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	int[] arr = new int[numCourses];
@@ -211,13 +199,57 @@ public class ScheduleMaker {
     			}
     		}
     	}
+    	out.add(finalCourseList);
     	
+    	//**
+    	if( numCourses < currentCourse.size() ) {
+    		// Multiple courses
+    		for(int i = 0; i < numCourses; i++) {
+        		// Go through the multiple times of that class
+        		for(int j = 0; j < arr[i]; j++) {
+        			System.out.println(currentCourse.get(i + j));
+        			// Add the first class
+        			if(i == 0) {
+        				secondCourseList.add(currentCourse.get(i+j));
+        			} else {
+        				// Add other classes
+        				
+        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
+        					// Conflict go to next option
+        					if(j == arr[i] - 1) {
+        						// If on the last option of a class and can't add it ERROR
+        						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
+        					}
+        					continue;
+        				} else {
+        					for(int k = 0; k < finalCourseList.size(); k++) {
+        						// If the course exists in the old schedule skip it by increasing the index in currentCourse
+        						// and if that course has more than one offered
+        						if(finalCourseList.get(k) == currentCourse.get(i + j + arr[i - 1]) && arr[i] > 1) {
+        							j++;
+        						}
+        					}
+        					System.out.println(i);
+        					secondCourseList.add(currentCourse.get(i + j + arr[i - 1]));
+        					break;
+        				}
+        			}
+        		}
+        	}
+    		out.add(secondCourseList);
+    	}//**/
+    	    	    	
     	System.out.println(finalCourseList.size());
     	for(int i = 0; i < finalCourseList.size(); i++) {
     		System.out.println(finalCourseList.get(i));
     	}
     	
+    	System.out.println(secondCourseList.size());
+    	for(int i = 0; i < secondCourseList.size(); i++) {
+    		System.out.println(secondCourseList.get(i));
+    	}
+    	
     	// Build schedule to GUI?   	
-    	return finalCourseList;
+    	return;
     }
 }
