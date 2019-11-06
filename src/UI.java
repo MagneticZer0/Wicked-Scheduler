@@ -26,6 +26,7 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -73,6 +74,7 @@ public class UI extends Application {
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
+		grid.setStyle("-fx-background-color: #E9EEFF;");
 		Scene scene = new Scene(grid, 200, 100);
 		// grid.setGridLinesVisible(true);
 
@@ -181,7 +183,7 @@ public class UI extends Application {
 
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
-		schedule.setStyle("-fx-background-color: #ADD8E6;");
+		schedule.setStyle("-fx-background-color: #72A5FF;");
 		schedule.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
@@ -199,16 +201,11 @@ public class UI extends Application {
 
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
-			// send classes to alex
-			// recieve schedules
-			// do stuff with schedules
-			ScheduleMaker.build(desiredCourses, semesters.getValue());
-			// pretend scheduler
 
-			ArrayList<Course> finalSchedule = new ArrayList<>();
-			for (int i = 0; i < desiredCourses.size(); i++) {
-				finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
-			}
+			ArrayList<Course> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());
+			//for (int i = 0; i < desiredCourses.size(); i++) {
+			//	finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
+			//}
 
 			// display schedules
 			for (int j = 1; j < 4; j++) {
