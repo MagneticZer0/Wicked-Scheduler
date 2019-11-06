@@ -202,7 +202,7 @@ public class UI extends Application {
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
 
-			ArrayList<Course> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());
+			ArrayList<Course> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); //change this when alex startes sending multiple schedules
 			//for (int i = 0; i < desiredCourses.size(); i++) {
 			//	finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
 			//}
