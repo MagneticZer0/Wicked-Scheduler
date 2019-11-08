@@ -8,7 +8,6 @@ import java.util.List;
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
 import com.calendarfx.model.CalendarSource;
-// use com.calendarfx.model.Calendar when instantiating a calendarfx calendar
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
 
@@ -25,10 +24,12 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import themes.DefaultTheme;
+import themes.Theme;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -46,6 +47,7 @@ public class UI extends Application {
 	private ListView<String> allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
+	private Theme theme = new DefaultTheme();
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -68,18 +70,20 @@ public class UI extends Application {
 		primaryStage.setHeight(700);
 		primaryStage.setMinHeight(486);
 		primaryStage.initStyle(StageStyle.DECORATED);
+		primaryStage.getIcons().add(theme.getIcon());
 
 		// create a grid for GUI elements
 		GridPane grid = new GridPane();
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setAlignment(Pos.CENTER);
-		grid.setStyle("-fx-background-color: #E9EEFF;");
+		grid.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
 		Scene scene = new Scene(grid, 200, 100);
 		// grid.setGridLinesVisible(true);
 
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
+		allCoursesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
 		grid.add(allCoursesLabel, 0, 1, 1, 1);
 		TextField allCoursesSearch = new TextField();
 
@@ -99,6 +103,7 @@ public class UI extends Application {
 
 		// elements regarding desired courses
 		Label desiredCoursesLabel = new Label("Desired Courses:");
+		desiredCoursesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
 
 		TextField desiredCoursesSearch = new TextField();
@@ -159,7 +164,7 @@ public class UI extends Application {
 
 		// button for adding courses to the desired courses list
 		Button addCourse = new Button("Add Course");
-		addCourse.setStyle("-fx-background-color: #32CD32;");
+		addCourse.setStyle(Theme.toStyle(theme.addCourseColors()));
 		addCourse.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(addCourse, 2, 3, 1, 1);
 		addCourse.setOnAction(action -> {
@@ -171,7 +176,7 @@ public class UI extends Application {
 
 		// button for removing courses to the desired courses list
 		Button removeCourse = new Button("Remove Course");
-		removeCourse.setStyle("-fx-background-color: #FF0000;");
+		removeCourse.setStyle(Theme.toStyle(theme.removeCourseColors()));
 		removeCourse.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
@@ -183,7 +188,7 @@ public class UI extends Application {
 
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
-		schedule.setStyle("-fx-background-color: #72A5FF;");
+		schedule.setStyle(Theme.toStyle(theme.scheduleButtonColors()));
 		schedule.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
@@ -365,7 +370,6 @@ public class UI extends Application {
 		} else {
 			return "Fall " + now.getYear();
 		}
-
 	}
 
 	/**
