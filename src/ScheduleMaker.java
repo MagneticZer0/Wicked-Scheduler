@@ -33,8 +33,10 @@ public class ScheduleMaker {
     	}
     }
     
-    public static ArrayList<Course> build(ArrayList<String> courses, String Semester) {
-    	ArrayList<Course> finalCourseList = new ArrayList<>();
+    public static ArrayList<ArrayList<Course>> build(ArrayList<String> courses, String Semester) {
+    	ArrayList<Course> firstCourseList = new ArrayList<>();
+    	ArrayList<Course> secondCourseList = new ArrayList<>();
+    	ArrayList<ArrayList<Course>> out = new ArrayList<>();
     	
     	// Create the arraylist of selected courses
     	//courses = getCC();
@@ -90,10 +92,10 @@ public class ScheduleMaker {
     		for(int j = 0; j < arr[i]; j++) {
     			// Add the first class
     			if(i == 0) {
-    				finalCourseList.add(currentCourse.get(i+j));
+    				firstCourseList.add(currentCourse.get(i+j));
     			} else {
     				// Add other classes
-    				if(finalCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
+    				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {
     						// If on the last option of a class and can't add it ERROR
@@ -101,13 +103,45 @@ public class ScheduleMaker {
     					}
     					continue;
     				} else {
-    					finalCourseList.add(currentCourse.get(i + j + arr[i - 1]));
+    					firstCourseList.add(currentCourse.get(i + j + arr[i - 1]));
     					break;
     				}
     			}
     		}
     	}
-    	return finalCourseList; 	
+    	
+    	out.add(firstCourseList);
+    	
+    	// Make a second schedule
+    	if( numCourses < currentCourse.size() ) {
+    		// Multiple courses
+    		for(int i = 0; i < numCourses; i++) {
+        		// Go through the multiple times of that class
+        		for(int j = (arr[i] - 1); j >= 0; j--) {
+        			//System.out.println(currentCourse.get(i + j));
+        			// Add the first class
+        			if(i == 0) {
+        				secondCourseList.add(currentCourse.get(i+j));
+        			} else {
+        				// Add other classes
+        				
+        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
+        					// Conflict go to next option
+        					if(j == arr[i] - 1) {
+        						// If on the last option of a class and can't add it ERROR
+        						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
+        					}
+        					continue;
+        				} else {        					
+        					secondCourseList.add(currentCourse.get(i + j));
+        					break;
+        				}
+        			}
+        		}
+        	}
+    		out.add(secondCourseList);
+    	}
+    	return out; 	
     }
     
     public static void main(String[] args) {
@@ -176,7 +210,7 @@ public class ScheduleMaker {
     	for(int i = 0; i < numCourses; i++) {
     		// Go through the multiple times of that class
     		for(int j = 0; j < arr[i]; j++) {
-    			System.out.println(currentCourse.get(i + j));
+    			//System.out.println(currentCourse.get(i + j));
     			// Add the first class
     			if(i == 0) {
     				finalCourseList.add(currentCourse.get(i+j));
@@ -192,7 +226,7 @@ public class ScheduleMaker {
     					continue;
     				} else {
     					
-    					System.out.println(i);
+    					//System.out.println(i);
     					finalCourseList.add(currentCourse.get(i + j + arr[i - 1]));
     					break;
     				}
@@ -202,12 +236,13 @@ public class ScheduleMaker {
     	out.add(finalCourseList);
     	
     	//**
+    	System.out.println("Second");
     	if( numCourses < currentCourse.size() ) {
     		// Multiple courses
     		for(int i = 0; i < numCourses; i++) {
         		// Go through the multiple times of that class
-        		for(int j = 0; j < arr[i]; j++) {
-        			System.out.println(currentCourse.get(i + j));
+        		for(int j = (arr[i] - 1); j >= 0; j--) {
+        			//System.out.println(currentCourse.get(i + j));
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
@@ -221,16 +256,8 @@ public class ScheduleMaker {
         						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
         					}
         					continue;
-        				} else {
-        					for(int k = 0; k < finalCourseList.size(); k++) {
-        						// If the course exists in the old schedule skip it by increasing the index in currentCourse
-        						// and if that course has more than one offered
-        						if(finalCourseList.get(k) == currentCourse.get(i + j + arr[i - 1]) && arr[i] > 1) {
-        							j++;
-        						}
-        					}
-        					System.out.println(i);
-        					secondCourseList.add(currentCourse.get(i + j + arr[i - 1]));
+        				} else {        					
+        					secondCourseList.add(currentCourse.get(i + j));
         					break;
         				}
         			}
