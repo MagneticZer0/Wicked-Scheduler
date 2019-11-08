@@ -202,9 +202,9 @@ public class UI extends Application {
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
 
-			ArrayList<Course> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); //change this when alex startes sending multiple schedules
+			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); //change this when alex startes sending multiple schedules
 			
-
+			
 			// display schedules
 			for (int j = 1; j < 4; j++) {
 				if (finalSchedule.isEmpty()) {
