@@ -207,11 +207,8 @@ public class UI extends Application {
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
 
-			ArrayList<Course> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); //change this when alex startes sending multiple schedules
-			//for (int i = 0; i < desiredCourses.size(); i++) {
-			//	finalSchedule.addAll(Scraper.courses.get(desiredCourses.get(i)));
-			//}
-
+			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); 			
+			
 			// display schedules
 			for (int j = 1; j < 4; j++) {
 				if (finalSchedule.isEmpty()) {
@@ -222,14 +219,14 @@ public class UI extends Application {
 				Tab tab = new Tab("Schedule " + j);
 				setInfo();
 				CalendarView calendarView = new CalendarView();
-				calendarView.showDate(finalSchedule.get(0).getStartDate());
+				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
 				CalendarSource sources = new CalendarSource("My Courses");
 				calendarView.getCalendarSources().add(sources);
 
 				// add entries to the calendar
 				int i = 0;
-				for (Course cur : finalSchedule) {
+				for (Course cur : finalSchedule.get(j)) {
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
