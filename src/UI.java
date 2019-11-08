@@ -205,18 +205,18 @@ public class UI extends Application {
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
-			ArrayList<String> desiredCourses = new ArrayList<String>(desiredCoursesSelection.getItems());
+			ArrayList<String> desiredCourses = new ArrayList<>(desiredCoursesSelection.getItems());
 
 			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); 			
 			
 			// display schedules
-			for (int j = 1; j < 4; j++) {
+			for (int j = 0; j < finalSchedule.size(); j++) {
 				if (finalSchedule.isEmpty()) {
 					break;
 				}
 
 				// create the calendar
-				Tab tab = new Tab("Schedule " + j);
+				Tab tab = new Tab("Schedule " + j+1);
 				setInfo();
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
