@@ -63,6 +63,7 @@ public class ScheduleMaker {
     			if(currentCourse.get(i).conflicts(currentCourse.get(j))) {
     				// Error, classes conflict notify user
     				System.out.println("Conflict Occured " + currentCourse.get(i) + " " + currentCourse.get(j));
+    				currentCourse.remove(j);
     				continue;
     			}
     		}
