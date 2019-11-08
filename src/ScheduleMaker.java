@@ -69,17 +69,21 @@ public class ScheduleMaker {
     	}
     	
     	// This array will store the number of course repeats in order of sorted appearance
+    	// i.e. Systems has two offerings 
     	int[] arr = new int[numCourses];
     	int ind = 0;
     	for(int i = 0; i < numCourses; i++) {
     		arr[i] = 1; // At least one
 
-    		while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
-    			arr[i]++;
-    			ind++;
-    			if(ind < currentCourse.size()) {
-    				break;
-    			}
+    		// Check for repeats and increase count accordingly
+    		if( ind + 1 < currentCourse.size() && ind < currentCourse.size() ) {
+    			while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
+        			arr[i]++;
+        			ind++;
+        			if(ind < currentCourse.size()) {
+        				break;
+        			}
+        		}    		
     		}
     		
     		ind++;
@@ -93,7 +97,9 @@ public class ScheduleMaker {
     			// Add the first class
     			if(i == 0) {
     				firstCourseList.add(currentCourse.get(i+j));
-    			} else {
+    			} else if(arr[i] == 1){
+    				firstCourseList.add(currentCourse.get(i));
+    			}else {
     				// Add other classes
     				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
     					// Conflict go to next option
@@ -112,13 +118,12 @@ public class ScheduleMaker {
     	
     	out.add(firstCourseList);
     	
-    	// Make a second schedule
+    	// Make a second schedule if there are enough courses
     	if( numCourses < currentCourse.size() ) {
-    		// Multiple courses
+    		// Multiple courses, go through each course. Single courses first
     		for(int i = 0; i < numCourses; i++) {
-        		// Go through the multiple times of that class
+        		// Go through the multiple times of that course started from the latest courses
         		for(int j = (arr[i] - 1); j >= 0; j--) {
-        			//System.out.println(currentCourse.get(i + j));
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
@@ -155,13 +160,13 @@ public class ScheduleMaker {
     	
     	// Testing
     	
-    	courses.add("CS3411 - Systems Programming");
+    	courses.add("AF0130 - Air Force Elite Forces Workout Lab");
     	courses.add("EE3131 - Electronics");
-    	courses.add("ACC2000 - Accounting Principles I");
+    	courses.add("ACC3100 - Intermediate Accounting II");
     	
     	for(int j = 0; j < courses.size(); j++) {
     		//System.out.println(Scraper.getAllSemesters().toString());
-			findCC( courses.get(j), Scraper.getAllSemesters().get("Fall 2019"));
+			findCC( courses.get(j), Scraper.getAllSemesters().get("Spring 2020"));
     	}
     	// S
     	Collections.sort(currentCourse);
@@ -193,13 +198,15 @@ public class ScheduleMaker {
     	int ind = 0;
     	for(int i = 0; i < numCourses; i++) {
     		arr[i] = 1; // At least one
-
-    		while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
-    			arr[i]++;
-    			ind++;
-    			if(ind < currentCourse.size()) {
-    				break;
-    			}
+    		if( ind + 1 < currentCourse.size() && ind < currentCourse.size() ) {
+    			while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
+    				System.out.println("Next element is equal to current element");
+        			arr[i]++;
+        			ind++;
+        			if(ind < currentCourse.size()) {
+        				break;
+        			}
+        		}
     		}
     		
     		ind++;
@@ -214,6 +221,8 @@ public class ScheduleMaker {
     			// Add the first class
     			if(i == 0) {
     				finalCourseList.add(currentCourse.get(i+j));
+    			} else if(arr[i] == 1){
+    				finalCourseList.add(currentCourse.get(i));
     			} else {
     				// Add other classes
     				
@@ -246,6 +255,8 @@ public class ScheduleMaker {
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
+        			} else if(arr[i] == 1){
+        				secondCourseList.add(currentCourse.get(i));
         			} else {
         				// Add other classes
         				
