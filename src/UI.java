@@ -207,7 +207,7 @@ public class UI extends Application {
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			ArrayList<String> desiredCourses = new ArrayList<>(desiredCoursesSelection.getItems());
 
-			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue()); 			
+			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());	
 			
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
@@ -216,7 +216,7 @@ public class UI extends Application {
 				}
 
 				// create the calendar
-				Tab tab = new Tab("Schedule " + j+1);
+				Tab tab = new Tab("Schedule " + (j+1));
 				setInfo();
 				CalendarView calendarView = new CalendarView();
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
