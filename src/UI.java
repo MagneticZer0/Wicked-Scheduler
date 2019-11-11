@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,7 @@ import impl.com.calendarfx.view.DateControlSkin;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -48,6 +50,7 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private Theme theme = new DefaultTheme();
+	private int creditLoad;
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -102,6 +105,11 @@ public class UI extends Application {
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
 		// elements regarding desired courses
+		Label currentCredits = new Label("Current credits: 0");
+		currentCredits.setStyle(Theme.toTextStyle(theme.textColor()));
+		//currentCredits.textProperty().bind(Bindings.concat(creditLoad)); NOT WORKING YET
+		grid.add(currentCredits, 4, 6, 1, 1);
+		
 		Label desiredCoursesLabel = new Label("Desired Courses:");
 		desiredCoursesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
@@ -171,6 +179,13 @@ public class UI extends Application {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
+				//Scraper.getAllClasses(semesters.getValue()).;
+				try {
+					creditLoad += Scraper.getAllClasses(semesters.getValue()).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0];
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				//currentCredits.setText("Current Credits: %d", creditLoad);
 			}
 		});
 
