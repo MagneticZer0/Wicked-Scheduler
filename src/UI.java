@@ -219,6 +219,12 @@ public class UI extends Application {
 				Tab tab = new Tab("Schedule " + (j+1));
 				setInfo();
 				CalendarView calendarView = new CalendarView();
+				
+				// if the schedule is empty, don't try to print it (the code will break)
+				if ( finalSchedule.get(j).isEmpty() ) {
+					continue;
+				}
+				
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
 				CalendarSource sources = new CalendarSource("My Courses");
