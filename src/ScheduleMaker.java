@@ -111,7 +111,7 @@ public class ScheduleMaker {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {
     						// If on the last option of a class and can't add it ERROR
-    						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
+    						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
     					}
     					continue;
     				} else {
@@ -146,7 +146,7 @@ public class ScheduleMaker {
         					// Conflict go to next option
         					if(j == arr[i] - 1) {
         						// If on the last option of a class and can't add it ERROR
-        						System.out.println("Error incombatable course: " + currentCourse.get(i + j));
+        						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
         					}
         					continue;
         				} else {        					
@@ -158,7 +158,23 @@ public class ScheduleMaker {
         	}
     		out.add(secondCourseList);
     	}
-    	System.out.println("ArrayList arraylist size: " + out.size());
+    	boolean debug = true;
+    	if( debug ) {
+    		System.out.println("ArrayList arraylist size: " + out.size());
+    		System.out.println("Arr array:");
+    		for( int i = 0; i < numCourses; i++) {
+    			System.out.println("Arr: " + i + arr[i]);
+    		}
+    		System.out.println("CurrentCourse");
+    		for(int i = 0; i < currentCourse.size(); i ++) {
+    			System.out.println(currentCourse.get(i));
+    		}
+    		System.out.println("firstCourseList");
+        	for(int i = 0; i < firstCourseList.size(); i++) {
+        		System.out.println(firstCourseList.get(i));
+        	}
+    	}
+    	
     	return out; 	
     }
     
