@@ -1,6 +1,5 @@
 package themes;
 
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class DefaultTheme extends Theme {
@@ -17,7 +16,7 @@ public class DefaultTheme extends Theme {
 
 	@Override
 	public Color removeCourseColor() {
-		return Color.web("#FF0000");
+		return Color.web("#FF0000").desaturate();
 	}
 
 	@Override
