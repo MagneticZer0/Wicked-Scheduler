@@ -85,8 +85,7 @@ public class ScheduleMaker {
         				break;
         			}
         		}    		
-    		}
-    		
+    		}    		
     		ind++;
     	}    	
     	
@@ -95,6 +94,12 @@ public class ScheduleMaker {
     	for(int i = 0; i < numCourses; i++) {
     		// Go through the multiple times of that class
     		for(int j = 0; j < arr[i]; j++) {
+    			// Skip if the class is already in the schedule
+    			if(firstCourseList.contains(currentCourse.get(i + j))) {
+    				// Class exists skip
+    				break;    				
+    			}
+    			
     			// Add the first class
     			if(i == 0) {
     				firstCourseList.add(currentCourse.get(i+j));
@@ -125,6 +130,12 @@ public class ScheduleMaker {
     		for(int i = 0; i < numCourses; i++) {
         		// Go through the multiple times of that course started from the latest courses
         		for(int j = (arr[i] - 1); j >= 0; j--) {
+        			// Skip if the class is already in the schedule
+        			if(firstCourseList.contains(currentCourse.get(i + j))) {
+        				// Class exists skip
+        				break;    				
+        			}
+        			
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
@@ -147,6 +158,7 @@ public class ScheduleMaker {
         	}
     		out.add(secondCourseList);
     	}
+    	System.out.println("ArrayList arraylist size: " + out.size());
     	return out; 	
     }
     
@@ -161,13 +173,20 @@ public class ScheduleMaker {
     	
     	// Testing
     	
-    	courses.add("AF0130 - Air Force Elite Forces Workout Lab");
-    	courses.add("EE3131 - Electronics");
     	courses.add("ACC3100 - Intermediate Accounting II");
+    	courses.add("ACC2100 - Accounting Principles II");
+    	courses.add("ACC2000 - Accounting Principles I");
+    	courses.add("ACC3500 - Managerial/Cost Accounting I");
+    	courses.add("ACC4600 - Advanced Tax Topics");
     	
     	out = build(courses, "Spring 2020");
     	finalCourseList = out.get(0);
     	//secondCourseList = out.get(1);
+    	
+    	System.out.println("Current Course Size: " + currentCourse.size());
+    	for(int i = 0; i < currentCourse.size(); i++) {
+    		System.out.println(currentCourse.get(i));
+    	}
     	    	    	
     	System.out.println(finalCourseList.size());
     	for(int i = 0; i < finalCourseList.size(); i++) {
