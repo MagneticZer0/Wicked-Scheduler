@@ -33,6 +33,14 @@ public abstract class Theme {
 		return new Color[] {removeCourseColor(), removeCourseTextColor()};
 	}
 
+	public Color creditValidColor() {
+		return textColor();
+	}
+
+	public Color creditInvalidColor() {
+		return removeCourseColor();
+	}
+
 	public abstract Color scheduleButtonColor();
 
 	public Color scheduleButtonTextColor() {
