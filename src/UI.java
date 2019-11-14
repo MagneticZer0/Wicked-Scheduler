@@ -37,6 +37,7 @@ import themes.Theme;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import org.joda.time.LocalDateTime;
 
@@ -227,9 +228,10 @@ public class UI extends Application {
 			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
 
 			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
-			
+			List<Set<Course>> temp = new ArrayList<>(validSchedules);
+			temp.stream().filter(s -> temp.indexOf(s) < 3);
 			// display schedules
-			for ( Set<Course> indvSchedule : validSchedules) {
+			for ( Set<Course> indvSchedule : temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toList())) {
 				
 				if (validSchedules.isEmpty()) {
 					System.out.println("there are no valid schedules!!! :(");
