@@ -1,14 +1,16 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import collections.MultiMap;
 
 public class ScheduleMaker {
 	
-    static ArrayList<Course> currentCourse = new ArrayList<>(); // Holds all courses at various times
     private static MultiMap<String, Course> allCourses;
-    private static int numCourses;
+    private static String semesterID;
 	     
     /**
      * This method will retrieve the Course from the given name and semester and add it to the 
@@ -17,204 +19,122 @@ public class ScheduleMaker {
      * @param courseName - The name of the course to be searched for
      * @param semesterID - Semester to search in
      */
-    public static void findCC( String courseName, String semesterID ) {
+    public static Set<Course> findCourses( String courseName ) {
+    	
+    	Set<Course> possibleCourses = new HashSet<>(); // Holds all courses at various times
+    	
     	try {
+    		// load all courses if needed
     		if( allCourses == null ) {
     			Scraper.loadCourses();
     			allCourses = Scraper.getAllClasses(semesterID);
-    			//Collections.sort(allCourses);
     		}    		
-    		currentCourse.addAll(allCourses.get(courseName));
-    		numCourses++;
-    		System.out.println("Add course " + allCourses.get(courseName));
+    		
+    		// add all the inputed course to possibleCourses
+    		possibleCourses.addAll(allCourses.get(courseName));
+    		
     	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
     		System.exit(0);
     	}
+    	
+    	return possibleCourses;
     }
     
-    public static ArrayList<ArrayList<Course>> build(ArrayList<String> courses, String Semester) {
-    	ArrayList<Course> firstCourseList = new ArrayList<>();
-    	ArrayList<Course> secondCourseList = new ArrayList<>();
-    	ArrayList<ArrayList<Course>> out = new ArrayList<>();
+    public static Set<Set<Course>> build(Set<String> desiredCourses, String semester) {
+    	    	
+    	System.out.println("BUILD CALLED!!!");
     	
-    	// Create the arraylist of selected courses
-    	//courses = getCC();
+    	semesterID = semester;
     	
-    	/** Testing
+    	/*
+    	 * a list of schedules ( list of lists ) 
+    	 * 
+    	 * for each desired course:
+    	 *   for each section in the desired course:
+    	 *     for each schedule in the list:
+    	 *       for each course in the schedule:
+    	 *         if there is a conflict
+    	 *           remove the schedule from the list of schedules
+    	 *           break break;
+    	 *       add the section to the current schedule
+    	 *     
+    	 */
     	
-    	courses.add("CS3411 - Systems Programming");
-    	courses.add("EE3131 - Electronics");
-    	courses.add("CS4321 - Introduction to Algorithms"); **/
+    	Set<Course> possibleCourses = new HashSet<>();
+    	Set<Set<Course>> validSchedules = new HashSet<>(); // contains a list of schedules ( each "schedule" is a list of courses that do not conflict )
+    	Set<Course> tempSchedule = new HashSet<>();
+    	Set<Set<Course>> tempValids;
     	
-    	for(int j = 0; j < courses.size(); j++) {
-			findCC( courses.get(j), Scraper.getAllSemesters().get(Semester));
-    	}
-    	
-    	Collections.sort(currentCourse);
-    	
-    	// Compare each element in list for a conflict
-    	for(int i = 0; i < currentCourse.size(); i++) {
-    		for(int j = 0; j < currentCourse.size(); j++) {
-    			if(i == j) {
-    				// Skip
-    				continue;
+    	for ( String courseCode : desiredCourses ) {
+    		System.out.println("  HANDLING " + courseCode );
+    		possibleCourses = findCourses(courseCode);
+    		
+    		// if there are no pre-existing schedules
+    		if ( validSchedules.isEmpty() ) {
+    			
+    			System.out.println("  THERE ARE NO PRE-EXISTING SCHEDULES");
+    			for ( Course possibleCourse : possibleCourses ) {
+    				System.out.println("    ADDED FIRST CLASS " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString() );
+    				tempSchedule = new HashSet<>();
+    				tempSchedule.add(possibleCourse);
+    				validSchedules.add(tempSchedule);
     			}
-    			if(currentCourse.get(i).conflicts(currentCourse.get(j))) {
-    				// Error, classes conflict notify user
-    				System.out.println("Conflict Occured " + currentCourse.get(i) + " " + currentCourse.get(j));
-    				currentCourse.remove(j);
-    				continue;
-    			}
-    		}
-    	}
-    	
-    	// This array will store the number of course repeats in order of sorted appearance
-    	// i.e. Systems has two offerings 
-    	int[] arr = new int[numCourses];
-    	int ind = 0;
-    	for(int i = 0; i < numCourses; i++) {
-    		arr[i] = 1; // At least one
-
-    		// Check for repeats and increase count accordingly
-    		if( ind + 1 < currentCourse.size() && ind < currentCourse.size() ) {
-    			while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
-        			arr[i]++;
-        			ind++;
-        			if(ind < currentCourse.size()) {
-        				break;
-        			}
-        		}    		
-    		}    		
-    		ind++;
-    	}    	
-    	
-    	// Build schedule
-    	// Go through the number of courses to have
-    	for(int i = 0; i < numCourses; i++) {
-    		// Go through the multiple times of that class
-    		for(int j = 0; j < arr[i]; j++) {
-    			// Skip if the class is already in the schedule
-    			if(firstCourseList.contains(currentCourse.get(i + j))) {
-    				// Class exists skip
-    				break;    				
+    		} else {
+    			
+    			tempValids = new HashSet<>();
+    			System.out.println("THERE ARE PRE-EXISTING SCHEDULES");
+    			for ( Course possibleCourse : possibleCourses ) {
+    				System.out.println("      possibleCourse = " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString());
+    				forEachSchedule:
+    				for ( Set<Course> schedule : validSchedules ) {
+    					tempSchedule = new HashSet<>();
+    					for ( Course existingCourse : schedule ) {
+    						if ( possibleCourse.conflicts(existingCourse) ) {
+    							System.out.println("    CONFLICT!!!");
+    							//validSchedules.remove(schedule);
+    							break forEachSchedule;
+    						}
+    						System.out.println(possibleCourse.toString());
+    						System.out.println(existingCourse.toString());
+    						if ( possibleCourse.toString().equals(existingCourse.toString()) ) {
+    							System.out.println("    DUPLICATE!!!");
+    							break forEachSchedule;
+    						}
+    					}
+    					tempSchedule.addAll(schedule);
+    					tempSchedule.add(possibleCourse);
+    					tempValids.add(tempSchedule);
+    					System.out.println("      ADDED " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString() );
+    				}  
     			}
     			
-    			// Add the first class
-    			if(i == 0) {
-    				firstCourseList.add(currentCourse.get(i+j));
-    			} else if(arr[i] == 1){
-    				firstCourseList.add(currentCourse.get(i));
-    			}else {
-    				// Add other classes
-    				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
-    					// Conflict go to next option
-    					if(j == arr[i] - 1) {
-    						// If on the last option of a class and can't add it ERROR
-    						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
-    					}
-    					continue;
-    				} else {
-    					firstCourseList.add(currentCourse.get(i + j + arr[i - 1]));
-    					break;
-    				}
-    			}
+    			validSchedules.addAll(tempValids);
     		}
     	}
     	
-    	out.add(firstCourseList);
+    	Set<Set<Course>> finalSchedules = new HashSet<>();
     	
-    	// Make a second schedule if there are enough courses
-    	if( numCourses < currentCourse.size() ) {
-    		// Multiple courses, go through each course. Single courses first
-    		for(int i = 0; i < numCourses; i++) {
-        		// Go through the multiple times of that course started from the latest courses
-        		for(int j = (arr[i] - 1); j >= 0; j--) {
-        			// Skip if the class is already in the schedule
-        			if(firstCourseList.contains(currentCourse.get(i + j))) {
-        				// Class exists skip
-        				break;    				
-        			}
-        			
-        			// Add the first class
-        			if(i == 0) {
-        				secondCourseList.add(currentCourse.get(i+j));
-        			} else {
-        				// Add other classes
-        				
-        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
-        					// Conflict go to next option
-        					if(j == arr[i] - 1) {
-        						// If on the last option of a class and can't add it ERROR
-        						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
-        					}
-        					continue;
-        				} else {        					
-        					secondCourseList.add(currentCourse.get(i + j));
-        					break;
-        				}
-        			}
-        		}
-        	}
-    		out.add(secondCourseList);
-    	}
-    	boolean debug = true;
-    	if( debug ) {
-    		System.out.println("ArrayList arraylist size: " + out.size());
-    		System.out.println("Arr array:");
-    		for( int i = 0; i < numCourses; i++) {
-    			System.out.println("Arr: " + i + arr[i]);
+    	System.out.println("SIZE BEFORE PURGE: " + validSchedules.size() );
+    	//validSchedules.remove(null);
+    	for ( Set<Course> schedule : validSchedules ) {
+    		if ( schedule.size() == desiredCourses.size() ) {
+    			System.out.println( "Schedule size = " + schedule.size() + " DesiredCourses size = " + desiredCourses.size() );
+    			finalSchedules.add(schedule);
     		}
-    		System.out.println("CurrentCourse");
-    		for(int i = 0; i < currentCourse.size(); i ++) {
-    			System.out.println(currentCourse.get(i));
-    		}
-    		System.out.println("firstCourseList");
-        	for(int i = 0; i < firstCourseList.size(); i++) {
-        		System.out.println(firstCourseList.get(i));
-        	}
+    		
     	}
     	
-    	return out; 	
+    	System.out.println("SIZE AFTER PURGE: " + finalSchedules.size() );
+    	
+		return finalSchedules;
     }
     
     public static void main(String[] args) {
-    	ArrayList<String> courses = new ArrayList<>(); // Store the courses from the GUI
-    	ArrayList<Course> finalCourseList = new ArrayList<>();
-    	ArrayList<Course> secondCourseList = new ArrayList<>();
-    	ArrayList<ArrayList<Course>> out = new ArrayList<>();
-    	
-    	// Create the arraylist of selected courses
-    	//courses = getCC();
-    	
-    	// Testing
-    	
-    	courses.add("ACC3100 - Intermediate Accounting II");
-    	courses.add("ACC2100 - Accounting Principles II");
-    	courses.add("ACC2000 - Accounting Principles I");
-    	courses.add("ACC3500 - Managerial/Cost Accounting I");
-    	courses.add("ACC4600 - Advanced Tax Topics");
-    	
-    	out = build(courses, "Spring 2020");
-    	finalCourseList = out.get(0);
-    	//secondCourseList = out.get(1);
-    	
-    	System.out.println("Current Course Size: " + currentCourse.size());
-    	for(int i = 0; i < currentCourse.size(); i++) {
-    		System.out.println(currentCourse.get(i));
-    	}
-    	    	    	
-    	System.out.println(finalCourseList.size());
-    	for(int i = 0; i < finalCourseList.size(); i++) {
-    		System.out.println(finalCourseList.get(i));
-    	}
-    	
-    	System.out.println(secondCourseList.size());
-    	for(int i = 0; i < secondCourseList.size(); i++) {
-    		System.out.println(secondCourseList.get(i));
-    	}
-    	
-    	// Build schedule to GUI?   	
+    	Set<String> desiredCourses = new HashSet<>();
+    	desiredCourses.add("ACC2000 - Accounting Principles I");
+    	desiredCourses.add("ACC2100 - Accounting Principles II");
+    	ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get("Spring 2020"));
     	return;
     }
 }

@@ -4,7 +4,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
@@ -180,11 +182,13 @@ public class UI extends Application {
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
 				//Scraper.getAllClasses(semesters.getValue()).;
-				try {
+				
+				/*try {
 					creditLoad += Scraper.getAllClasses(semesters.getValue()).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0];
 				} catch (IOException e1) {
 					e1.printStackTrace();
-				}
+				}*/
+				
 				//currentCredits.setText("Current Credits: %d", creditLoad);
 			}
 		});
@@ -220,34 +224,37 @@ public class UI extends Application {
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
-			ArrayList<String> desiredCourses = new ArrayList<>(desiredCoursesSelection.getItems());
+			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
 
-			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());	
+			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
 			
 			// display schedules
-			for (int j = 0; j < finalSchedule.size(); j++) {
-				if (finalSchedule.isEmpty()) {
+			for ( Set<Course> indvSchedule : validSchedules) {
+				
+				if (validSchedules.isEmpty()) {
+					System.out.println("there are no valid schedules!!! :(");
 					break;
 				}
 
 				// create the calendar
-				Tab tab = new Tab("Schedule " + (j+1));
+				Tab tab = new Tab("Potential Schedule");
 				setInfo();
 				CalendarView calendarView = new CalendarView();
 				
 				// if the schedule is empty, don't try to print it (the code will break)
-				if ( finalSchedule.get(j).isEmpty() ) {
+				if ( indvSchedule.isEmpty() ) {
+					System.out.println("schedule is empty!!! :(");
 					continue;
 				}
 				
-				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
-				calendarView.showWeekPage();
+				//calendarView.showDate(indvSchedule.toArray()[0].g);
+				//calendarView.showWeekPage();
 				CalendarSource sources = new CalendarSource("My Courses");
 				calendarView.getCalendarSources().add(sources);
 
 				// add entries to the calendar
 				int i = 0;
-				for (Course cur : finalSchedule.get(j)) {
+				for (Course cur : indvSchedule) {
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
@@ -260,6 +267,7 @@ public class UI extends Application {
 								entry.changeEndTime(cur.getEndTime(0));
 								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
 								cal.addEntry(entry);
+								calendarView.showDate(entry.getStartDate());
 							}
 						} else {
 							Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
@@ -271,12 +279,14 @@ public class UI extends Application {
 									entry.changeEndTime(time[1]);
 									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
 									cal.addEntry(entry);
+									calendarView.showDate(entry.getStartDate());
 								}
 							}
 						}
 					}
 				}
-
+				
+				calendarView.showWeekPage();
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
 			}
