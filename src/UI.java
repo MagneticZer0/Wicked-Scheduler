@@ -229,9 +229,11 @@ public class UI extends Application {
 
 			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
 			List<Set<Course>> temp = new ArrayList<>(validSchedules);
-			temp.stream().filter(s -> temp.indexOf(s) < 3);
+			validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
+			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
+
 			// display schedules
-			for ( Set<Course> indvSchedule : temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toList())) {
+			for ( Set<Course> indvSchedule : validSchedules) {
 				
 				if (validSchedules.isEmpty()) {
 					System.out.println("there are no valid schedules!!! :(");
