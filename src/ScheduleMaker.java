@@ -83,7 +83,7 @@ public class ScheduleMaker {
     		} else {
     			
     			tempValids = new HashSet<>();
-    			System.out.println("THERE ARE PRE-EXISTING SCHEDULES");
+    			System.out.println("  THERE ARE PRE-EXISTING SCHEDULES");
     			for ( Course possibleCourse : possibleCourses ) {
     				System.out.println("      possibleCourse = " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString());
     				forEachSchedule:
@@ -95,8 +95,8 @@ public class ScheduleMaker {
     							//validSchedules.remove(schedule);
     							break forEachSchedule;
     						}
-    						System.out.println(possibleCourse.toString());
-    						System.out.println(existingCourse.toString());
+    						//System.out.println(possibleCourse.toString());
+    						//System.out.println(existingCourse.toString());
     						if ( possibleCourse.toString().equals(existingCourse.toString()) ) {
     							System.out.println("    DUPLICATE!!!");
     							break forEachSchedule;
@@ -116,11 +116,11 @@ public class ScheduleMaker {
     	Set<Set<Course>> finalSchedules = new HashSet<>();
     	
     	System.out.println("SIZE BEFORE PURGE: " + validSchedules.size() );
-    	//validSchedules.remove(null);
+    	System.out.println("Schedules:");
     	for ( Set<Course> schedule : validSchedules ) {
     		if ( schedule.size() == desiredCourses.size() ) {
-    			System.out.println( "Schedule size = " + schedule.size() + " DesiredCourses size = " + desiredCourses.size() );
     			finalSchedules.add(schedule);
+    			System.out.println(schedule.toString());    			
     		}
     		
     	}
@@ -132,8 +132,19 @@ public class ScheduleMaker {
     
     public static void main(String[] args) {
     	Set<String> desiredCourses = new HashSet<>();
-    	desiredCourses.add("ACC2000 - Accounting Principles I");
-    	desiredCourses.add("ACC2100 - Accounting Principles II");
+    	
+    	// first testing
+    	//desiredCourses.add("ACC2000 - Accounting Principles I");
+    	//desiredCourses.add("ACC2100 - Accounting Principles II");
+    	
+    	// these courses produce inconsistent behavior
+    	// when debugging, size 6 before purge, size 0 after purge
+    	// when running, size 10 before purge, size 1 after purge
+    	desiredCourses.add("CS3000 - Ethical/Social Aspects of Comp");    	
+    	desiredCourses.add("CS3331 - Concurrent Computing");
+    	desiredCourses.add("CS3411 - Systems Programming");
+    	desiredCourses.add("CS3712 - Software Quality Assurance");
+    	
     	ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get("Spring 2020"));
     	return;
     }
