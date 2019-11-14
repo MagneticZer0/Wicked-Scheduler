@@ -145,6 +145,13 @@ public class ScheduleMaker {
     	desiredCourses.add("CS3411 - Systems Programming");
     	desiredCourses.add("CS3712 - Software Quality Assurance");
     	
+    	// these courses are scheduled properly but one class in one
+    	// schedule was not displayed by the calendar (despite being
+    	// in a schedule -- might be a UI problem
+    	// desiredCourses.add("CS1142 - Programming at HW/SW Interface");
+    	// desiredCourses.add("CS3311 - Formal Models of Computation");
+    	// desiredCourses.add("MA3520 - Elem Differential Equations");
+    	
     	ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get("Spring 2020"));
     	return;
     }

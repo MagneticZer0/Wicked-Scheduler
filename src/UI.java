@@ -233,6 +233,7 @@ public class UI extends Application {
 			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
 
 			// display schedules
+			int k = 1; // for debugging only
 			for ( Set<Course> indvSchedule : validSchedules) {
 				
 				if (validSchedules.isEmpty()) {
@@ -259,6 +260,11 @@ public class UI extends Application {
 				// add entries to the calendar
 				int i = 0;
 				for (Course cur : indvSchedule) {
+					if ( i % indvSchedule.size() == 0 ) {
+						System.out.println("CALENDAR NUMBER " + k );
+						k++;
+					}
+					System.out.println("  the calendar is dealing with " + cur );
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
