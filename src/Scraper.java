@@ -65,14 +65,14 @@ public class Scraper {
 	 */
 	private static String lastSemesterID = "";
 	/**
-	 * The most recent output of the getAllClasses method
-	 */
-	public static MultiMap<String, Course> courses = new MultiMap<>();
-	/**
 	 * A map that maps a semesterID string to a MultiMap of all courses for that
 	 * semester
 	 */
 	private static HashMap<String, MultiMap<String, Course>> allCoursesMap = new HashMap<>();
+	/**
+	 * If the Scraper has loaded items from the disk before or not
+	 */
+	private static boolean loaded = false;
 
 	/**
 	 * Make the constructor private since everything in Scraper is static
@@ -195,15 +195,8 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
 	public static MultiMap<String, Course> getAllClasses(String semesterID, boolean forceUpdate) throws IOException {
-		if (lastSemesterID.equals(semesterID)) {
-			return courses;
-		} else {
-			lastSemesterID = semesterID;
-		}
-		courses.clear();
-
+		lastSemesterID = semesterID;
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
-			courses = allCoursesMap.get(semesterID);
 			return allCoursesMap.get(semesterID);
 		}
 
@@ -250,6 +243,8 @@ public class Scraper {
 		boolean searching = false;
 		boolean inRow = false;
 		Course previousClass = null;
+		MultiMap<String, Course> courses = new MultiMap<>();
+
 		while ((inputLine = in.readLine()) != null) {
 			String inputLineLower = inputLine.toLowerCase();
 			if (!searching) {
@@ -283,10 +278,17 @@ public class Scraper {
 									ArrayList<Double> credits = new ArrayList<>();
 									String[] credSplit = classInfo[5].split("-");
 									for (String s : credSplit) {
+										if(s.contains("/")) {
+											String[] otherSplit = s.split("/");
+											for(String d : otherSplit) {
+												credits.add(Double.parseDouble(d));
+											}
+											continue;
+										}
 										credits.add(Double.parseDouble(s));
 									}
 									previousClass = new Course(classInfo[0], classInfo[1], classInfo[2], classInfo[3].contains("L"), credits, classInfo[6], classInfo[7], classInfo[8], classInfo[11], classInfo[12], classInfo[13] + "|" + year, fee);
-									courses.put(previousClass.toString(), previousClass);
+									courses.putSingle(previousClass.toString(), previousClass);
 								}
 							}
 							input = "";
@@ -311,6 +313,15 @@ public class Scraper {
 		return courses;
 	}
 
+	public static MultiMap<String, Course> getLast() {
+		try {
+			return getAllClasses(lastSemesterID);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new MultiMap<>();
+		}
+	}
+
 	/**
 	 * Writes the allCoursesMap object to the disk
 	 */
@@ -332,11 +343,14 @@ public class Scraper {
 	 * Loads the allCoursesMap object from disk to memory
 	 */
 	public static void loadCourses() {
-		File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
-			allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			allCoursesMap = new HashMap<>(); // If we can't read it just start fresh
+		if (!loaded) {
+			File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
+			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
+				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
+			} catch (IOException | ClassNotFoundException e) {
+				allCoursesMap = new HashMap<>(); // If we can't read it just start fresh
+			}
+			loaded = true;
 		}
 	}
 

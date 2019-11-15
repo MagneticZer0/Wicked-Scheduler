@@ -15,11 +15,11 @@ public class MultiMapTests {
 	@BeforeEach
 	public void setup() {
 		multimap = new MultiMap<>();
-		multimap.put("A", 1);
-		multimap.put("A", 2);
-		multimap.put("B", 2);
-		multimap.put("B", 2);
-		multimap.put("B", 3);
+		multimap.putSingle("A", 1);
+		multimap.putSingle("A", 2);
+		multimap.putSingle("B", 2);
+		multimap.putSingle("B", 2);
+		multimap.putSingle("B", 3);
 	}
 
 	@Test
@@ -98,11 +98,11 @@ public class MultiMapTests {
 	@Test
 	public void equals() {
 		MultiMap<String, Integer> cloneMap = new MultiMap<>();
-		cloneMap.put("A", 1);
-		cloneMap.put("A", 2);
-		cloneMap.put("B", 2);
-		cloneMap.put("B", 2);
-		cloneMap.put("B", 3);
+		cloneMap.putSingle("A", 1);
+		cloneMap.putSingle("A", 2);
+		cloneMap.putSingle("B", 2);
+		cloneMap.putSingle("B", 2);
+		cloneMap.putSingle("B", 3);
 		assertEquals(cloneMap, multimap, "MultiMap equals method doesn't correctly work!");
 	}
 

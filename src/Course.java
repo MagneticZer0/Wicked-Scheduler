@@ -485,7 +485,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 */
 	@Override
 	public int compareTo(Course other) {
-		return Scraper.courses.get(this.toString()).size() - Scraper.courses.get(other.toString()).size();
+		return Scraper.getLast().get(this.toString()).size() - Scraper.getLast().get(other.toString()).size();
 	}
 
 	/**

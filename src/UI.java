@@ -17,6 +17,9 @@ import impl.com.calendarfx.view.DateControlSkin;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -26,8 +29,8 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import themes.DefaultTheme;
@@ -50,7 +53,7 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private Theme theme = new DefaultTheme();
-	private int creditLoad;
+	private final IntegerProperty creditLoad = new SimpleIntegerProperty(0);
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -96,10 +99,7 @@ public class UI extends Application {
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
-		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
-			);
-		});
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
@@ -107,7 +107,8 @@ public class UI extends Application {
 		// elements regarding desired courses
 		Label currentCredits = new Label("Current credits: 0");
 		currentCredits.setStyle(Theme.toTextStyle(theme.textColor()));
-		//currentCredits.textProperty().bind(Bindings.concat(creditLoad)); NOT WORKING YET
+		currentCredits.textProperty().bind(Bindings.concat("Current credits: ", creditLoad.asString()));
+		currentCredits.textFillProperty().bind(Bindings.when(creditLoad.lessThan(12).or(creditLoad.greaterThan(18))).then(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditInvalidColor().toString()))).otherwise(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditValidColor().toString()))));
 		grid.add(currentCredits, 4, 6, 1, 1);
 		
 		Label desiredCoursesLabel = new Label("Desired Courses:");
@@ -122,10 +123,7 @@ public class UI extends Application {
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
-		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
-			);
-		});
+		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
@@ -162,6 +160,7 @@ public class UI extends Application {
 		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
 			desiredCoursesList.clear();
+			creditLoad.set(0);
 			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 		});
 		grid.add(semesters, 2, 2, 1, 1);
@@ -177,15 +176,13 @@ public class UI extends Application {
 		grid.add(addCourse, 2, 3, 1, 1);
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
-				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
-				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
-				//Scraper.getAllClasses(semesters.getValue()).;
 				try {
-					creditLoad += Scraper.getAllClasses(semesters.getValue()).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0];
+					creditLoad.set(creditLoad.getValue().intValue() + (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				//currentCredits.setText("Current Credits: %d", creditLoad);
+				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
+				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
 			}
 		});
 
@@ -196,6 +193,11 @@ public class UI extends Application {
 		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				try {
+					creditLoad.set(creditLoad.getValue().intValue() - (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 			}
@@ -283,9 +285,7 @@ public class UI extends Application {
 
 			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
-			backButton.setOnAction(e -> {
-				scene.setRoot(grid);
-			});
+			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setHalignment(backButton, HPos.LEFT);
 			scheduleGridpane.add(schedulesView, 0, 1);

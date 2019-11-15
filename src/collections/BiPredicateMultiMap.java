@@ -49,8 +49,8 @@ public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 			Set<T> set = new HashSet<>(keySet());
 			for(T key : set) {
 				if (predicate.test(arg0, key)) {
-					put(arg0, key);
-					put(key, arg0);
+					putSingle(arg0, key);
+					putSingle(key, arg0);
 					added = true;
 				}
 			}
