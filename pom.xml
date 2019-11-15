@@ -34,13 +34,6 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>javafx</artifactId>
-			<version>2.2.3</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/jfxrt.jar</systemPath>
-		</dependency>
-		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.5.2</version>
