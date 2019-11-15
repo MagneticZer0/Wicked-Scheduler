@@ -146,25 +146,6 @@ public class UITests {
 
 	@Test
 	@Order(7)
-	public void changeSemester() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InterruptedException {
-		ComboBox<String> semesters = getUIField("semesters", ComboBox.class);
-		ListView<String> allCourses = (ListView<String>) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ListView).filtered(e -> ((ListView) e).getItems().size() > 0).get(0);
-
-		String curSem = semesters.getSelectionModel().getSelectedItem();
-
-		Field latch = UI.class.getDeclaredField("DONOTUSE");
-		latch.setAccessible(true);
-		latch.set(ui, new CountDownLatch(1));
-
-		robot.moveTo(semesters).clickOn().moveBy(0, 100).clickOn();
-
-		assertThat("Loading VBox is not being used!", allCourses.getPlaceholder(), is(getUIField("loadingBox", VBox.class)));
-		((CountDownLatch) latch.get(ui)).await();
-		assertAll("Changing semesters didn't work properly", () -> assertThat("Loading VBox is being used!", allCourses.getPlaceholder(), is(not(getUIField("loadingBox", VBox.class)))), () -> assertThat("Semester change was unsuccessful!", semesters.getSelectionModel().getSelectedItem(), is(not(curSem))));
-	}
-
-	@Test
-	@Order(8)
 	public void semList() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		assertTrue(((ComboBox) scene.getRoot().getChildrenUnmodifiable().filtered(e -> e instanceof ComboBox).get(0)).getItems().size() <= 5, "Semesters list contains more than 5 items!");
 	}

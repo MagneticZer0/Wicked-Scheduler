@@ -99,10 +99,7 @@ public class UI extends Application {
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
-		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
-			);
-		});
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
@@ -126,10 +123,7 @@ public class UI extends Application {
 		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
-		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> {
-			desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()) // Display all values if it's empty and it's case insensitive
-			);
-		});
+		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
@@ -291,9 +285,7 @@ public class UI extends Application {
 
 			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
-			backButton.setOnAction(e -> {
-				scene.setRoot(grid);
-			});
+			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setHalignment(backButton, HPos.LEFT);
 			scheduleGridpane.add(schedulesView, 0, 1);
