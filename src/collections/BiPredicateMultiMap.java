@@ -43,7 +43,7 @@ public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 	 *         indicate that the map previously associated an empty List with
 	 *         <tt>key</tt>.)
 	 */
-	public Set<T> put(T arg0) {
+	public List<T> put(T arg0) {
 		if(!containsKey(arg0)) {
 			boolean added = false;
 			Set<T> set = new HashSet<>(keySet());
@@ -55,7 +55,7 @@ public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 				}
 			}
 			if(!added) {
-				put(arg0, new HashSet<>());
+				put(arg0, new ArrayList<>());
 			}
 		}
 		return get(arg0);

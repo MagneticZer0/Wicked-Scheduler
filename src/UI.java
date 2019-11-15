@@ -166,6 +166,7 @@ public class UI extends Application {
 		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
 			desiredCoursesList.clear();
+			creditLoad.set(0);
 			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 		});
 		grid.add(semesters, 2, 2, 1, 1);
@@ -199,7 +200,7 @@ public class UI extends Application {
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() + (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().intValue() - (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

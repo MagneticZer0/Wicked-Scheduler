@@ -1,6 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
@@ -74,7 +74,7 @@ public class MultiMapTests {
 
 	@Test
 	public void remove() {
-		Set<Integer> removeValues = multimap.remove("A");
+		List<Integer> removeValues = multimap.remove("A");
 		assertAll("MultiMap key removal didn't work!", () -> assertTrue(removeValues.contains(1) && removeValues.contains(2), "MultiMap key removal didn't return correct values"), () -> assertTrue(multimap.get("A").isEmpty(), "MultiMap key remove didn't remove key"));
 	}
 
@@ -85,7 +85,7 @@ public class MultiMapTests {
 
 	@Test
 	public void values() {
-		for (Set<Integer> values : multimap.values()) {
+		for (List<Integer> values : multimap.values()) {
 			assertTrue(values.contains(2), "MultiMap values doesns't contain expected result");
 		}
 	}

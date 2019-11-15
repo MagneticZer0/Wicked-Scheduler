@@ -1,8 +1,8 @@
 package collections;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * This is an extension of Java's HashMap, it maps one key to one, or many,
@@ -13,7 +13,7 @@ import java.util.Set;
  * @param <K> The type of keys maintained by the MultiMap
  * @param <V> The type of mapped values
  */
-public class MultiMap<K, V> extends HashMap<K, Set<V>> {
+public class MultiMap<K, V> extends HashMap<K, List<V>> {
 
 	/**
 	 * This is for serializable object compatability
@@ -30,7 +30,7 @@ public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 	 */
 	@Override
 	public boolean containsValue(Object arg0) {
-		for (Set<V> list : super.values()) {
+		for (List<V> list : super.values()) {
 			for (V value : list) {
 				if (value.equals(arg0)) {
 					return true;
@@ -61,8 +61,8 @@ public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 	 * @see #put(Object, Object)
 	 */
 	@Override
-	public Set<V> get(Object arg0) {
-		return super.getOrDefault(arg0, new HashSet<>());
+	public List<V> get(Object arg0) {
+		return super.getOrDefault(arg0, new ArrayList<>());
 	}
 
 	/**
@@ -77,10 +77,10 @@ public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 	 *         indicate that the map previously associated an empty List with
 	 *         <tt>key</tt>.)
 	 */
-	public Set<V> putSingle(K arg0, V arg1) {
-		Set<V> list = null;
+	public List<V> putSingle(K arg0, V arg1) {
+		List<V> list = null;
 		if (super.get(arg0) == null) {
-			list = new HashSet<>();
+			list = new ArrayList<>();
 		} else {
 			list = super.get(arg0);
 		}
@@ -105,8 +105,8 @@ public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 	 * @return a view of the values contained in this map
 	 */
 	public Collection<V> allValues() {
-		Set<V> list = new HashSet<>();
-		for (Set<V> List : values()) {
+		List<V> list = new ArrayList<>();
+		for (List<V> List : values()) {
 			for (V value : List) {
 				list.add(value);
 			}
