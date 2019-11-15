@@ -43,19 +43,19 @@ public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 	 *         indicate that the map previously associated an empty List with
 	 *         <tt>key</tt>.)
 	 */
-	public List<T> put(T arg0) {
+	public Set<T> put(T arg0) {
 		if(!containsKey(arg0)) {
 			boolean added = false;
 			Set<T> set = new HashSet<>(keySet());
 			for(T key : set) {
 				if (predicate.test(arg0, key)) {
-					put(arg0, key);
-					put(key, arg0);
+					putSingle(arg0, key);
+					putSingle(key, arg0);
 					added = true;
 				}
 			}
 			if(!added) {
-				put(arg0, new ArrayList<>());
+				put(arg0, new HashSet<>());
 			}
 		}
 		return get(arg0);

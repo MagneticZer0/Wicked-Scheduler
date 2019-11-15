@@ -1,6 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
@@ -15,11 +15,11 @@ public class MultiMapTests {
 	@BeforeEach
 	public void setup() {
 		multimap = new MultiMap<>();
-		multimap.put("A", 1);
-		multimap.put("A", 2);
-		multimap.put("B", 2);
-		multimap.put("B", 2);
-		multimap.put("B", 3);
+		multimap.putSingle("A", 1);
+		multimap.putSingle("A", 2);
+		multimap.putSingle("B", 2);
+		multimap.putSingle("B", 2);
+		multimap.putSingle("B", 3);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class MultiMapTests {
 
 	@Test
 	public void remove() {
-		List<Integer> removeValues = multimap.remove("A");
+		Set<Integer> removeValues = multimap.remove("A");
 		assertAll("MultiMap key removal didn't work!", () -> assertTrue(removeValues.contains(1) && removeValues.contains(2), "MultiMap key removal didn't return correct values"), () -> assertTrue(multimap.get("A").isEmpty(), "MultiMap key remove didn't remove key"));
 	}
 
@@ -85,7 +85,7 @@ public class MultiMapTests {
 
 	@Test
 	public void values() {
-		for (List<Integer> values : multimap.values()) {
+		for (Set<Integer> values : multimap.values()) {
 			assertTrue(values.contains(2), "MultiMap values doesns't contain expected result");
 		}
 	}
@@ -98,11 +98,11 @@ public class MultiMapTests {
 	@Test
 	public void equals() {
 		MultiMap<String, Integer> cloneMap = new MultiMap<>();
-		cloneMap.put("A", 1);
-		cloneMap.put("A", 2);
-		cloneMap.put("B", 2);
-		cloneMap.put("B", 2);
-		cloneMap.put("B", 3);
+		cloneMap.putSingle("A", 1);
+		cloneMap.putSingle("A", 2);
+		cloneMap.putSingle("B", 2);
+		cloneMap.putSingle("B", 2);
+		cloneMap.putSingle("B", 3);
 		assertEquals(cloneMap, multimap, "MultiMap equals method doesn't correctly work!");
 	}
 

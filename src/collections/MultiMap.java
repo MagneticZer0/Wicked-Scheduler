@@ -1,10 +1,8 @@
 package collections;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
 
 /**
  * This is an extension of Java's HashMap, it maps one key to one, or many,
@@ -15,39 +13,12 @@ import java.util.List;
  * @param <K> The type of keys maintained by the MultiMap
  * @param <V> The type of mapped values
  */
-public class MultiMap<K, V> extends HashMap<K, List<V>> {
+public class MultiMap<K, V> extends HashMap<K, Set<V>> {
 
 	/**
 	 * This is for serializable object compatability
 	 */
-	private static final long serialVersionUID = 5254866262621327527L;
-
-	/**
-	 * The internal implementation of the MultiMap is a HashMap that maps keys to a
-	 * List of values, I use List because there's no need for having duplicates values
-	 * as far as I can think of.
-	 */
-	private HashMap<K, List<V>> internalMap = new HashMap<>();
-
-	/**
-	 * Removes all of the mappings from this map. The map will be empty after this
-	 * call returns.
-	 */
-	@Override
-	public void clear() {
-		internalMap.clear();
-	}
-
-	/**
-	 * Returns <tt>true</tt> if this map contains a mapping for the specified key.
-	 *
-	 * @param arg0 The key whose presence in this map is to be tested
-	 * @return <tt>true</tt> if this map contains a mapping for the specified key.
-	 */
-	@Override
-	public boolean containsKey(Object arg0) {
-		return internalMap.containsKey(arg0);
-	}
+	private static final long serialVersionUID = 6098566057097491786L;
 
 	/**
 	 * Returns <tt>true</tt> if this map maps one or more keys to the specified
@@ -59,7 +30,7 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 */
 	@Override
 	public boolean containsValue(Object arg0) {
-		for (List<V> list : internalMap.values()) {
+		for (Set<V> list : super.values()) {
 			for (V value : list) {
 				if (value.equals(arg0)) {
 					return true;
@@ -67,25 +38,6 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Returns a {@link List} view of the mappings contained in this map. The List is
-	 * backed by the map, so changes to the map are reflected in the List, and
-	 * vice-versa. If the map is modified while an iteration over the List is in
-	 * progress (except through the iterator's own <tt>remove</tt> operation, or
-	 * through the <tt>ListValue</tt> operation on a map entry returned by the
-	 * iterator) the results of the iteration are undefined. The List supports
-	 * element removal, which removes the corresponding mapping from the map, via
-	 * the <tt>Iterator.remove</tt>, <tt>List.remove</tt>, <tt>removeAll</tt>,
-	 * <tt>retainAll</tt> and <tt>clear</tt> operations. It does not support the
-	 * <tt>add</tt> or <tt>addAll</tt> operations.
-	 *
-	 * @return a List view of the mappings contained in this map
-	 */
-	@Override
-	public Set<Entry<K, List<V>>> entrySet() {
-		return internalMap.entrySet();
 	}
 
 	/**
@@ -109,52 +61,8 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 * @see #put(Object, Object)
 	 */
 	@Override
-	public List<V> get(Object arg0) {
-		return internalMap.getOrDefault(arg0, new ArrayList<>());
-	}
-
-	/**
-	 * Returns <tt>true</tt> if this map contains no key-value mappings.
-	 *
-	 * @return <tt>true</tt> if this map contains no key-value mappings
-	 */
-	@Override
-	public boolean isEmpty() {
-		return internalMap.isEmpty();
-	}
-
-	/**
-	 * Returns a {@link List} view of the keys contained in this map. The List is
-	 * backed by the map, so changes to the map are reflected in the List, and
-	 * vice-versa. If the map is modified while an iteration over the List is in
-	 * progress (except through the iterator's own <tt>remove</tt> operation), the
-	 * results of the iteration are undefined. The List supports element removal,
-	 * which removes the corresponding mapping from the map, via the
-	 * <tt>Iterator.remove</tt>, <tt>List.remove</tt>, <tt>removeAll</tt>,
-	 * <tt>retainAll</tt>, and <tt>clear</tt> operations. It does not support the
-	 * <tt>add</tt> or <tt>addAll</tt> operations.
-	 *
-	 * @return a List view of the keys contained in this map
-	 */
-	@Override
-	public Set<K> keySet() {
-		return internalMap.keySet();
-	}
-
-	/**
-	 * Associates the specified value with the specified key in this map. If the map
-	 * previously contained a mapping for the key, the old value is replaced.
-	 *
-	 * @param arg0 key with which the specified value is to be associated
-	 * @param arg1 value to be associated with the specified key
-	 * @return the previous value associated with <tt>key</tt>, or an empty List if
-	 *         there was no mapping for <tt>key</tt>. (An empty List return can also
-	 *         indicate that the map previously associated an empty List with
-	 *         <tt>key</tt>.)
-	 */
-	@Override
-	public List<V> put(K arg0, List<V> arg1) {
-		return internalMap.put(arg0, arg1);
+	public Set<V> get(Object arg0) {
+		return super.getOrDefault(arg0, new HashSet<>());
 	}
 
 	/**
@@ -169,73 +77,18 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 *         indicate that the map previously associated an empty List with
 	 *         <tt>key</tt>.)
 	 */
-	public List<V> put(K arg0, V arg1) {
-		List<V> list = null;
-		if (internalMap.get(arg0) == null) {
-			list = new ArrayList<>();
+	public Set<V> putSingle(K arg0, V arg1) {
+		Set<V> list = null;
+		if (super.get(arg0) == null) {
+			list = new HashSet<>();
 		} else {
-			list = internalMap.get(arg0);
+			list = super.get(arg0);
 		}
 		if (!list.contains(arg1)) {
 			list.add(arg1);
 		}
 		put(arg0, list);
 		return list;
-	}
-
-	/**
-	 * Copies all of the mappings from the specified map to this map. These mappings
-	 * will replace any mappings that this map had for any of the keys currently in
-	 * the specified map.
-	 *
-	 * @param arg0 mappings to be stored in this map
-	 * @throws NullPointerException if the specified map is null
-	 */
-	@Override
-	public void putAll(Map<? extends K, ? extends List<V>> arg0) {
-		internalMap.putAll(arg0);
-	}
-
-	/**
-	 * Removes the mapping for the specified key from this map if present.
-	 *
-	 * @param arg0 key whose mapping is to be removed from the map
-	 * @return the previous value associated with <tt>key</tt>, or an empty List if
-	 *         there was no mapping for <tt>key</tt>. (An empty List return can also
-	 *         indicate that the map previously associated an empty List with
-	 *         <tt>key</tt>.)
-	 */
-	@Override
-	public List<V> remove(Object arg0) {
-		return internalMap.remove(arg0);
-	}
-
-	/**
-	 * Returns the number of key-value mappings in this map.
-	 *
-	 * @return the number of key-value mappings in this map
-	 */
-	@Override
-	public int size() {
-		return internalMap.size();
-	}
-
-	/**
-	 * Returns a {@link Collection} view of the Lists of values contained in this
-	 * map. The collection is backed by the map, so changes to the map are reflected
-	 * in the collection, and vice-versa. If the map is modified while an iteration
-	 * over the collection is in progress (except through the iterator's own
-	 * <tt>remove</tt> operation), the results of the iteration are undefined. The
-	 * collection supports element removal, which removes the corresponding mapping
-	 * from the map, via the <tt>Iterator.remove</tt>, <tt>Collection.remove</tt>,
-	 * <tt>removeAll</tt>, <tt>retainAll</tt> and <tt>clear</tt> operations. It does
-	 * not support the <tt>add</tt> or <tt>addAll</tt> operations.
-	 *
-	 * @return a view of the List of values contained in this map
-	 */
-	@Override
-	public Collection<List<V>> values() {
-		return internalMap.values();
 	}
 
 	/**
@@ -252,8 +105,8 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 * @return a view of the values contained in this map
 	 */
 	public Collection<V> allValues() {
-		ArrayList<V> list = new ArrayList<>();
-		for (List<V> List : values()) {
+		Set<V> list = new HashSet<>();
+		for (Set<V> List : values()) {
 			for (V value : List) {
 				list.add(value);
 			}
