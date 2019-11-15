@@ -37,6 +37,9 @@ public class ScheduleMaker {
     	ArrayList<Course> firstCourseList = new ArrayList<>();
     	ArrayList<Course> secondCourseList = new ArrayList<>();
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
+    	boolean debug = true;
+    	ArrayList<Course> copyList = new ArrayList<>();
+    	copyList = currentCourse;
     	
     	// Create the arraylist of selected courses
     	//courses = getCC();
@@ -69,6 +72,15 @@ public class ScheduleMaker {
     		}
     	}
     	
+    	// Search to see if a course was completly taken out
+    	for(int i = 0; i < copyList.size(); i++) {
+    		System.out.println(copyList.size() + " " + currentCourse.size());
+    		// If a course doesn't exist adjust numCourses accordingly
+    		if(!(currentCourse.contains(copyList.get(i)))) {
+    			numCourses--;
+    		}
+    	}
+    	
     	// This array will store the number of course repeats in order of sorted appearance
     	// i.e. Systems has two offerings 
     	int[] arr = new int[numCourses];
@@ -89,15 +101,30 @@ public class ScheduleMaker {
     		ind++;
     	}    	
     	
+    	if (debug) {
+    		System.out.println("ArrayList arraylist size: " + out.size());
+    		System.out.println("Arr array:");
+    		for( int i = 0; i < numCourses; i++) {
+    			System.out.println("Arr: " + i + " "+ arr[i]);
+    		}
+    		System.out.println("CurrentCourse");
+    		for(int i = 0; i < currentCourse.size(); i ++) {
+    			System.out.println(currentCourse.get(i));
+    		}
+    		System.out.println(numCourses);
+    	}
+    	
     	// Build schedule
     	// Go through the number of courses to have
     	for(int i = 0; i < numCourses; i++) {
     		// Go through the multiple times of that class
     		for(int j = 0; j < arr[i]; j++) {
     			// Skip if the class is already in the schedule
-    			if(firstCourseList.contains(currentCourse.get(i + j))) {
-    				// Class exists skip
-    				break;    				
+    			if(i + j < currentCourse.size()) {
+    				if(firstCourseList.contains(currentCourse.get(i + j))) {
+        				// Class exists skip
+        				break;    				
+        			}
     			}
     			
     			// Add the first class
@@ -158,17 +185,9 @@ public class ScheduleMaker {
         	}
     		out.add(secondCourseList);
     	}
-    	boolean debug = true;
+    	
     	if( debug ) {
-    		System.out.println("ArrayList arraylist size: " + out.size());
-    		System.out.println("Arr array:");
-    		for( int i = 0; i < numCourses; i++) {
-    			System.out.println("Arr: " + i + arr[i]);
-    		}
-    		System.out.println("CurrentCourse");
-    		for(int i = 0; i < currentCourse.size(); i ++) {
-    			System.out.println(currentCourse.get(i));
-    		}
+    		
     		System.out.println("firstCourseList");
         	for(int i = 0; i < firstCourseList.size(); i++) {
         		System.out.println(firstCourseList.get(i));
