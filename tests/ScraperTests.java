@@ -66,6 +66,6 @@ public class ScraperTests {
 	@Test
 	public void saveCourses() {
 		Scraper.saveCourses();
-		assertTrue(new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser").exists(), "File saving didn't work correctly");
+		assertTrue(new File(System.getProperty("user.home") + "/Wicked-Scheduler/coursesMap.ser").exists(), "File saving didn't work correctly");
 	}
 }
