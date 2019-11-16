@@ -326,7 +326,7 @@ public class Scraper {
 	 * Writes the allCoursesMap object to the disk
 	 */
 	public static void saveCourses() {
-		String dirString = System.getProperty("user.home") + "\\Wicked-Scheduler\\";
+		String dirString = System.getProperty("user.home") + "/Wicked-Scheduler/";
 		File directory = new File(dirString); // Create directory
 		if (!directory.exists()) {
 			directory.mkdir();
@@ -344,7 +344,7 @@ public class Scraper {
 	 */
 	public static void loadCourses() {
 		if (!loaded) {
-			File coursesMap = new File(System.getProperty("user.home") + "\\Wicked-Scheduler\\coursesMap.ser");
+			File coursesMap = new File(System.getProperty("user.home") + "/Wicked-Scheduler/coursesMap.ser");
 			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
 				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
 			} catch (IOException | ClassNotFoundException e) {
