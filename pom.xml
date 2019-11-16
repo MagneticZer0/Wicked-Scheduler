@@ -87,6 +87,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>testfx-core</artifactId>
+			<version>4.0.16-alpha</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.oracle</groupId>
 			<artifactId>javafx</artifactId>
 			<version>1.8</version>
