@@ -1,3 +1,4 @@
+package headlessTests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.text.ParseException;
@@ -9,6 +10,9 @@ import java.util.List;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import logic.Course;
+import logic.Course.CourseTimeIterator;
 
 public class CourseTests {
 

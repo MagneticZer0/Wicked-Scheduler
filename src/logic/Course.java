@@ -1,3 +1,4 @@
+package logic;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;

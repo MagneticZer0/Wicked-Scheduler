@@ -1,3 +1,4 @@
+package headlessTests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
@@ -9,6 +10,8 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.*;
 
 import collections.MultiMap;
+import logic.Course;
+import logic.Scraper;
 
 public class ScraperTests {
 
