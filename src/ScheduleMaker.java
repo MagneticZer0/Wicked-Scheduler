@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import collections.MultiMap;
@@ -65,6 +62,7 @@ public class ScheduleMaker {
     	Set<Set<Course>> validSchedules = new HashSet<>(); // contains a list of schedules ( each "schedule" is a list of courses that do not conflict )
     	Set<Course> tempSchedule = new HashSet<>();
     	Set<Set<Course>> tempValids;
+    	boolean conflict;
     	
     	for ( String courseCode : desiredCourses ) {
     		System.out.println("  HANDLING " + courseCode );
@@ -74,6 +72,7 @@ public class ScheduleMaker {
     		if ( validSchedules.isEmpty() ) {
     			
     			System.out.println("  THERE ARE NO PRE-EXISTING SCHEDULES");
+    			System.out.println(possibleCourses);
     			for ( Course possibleCourse : possibleCourses ) {
     				System.out.println("    ADDED FIRST CLASS " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString() );
     				tempSchedule = new HashSet<>();
@@ -86,22 +85,27 @@ public class ScheduleMaker {
     			System.out.println("  THERE ARE PRE-EXISTING SCHEDULES");
     			for ( Course possibleCourse : possibleCourses ) {
     				System.out.println("      possibleCourse = " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString());
-    				forEachSchedule:
     				for ( Set<Course> schedule : validSchedules ) {
     					tempSchedule = new HashSet<>();
+    					conflict = false;
     					for ( Course existingCourse : schedule ) {
     						if ( possibleCourse.conflicts(existingCourse) ) {
-    							System.out.println("    CONFLICT!!!");
-    							//validSchedules.remove(schedule);
-    							break forEachSchedule;
+    							System.out.println("    CONFLICT WITH SCHEDULE " + schedule.toString());
+    							conflict = true;
+    							break;
     						}
     						//System.out.println(possibleCourse.toString());
     						//System.out.println(existingCourse.toString());
-    						if ( possibleCourse.toString().equals(existingCourse.toString()) ) {
-    							System.out.println("    DUPLICATE!!!");
-    							break forEachSchedule;
-    						}
+    						//if ( possibleCourse.toString().equals(existingCourse.toString()) ) {
+    						//	  System.out.println("    DUPLICATE!!!");
+    						//	  break;
+    						//}
     					}
+    					
+    					if (conflict) {
+    						continue;
+    					}
+    					
     					tempSchedule.addAll(schedule);
     					tempSchedule.add(possibleCourse);
     					tempValids.add(tempSchedule);
@@ -118,9 +122,10 @@ public class ScheduleMaker {
     	System.out.println("SIZE BEFORE PURGE: " + validSchedules.size() );
     	System.out.println("Schedules:");
     	for ( Set<Course> schedule : validSchedules ) {
-    		if ( schedule.size() == desiredCourses.size() ) {
+    		//System.out.println(schedule.toString());
+    		if ( schedule.size() == desiredCourses.size() && finalSchedules.size() < 10) {
     			finalSchedules.add(schedule);
-    			System.out.println(schedule.toString());    			
+    			System.out.println("     FINAL:" + schedule.toString());    			
     		}
     		
     	}
@@ -140,17 +145,19 @@ public class ScheduleMaker {
     	// these courses produce inconsistent behavior
     	// when debugging, size 6 before purge, size 0 after purge
     	// when running, size 10 before purge, size 1 after purge
+    	//desiredCourses.add("CS3000 - Ethical/Social Aspects of Comp");    	
+    	//desiredCourses.add("CS3331 - Concurrent Computing");
+    	//desiredCourses.add("CS3411 - Systems Programming");
+    	//desiredCourses.add("CS3712 - Software Quality Assurance");
+    	
     	desiredCourses.add("CS3000 - Ethical/Social Aspects of Comp");    	
     	desiredCourses.add("CS3331 - Concurrent Computing");
     	desiredCourses.add("CS3411 - Systems Programming");
     	desiredCourses.add("CS3712 - Software Quality Assurance");
-    	
-    	// these courses are scheduled properly but one class in one
-    	// schedule was not displayed by the calendar (despite being
-    	// in a schedule -- might be a UI problem
-    	// desiredCourses.add("CS1142 - Programming at HW/SW Interface");
-    	// desiredCourses.add("CS3311 - Formal Models of Computation");
-    	// desiredCourses.add("MA3520 - Elem Differential Equations");
+    	desiredCourses.add("CS4760 - User Interface Design & Impl");    	
+    	desiredCourses.add("PE0521 - Snowboard Fusion Lab");
+    	desiredCourses.add("PE1140 - Tennis Lab");
+    	//desiredCourses.add("PE0145 - Beginning Rifle Lab");
     	
     	ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get("Spring 2020"));
     	return;

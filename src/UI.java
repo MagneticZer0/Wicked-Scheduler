@@ -228,10 +228,10 @@ public class UI extends Application {
 			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
 
 			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
-			List<Set<Course>> temp = new ArrayList<>(validSchedules);
-			validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
-			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
-
+			//List<Set<Course>> temp = new ArrayList<>(validSchedules);
+			//validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
+			//temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
+			
 			// display schedules
 			int k = 1; // for debugging only
 			for ( Set<Course> indvSchedule : validSchedules) {
@@ -306,9 +306,19 @@ public class UI extends Application {
 			backButton.setOnAction(e -> {
 				scene.setRoot(grid);
 			});
+			
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setHalignment(backButton, HPos.LEFT);
-			scheduleGridpane.add(schedulesView, 0, 1);
+			
+			// handle if there are no schedules
+			if (validSchedules.isEmpty()) {
+				GridPane.setHalignment(backButton, HPos.LEFT);
+				Label noSchedulesLabel = new Label("There are no feasible schedules that include all selected courses!");
+				noSchedulesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
+				scheduleGridpane.add(noSchedulesLabel, 0, 1);
+			} else {
+				scheduleGridpane.add(schedulesView, 0, 1);
+			}
 			DONOTUSE.countDown();
 		});
 
