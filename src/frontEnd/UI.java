@@ -70,7 +70,6 @@ public class UI extends Application {
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
 	public void start(Stage primaryStage) {
-
 		// set window properties
 		primaryStage.setTitle("Wicked Scheduler");
 		primaryStage.setX(250);

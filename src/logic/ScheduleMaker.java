@@ -34,6 +34,7 @@ public class ScheduleMaker {
     }
     
     public static ArrayList<ArrayList<Course>> build(ArrayList<String> courses, String Semester) {
+    	currentCourse.clear();
     	ArrayList<Course> firstCourseList = new ArrayList<>();
     	ArrayList<Course> secondCourseList = new ArrayList<>();
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
