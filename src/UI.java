@@ -264,6 +264,11 @@ public class UI extends Application {
 						System.out.println("CALENDAR NUMBER " + k );
 						k++;
 					}
+					
+					if ( i > 5 ) {
+						break;
+					}
+					
 					System.out.println("  the calendar is dealing with " + cur );
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);

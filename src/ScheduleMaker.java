@@ -61,8 +61,10 @@ public class ScheduleMaker {
     	Set<Course> possibleCourses = new HashSet<>();
     	Set<Set<Course>> validSchedules = new HashSet<>(); // contains a list of schedules ( each "schedule" is a list of courses that do not conflict )
     	Set<Course> tempSchedule = new HashSet<>();
-    	Set<Set<Course>> tempValids;
+    	Set<Set<Course>> toAdd;
+    	Set<Set<Course>> toRemove;
     	boolean conflict;
+    	int courseAdditionCount = 0;
     	
     	for ( String courseCode : desiredCourses ) {
     		System.out.println("  HANDLING " + courseCode );
@@ -81,11 +83,17 @@ public class ScheduleMaker {
     			}
     		} else {
     			
-    			tempValids = new HashSet<>();
+    			toAdd = new HashSet<>();
+    			toRemove = new HashSet<>();
     			System.out.println("  THERE ARE PRE-EXISTING SCHEDULES");
     			for ( Course possibleCourse : possibleCourses ) {
     				System.out.println("      possibleCourse = " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString());
     				for ( Set<Course> schedule : validSchedules ) {
+    					
+    					if ( schedule.size() != courseAdditionCount ) {
+    						toRemove.add(schedule);
+    					}
+    					
     					tempSchedule = new HashSet<>();
     					conflict = false;
     					for ( Course existingCourse : schedule ) {
@@ -108,13 +116,15 @@ public class ScheduleMaker {
     					
     					tempSchedule.addAll(schedule);
     					tempSchedule.add(possibleCourse);
-    					tempValids.add(tempSchedule);
+    					toAdd.add(tempSchedule);
     					System.out.println("      ADDED " + possibleCourse + " AT TIME " + possibleCourse.getTimes("M").toString() + possibleCourse.getTimes("T").toString() );
     				}  
     			}
     			
-    			validSchedules.addAll(tempValids);
+    			validSchedules.removeAll(toRemove);
+    			validSchedules.addAll(toAdd);
     		}
+    		courseAdditionCount++;
     	}
     	
     	Set<Set<Course>> finalSchedules = new HashSet<>();
@@ -123,7 +133,7 @@ public class ScheduleMaker {
     	System.out.println("Schedules:");
     	for ( Set<Course> schedule : validSchedules ) {
     		//System.out.println(schedule.toString());
-    		if ( schedule.size() == desiredCourses.size() && finalSchedules.size() < 10) {
+    		if ( schedule.size() == desiredCourses.size() ) {
     			finalSchedules.add(schedule);
     			System.out.println("     FINAL:" + schedule.toString());    			
     		}
@@ -157,7 +167,7 @@ public class ScheduleMaker {
     	desiredCourses.add("CS4760 - User Interface Design & Impl");    	
     	desiredCourses.add("PE0521 - Snowboard Fusion Lab");
     	desiredCourses.add("PE1140 - Tennis Lab");
-    	//desiredCourses.add("PE0145 - Beginning Rifle Lab");
+    	desiredCourses.add("PE0145 - Beginning Rifle Lab");
     	
     	ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get("Spring 2020"));
     	return;
