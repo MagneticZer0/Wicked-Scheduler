@@ -26,7 +26,6 @@ public class ScheduleMaker {
     			//Collections.sort(allCourses);
     		}    		
     		currentCourse.addAll(allCourses.get(courseName));
-    		numCourses++;
     		System.out.println("Add course " + allCourses.get(courseName));
     	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
@@ -40,7 +39,6 @@ public class ScheduleMaker {
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
     	boolean debug = true;
     	ArrayList<Course> copyList = new ArrayList<>();
-    	copyList = currentCourse;
     	
     	// Create the arraylist of selected courses
     	//courses = getCC();
@@ -56,6 +54,10 @@ public class ScheduleMaker {
     	}
     	
     	Collections.sort(currentCourse);
+    	
+    	for(int i = 0; i < currentCourse.size(); i++) {
+    		copyList.add(currentCourse.get(i));
+    	}
     	
     	// Compare each element in list for a conflict
     	for(int i = 0; i < currentCourse.size(); i++) {
@@ -73,20 +75,24 @@ public class ScheduleMaker {
     		}
     	}
     	
-    	// Search to see if a course was completly taken out
-    	for(int i = 0; i < copyList.size(); i++) {
-    		System.out.println(copyList.size() + " " + currentCourse.size());
-    		// If a course doesn't exist adjust numCourses accordingly
-    		if(!(currentCourse.contains(copyList.get(i)))) {
-    			numCourses--;
+    	int numberOfCourses = 0;
+    	for(int i = 0; i < currentCourse.size(); i++) {
+    		if(i + 1 < currentCourse.size()) {
+    			if(!(currentCourse.get(i).toString().equals(currentCourse.get(i + 1).toString()))) {
+    				// If the next course doesn't equal the current course
+    				numberOfCourses++;
+    			}
+    		} else {
+    			numberOfCourses++;
     		}
     	}
+    	System.out.println("Courses number 2: " + numberOfCourses);
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	// i.e. Systems has two offerings 
-    	int[] arr = new int[numCourses];
+    	int[] arr = new int[numberOfCourses];
     	int ind = 0;
-    	for(int i = 0; i < numCourses; i++) {
+    	for(int i = 0; i < numberOfCourses; i++) {
     		arr[i] = 1; // At least one
 
     		// Check for repeats and increase count accordingly
@@ -105,55 +111,65 @@ public class ScheduleMaker {
     	if (debug) {
     		System.out.println("ArrayList arraylist size: " + out.size());
     		System.out.println("Arr array:");
-    		for( int i = 0; i < numCourses; i++) {
+    		for( int i = 0; i < numberOfCourses; i++) {
     			System.out.println("Arr: " + i + " "+ arr[i]);
     		}
     		System.out.println("CurrentCourse");
     		for(int i = 0; i < currentCourse.size(); i ++) {
     			System.out.println(currentCourse.get(i));
     		}
-    		System.out.println(numCourses);
+    		System.out.println(numberOfCourses);
     	}
     	
+    	int courseIndex = 0;
     	// Build schedule
     	// Go through the number of courses to have
-    	for(int i = 0; i < numCourses; i++) {
+    	for(int i = 0; i < numberOfCourses; i++) {
     		// Go through the multiple times of that class
     		for(int j = 0; j < arr[i]; j++) {
     			// Skip if the class is already in the schedule
-    			if(i + j < currentCourse.size()) {
-    				if(firstCourseList.contains(currentCourse.get(i + j))) {
+    			if(courseIndex < currentCourse.size()) {
+    				if(firstCourseList.contains(currentCourse.get(courseIndex))) {
         				// Class exists skip
         				break;    				
         			}
     			}
     			
+    			//System.out.println(i + " " + courseIndex);
     			// Add the first class
     			if(i == 0) {
-    				firstCourseList.add(currentCourse.get(i+j));
+    				firstCourseList.add(currentCourse.get(courseIndex));
+    				courseIndex++;
     			} else if(arr[i] == 1){
-    				firstCourseList.add(currentCourse.get(i));
+    				firstCourseList.add(currentCourse.get(courseIndex));
+    				courseIndex++;
     			}else {
     				// Add other classes
-    				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
+    				/**
+    				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {
     						// If on the last option of a class and can't add it ERROR
-    						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
+    						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
     					}
     					continue;
-    				} else {
-    					firstCourseList.add(currentCourse.get(i + j + arr[i - 1]));
+    				} else {**/
+    					firstCourseList.add(currentCourse.get(courseIndex));
+    					courseIndex += arr[i];
     					break;
-    				}
+    				//}
     			}
+    			
     		}
+    		//System.out.println(firstCourseList.get(i).toString());
     	}
     	
     	out.add(firstCourseList);
     	
+    	/**
     	// Make a second schedule if there are enough courses
     	if( numCourses < currentCourse.size() ) {
+    		
     		// Multiple courses, go through each course. Single courses first
     		for(int i = 0; i < numCourses; i++) {
         		// Go through the multiple times of that course started from the latest courses
@@ -185,7 +201,7 @@ public class ScheduleMaker {
         		}
         	}
     		out.add(secondCourseList);
-    	}
+    	}**/
     	
     	if( debug ) {
     		
@@ -209,13 +225,13 @@ public class ScheduleMaker {
     	
     	// Testing
     	
-    	courses.add("ACC3100 - Intermediate Accounting II");
-    	courses.add("ACC2100 - Accounting Principles II");
-    	courses.add("ACC2000 - Accounting Principles I");
-    	courses.add("ACC3500 - Managerial/Cost Accounting I");
-    	courses.add("ACC4600 - Advanced Tax Topics");
+    	courses.add("EE3173 - H-ware/S-ware Syst Integration");
+    	courses.add("CS3141 - Team Software Project");
+    	courses.add("CS3411 - Systems Programming");
+    	courses.add("CS4321 - Introduction to Algorithms");
+    	courses.add("EE3173 - H-ware/S-ware Syst Integration Lab");
     	
-    	out = build(courses, "Spring 2020");
+    	out = build(courses, "Fall 2019");
     	finalCourseList = out.get(0);
     	//secondCourseList = out.get(1);
     	
