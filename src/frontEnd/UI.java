@@ -254,6 +254,7 @@ public class UI extends Application {
 				int i = 0;
 				for (Course cur : finalSchedule.get(j)) {
 					Calendar cal = new Calendar(cur.toString());
+					cal.setReadOnly(true);
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
