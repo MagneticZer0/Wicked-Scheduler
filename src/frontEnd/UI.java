@@ -182,7 +182,7 @@ public class UI extends Application {
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() + Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().doubleValue() + Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -199,7 +199,7 @@ public class UI extends Application {
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() - Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().doubleValue() - Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
