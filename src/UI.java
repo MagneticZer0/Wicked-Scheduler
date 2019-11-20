@@ -228,9 +228,9 @@ public class UI extends Application {
 			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
 
 			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
-			//List<Set<Course>> temp = new ArrayList<>(validSchedules);
-			//validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
-			//temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
+			List<Set<Course>> temp = new ArrayList<>(validSchedules);
+			validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
+			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
 			
 			// display schedules
 			int k = 1; // for debugging only
@@ -263,10 +263,6 @@ public class UI extends Application {
 					if ( i % indvSchedule.size() == 0 ) {
 						System.out.println("CALENDAR NUMBER " + k );
 						k++;
-					}
-					
-					if ( i > 5 ) {
-						break;
 					}
 					
 					System.out.println("  the calendar is dealing with " + cur );
