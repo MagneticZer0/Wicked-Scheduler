@@ -18,8 +18,10 @@ import impl.com.calendarfx.view.DateControlSkin;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -57,7 +59,7 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private Theme theme = new DefaultTheme();
-	private final IntegerProperty creditLoad = new SimpleIntegerProperty(0);
+	private final DoubleProperty creditLoad = new SimpleDoubleProperty(0);
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -180,7 +182,7 @@ public class UI extends Application {
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() + (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().intValue() + Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -197,7 +199,7 @@ public class UI extends Application {
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() - (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().intValue() - Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
