@@ -1,4 +1,5 @@
 package frontEnd;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
@@ -115,7 +116,7 @@ public class UI extends Application {
 		currentCredits.textProperty().bind(Bindings.concat("Current credits: ", creditLoad.asString()));
 		currentCredits.textFillProperty().bind(Bindings.when(creditLoad.lessThan(12).or(creditLoad.greaterThan(18))).then(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditInvalidColor().toString()))).otherwise(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditValidColor().toString()))));
 		grid.add(currentCredits, 4, 6, 1, 1);
-		
+
 		Label desiredCoursesLabel = new Label("Desired Courses:");
 		desiredCoursesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
@@ -226,11 +227,8 @@ public class UI extends Application {
 			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			//List<String> desiredCourses = desiredCoursesSelection.getItems();
-			ArrayList<String> desiredCourses = new ArrayList<>(desiredCoursesSelection.getItems());
+			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCoursesList, semesters.getValue());
 
-			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());	
-			
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
 				if (finalSchedule.isEmpty()) {
@@ -238,15 +236,15 @@ public class UI extends Application {
 				}
 
 				// create the calendar
-				Tab tab = new Tab("Schedule " + (j+1));
+				Tab tab = new Tab("Schedule " + (j + 1));
 				setInfo();
 				CalendarView calendarView = new CalendarView();
-				
+
 				// if the schedule is empty, don't try to print it (the code will break)
-				if ( finalSchedule.get(j).isEmpty() ) {
+				if (finalSchedule.get(j).isEmpty()) {
 					continue;
 				}
-				
+
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
 				CalendarSource sources = new CalendarSource("My Courses");
@@ -337,7 +335,7 @@ public class UI extends Application {
 				try {
 					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
 				} catch (Exception e) {
-		 			e.printStackTrace();
+					e.printStackTrace();
 				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
@@ -346,6 +344,7 @@ public class UI extends Application {
 
 	/**
 	 * Loads all the course information for a given semester
+	 * 
 	 * @param semesterID - the semester from which the courses will be loaded
 	 */
 	private void loadCourses(String semesterID) {
@@ -388,6 +387,7 @@ public class UI extends Application {
 
 	/**
 	 * Determines which semester is the next semester in the academic calendar
+	 * 
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {
