@@ -34,6 +34,7 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -217,12 +218,14 @@ public class UI extends Application {
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
 			GridPane scheduleGridpane = new GridPane();
+			scheduleGridpane.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
 			scheduleGridpane.setHgap(10);
 			scheduleGridpane.setVgap(10);
 			scheduleGridpane.setAlignment(Pos.CENTER);
 			scene.setRoot(scheduleGridpane);
 
 			TabPane schedulesView = new TabPane();
+			backgroundColorThread(schedulesView, ".tab-header-area .tab-header-background", theme.tabHeaderColor()); // There's something weird about the TabPane so this is the way I have to change the color
 			schedulesView.minWidthProperty().bind(primaryStage.widthProperty().subtract(20));
 			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
@@ -231,10 +234,6 @@ public class UI extends Application {
 
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
-				if (finalSchedule.isEmpty()) {
-					break;
-				}
-
 				// create the calendar
 				Tab tab = new Tab("Schedule " + (j + 1));
 				setInfo();
@@ -289,6 +288,7 @@ public class UI extends Application {
 
 			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
+			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setHalignment(backButton, HPos.LEFT);
@@ -303,6 +303,18 @@ public class UI extends Application {
 	}
 
 	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Application.launch(args);
+	}
+
+	@Override
+	public void stop() {
+		Scraper.saveCourses();
+	}
+
+	/**
 	 * This is a hacky way to disable the thing that CalendarFX ouputs to console
 	 * because I'm slightly annoyed by it.
 	 */
@@ -314,11 +326,6 @@ public class UI extends Application {
 		} catch (ReflectiveOperationException e) {
 			// Ignore
 		}
-	}
-
-	@Override
-	public void stop() {
-		Scraper.saveCourses();
 	}
 
 	/**
@@ -399,10 +406,16 @@ public class UI extends Application {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Application.launch(args);
+	private void backgroundColorThread(Node node, String lookup, Color color) {
+		new Thread(() -> {
+			while(node.lookup(lookup) == null) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			node.lookup(lookup).setStyle(Theme.toBackgroundStyle(color));
+		}).start();
 	}
 }

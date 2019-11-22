@@ -7,6 +7,14 @@ public abstract class Theme {
 
 	public abstract Color backgroundColor();
 
+	public Color tabHeaderColor() {
+		if (perceivedBrightness(backgroundColor()) > 0.5) {
+			return backgroundColor().darker().darker();
+		} else {
+			return backgroundColor().brighter().brighter();
+		}
+	}
+
 	public Color textColor() {
 		return textColor(backgroundColor());
 	}
@@ -22,7 +30,7 @@ public abstract class Theme {
 	}
 
 	public Color removeCourseColor() {
-		return Color.rgb((int) Math.round(255-addCourseColor().getRed()*255), (int) Math.round(255-addCourseColor().getGreen()*255), (int) Math.round(255-addCourseColor().getBlue()*255));
+		return addCourseColor().invert();
 	}
 
 	public Color removeCourseTextColor() {
@@ -49,6 +57,18 @@ public abstract class Theme {
 
 	public Color[] scheduleButtonColors() {
 		return new Color[] {scheduleButtonColor(), scheduleButtonTextColor()};
+	}
+
+	public Color backButtonColor() {
+		return scheduleButtonColor();
+	}
+
+	public Color backButtonTextColor() {
+		return textColor(backButtonColor());
+	}
+
+	public Color[] backButtonColors() {
+		return new Color[] {backButtonColor(), backButtonTextColor()};
 	}
 
 	public Image getIcon() {
