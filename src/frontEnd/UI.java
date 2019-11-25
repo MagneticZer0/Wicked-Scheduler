@@ -20,10 +20,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -112,7 +110,7 @@ public class UI extends Application {
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
 		// elements regarding desired courses
-		Label currentCredits = new Label("Current credits: 0");
+		Label currentCredits = new Label();
 		currentCredits.setStyle(Theme.toTextStyle(theme.textColor()));
 		currentCredits.textProperty().bind(Bindings.concat("Current credits: ", creditLoad.asString()));
 		currentCredits.textFillProperty().bind(Bindings.when(creditLoad.lessThan(12).or(creditLoad.greaterThan(18))).then(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditInvalidColor().toString()))).otherwise(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditValidColor().toString()))));
