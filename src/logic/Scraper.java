@@ -17,6 +17,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -105,7 +106,7 @@ public class Scraper {
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
 		boolean searching = false;
-		HashMap<String, String> output = new HashMap<>();
+		LinkedHashMap<String, String> output = new LinkedHashMap<>(); // No need to sort anymore if order is saved
 
 		String regex = "<OPTION VALUE=\".*?\">";
 		Pattern regexPattern = Pattern.compile(regex);

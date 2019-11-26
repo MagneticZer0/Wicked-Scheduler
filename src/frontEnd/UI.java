@@ -134,33 +134,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
 
 		// semester list
-		SortedList<String> sortedSemesters = allSemestersList.sorted(new Comparator<String>() {
-
-			@Override
-			public int compare(String arg0, String arg1) {
-				return value(arg1) - value(arg0); // Normally arg0 - arg1, but I want reverse order
-			}
-
-			private int value(String str) {
-				int value = 0;
-				String[] spl = str.split(" ");
-				switch (spl[0]) {
-					case "Spring":
-						value = 1;
-						break;
-					case "Summer":
-						value = 2;
-						break;
-					case "Fall":
-						value = 3;
-						break;
-					default:
-						value = 4;
-				}
-				return value + Integer.parseInt(spl[1]) * 10;
-			}
-		});
-		semesters = new ComboBox<>(sortedSemesters.filtered(d -> sortedSemesters.indexOf(d) < 5)); // Only do 5 most relevant
+		semesters = new ComboBox<>(allSemestersList.filtered(d -> allSemestersList.indexOf(d) < 5)); // Only do 5 most relevant
 		semesters.setPromptText("Select Semester");
 		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
@@ -406,7 +380,7 @@ public class UI extends Application {
 
 	private void backgroundColorThread(Node node, String lookup, Color color) {
 		new Thread(() -> {
-			while(node.lookup(lookup) == null) {
+			while (node.lookup(lookup) == null) {
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
