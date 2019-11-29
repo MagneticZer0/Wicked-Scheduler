@@ -99,5 +99,10 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/jfxrt.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>de.ruedigermoeller</groupId>
+			<artifactId>fst</artifactId>
+			<version>2.56</version>
+		</dependency>
 	</dependencies>
 </project>
