@@ -180,18 +180,24 @@ public class ScheduleMaker {
     					}
     					continue;
     				}
-    				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
-    					// Conflict go to next option
-    					if(j == arr[i] - 1) {
-    						// If on the last option of a class and can't add it ERROR
-    						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
-    					}
-    					continue;
-    				} else {
-    					firstCourseList.add(currentCourse.get(courseIndex));
-    					courseIndex += arr[i];
-    					break;
-    				}  					
+    				try {
+    					if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
+        					// Conflict go to next option
+        					if(j == arr[i] - 1) {
+        						// If on the last option of a class and can't add it ERROR
+        						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
+        					}
+        					continue;
+        				} else {
+        					firstCourseList.add(currentCourse.get(courseIndex));
+        					courseIndex += arr[i];
+        					break;
+        				} 
+    				} catch (IndexOutOfBoundsException e) {
+    	    			// If we go out of bounds we skip this course
+    	    			i++;
+    	    		}
+    				 					
     			}
     		}
     		try {
