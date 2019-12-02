@@ -60,6 +60,7 @@ public class ScheduleMaker {
     	}
     	
     	// Compare each element in list for a conflict
+    	/**
     	for(int i = 0; i < currentCourse.size(); i++) {
     		for(int j = 0; j < currentCourse.size(); j++) {
     			if(i == j) {
@@ -73,7 +74,7 @@ public class ScheduleMaker {
     				continue;
     			}
     		}
-    	}
+    	}**/
     	
     	int numberOfCourses = 0;
     	for(int i = 0; i < currentCourse.size(); i++) {
@@ -100,7 +101,7 @@ public class ScheduleMaker {
     			while(currentCourse.get(ind).toString().equals(currentCourse.get(ind + 1).toString())) {
         			arr[i]++;
         			ind++;
-        			if(ind < currentCourse.size()) {
+        			if(ind + 1 >= currentCourse.size()) {
         				break;
         			}
         		}    		
@@ -128,12 +129,20 @@ public class ScheduleMaker {
     		// Go through the multiple times of that class
     		for(int j = 0; j < arr[i]; j++) {
     			// Skip if the class is already in the schedule
-    			if(courseIndex < currentCourse.size()) {
-    				if(firstCourseList.contains(currentCourse.get(courseIndex))) {
+    			boolean skip = false;
+    			boolean skipConflict = false;
+				for( int k = 0; k < firstCourseList.size(); k++ ) {
+					if(firstCourseList.get(k).toString().equals(currentCourse.get(courseIndex).toString())) {
+    					
         				// Class exists skip
-        				break;    				
+        				skip = true;    				
         			}
-    			}
+				}
+				if(skip) {
+					System.out.println(currentCourse.get(courseIndex).toString());
+					System.out.println("SKIP");
+					break;
+				}
     			
     			//System.out.println(i + " " + courseIndex);
     			// Add the first class
@@ -141,11 +150,30 @@ public class ScheduleMaker {
     				firstCourseList.add(currentCourse.get(courseIndex));
     				courseIndex++;
     			} else if(arr[i] == 1){
+    				for(int k = 0; k < firstCourseList.size(); k++) {
+    					if(firstCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
+    						skipConflict = true;
+    					}
+    				}
+    				if(skipConflict) {
+    					courseIndex++;
+    					skipConflict = false;
+    					continue;
+    				}
     				firstCourseList.add(currentCourse.get(courseIndex));
     				courseIndex++;
     			}else {
     				// Add other classes
-    				/**
+    				for(int k = 0; k < firstCourseList.size(); k++) {
+    					if(firstCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
+    						skipConflict = true;
+    					}
+    				}
+    				if(skipConflict) {
+    					courseIndex++;
+    					skipConflict = false;
+    					continue;
+    				}
     				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
     					// Conflict go to next option
     					if(j == arr[i] - 1) {
@@ -153,20 +181,19 @@ public class ScheduleMaker {
     						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
     					}
     					continue;
-    				} else {**/
+    				} else {
     					firstCourseList.add(currentCourse.get(courseIndex));
     					courseIndex += arr[i];
     					break;
-    				//}
+    				}  					
     			}
-    			
     		}
     		//System.out.println(firstCourseList.get(i).toString());
     	}
     	
     	out.add(firstCourseList);
+    	courseIndex = 0;
     	
-    	/**
     	// Make a second schedule if there are enough courses
     	if( numCourses < currentCourse.size() ) {
     		
@@ -175,11 +202,66 @@ public class ScheduleMaker {
         		// Go through the multiple times of that course started from the latest courses
         		for(int j = (arr[i] - 1); j >= 0; j--) {
         			// Skip if the class is already in the schedule
-        			if(firstCourseList.contains(currentCourse.get(i + j))) {
-        				// Class exists skip
-        				break;    				
+        			boolean skip = false;
+        			boolean skipConflict = false;
+    				for( int k = 0; k < secondCourseList.size(); k++ ) {
+    					if(secondCourseList.get(k).toString().equals(currentCourse.get(courseIndex).toString())) {
+        					
+            				// Class exists skip
+            				skip = true;    				
+            			}
+    				}
+    				if(skip) {
+    					System.out.println(currentCourse.get(courseIndex).toString());
+    					System.out.println("SKIP");
+    					break;
+    				}
+        			
+        			//System.out.println(i + " " + courseIndex);
+        			// Add the first class
+        			if(i == 0) {
+        				secondCourseList.add(currentCourse.get(courseIndex));
+        				courseIndex++;
+        			} else if(arr[i] == 1){
+        				for(int k = 0; k < secondCourseList.size(); k++) {
+        					if(secondCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
+        						skipConflict = true;
+        					}
+        				}
+        				if(skipConflict) {
+        					courseIndex++;
+        					skipConflict = false;
+        					continue;
+        				}
+        				secondCourseList.add(currentCourse.get(courseIndex));
+        				courseIndex++;
+        			}else {
+        				// Add other classes
+        				for(int k = 0; k < secondCourseList.size(); k++) {
+        					if(secondCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
+        						skipConflict = true;
+        					}
+        				}
+        				if(skipConflict) {
+        					courseIndex++;
+        					skipConflict = false;
+        					continue;
+        				}
+        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
+        					// Conflict go to next option
+        					if(j == arr[i] - 1) {
+        						// If on the last option of a class and can't add it ERROR
+        						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
+        					}
+        					continue;
+        				} else {
+        					secondCourseList.add(currentCourse.get(courseIndex));
+        					courseIndex += arr[i];
+        					break;
+        				}  					
         			}
         			
+        			/**
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
@@ -197,11 +279,11 @@ public class ScheduleMaker {
         					secondCourseList.add(currentCourse.get(i + j));
         					break;
         				}
-        			}
+        			}**/
         		}
         	}
     		out.add(secondCourseList);
-    	}**/
+    	}
     	
     	if( debug ) {
     		
