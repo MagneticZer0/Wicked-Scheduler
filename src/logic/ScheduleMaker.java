@@ -160,6 +160,7 @@ public class ScheduleMaker {
     				if(skipConflict) {
     					courseIndex++;
     					skipConflict = false;
+    					numberOfCourses--;
     					continue;
     				}
     				firstCourseList.add(currentCourse.get(courseIndex));
@@ -174,6 +175,9 @@ public class ScheduleMaker {
     				if(skipConflict) {
     					courseIndex++;
     					skipConflict = false;
+    					if(j == arr[i]) {
+    						numberOfCourses--;
+    					}
     					continue;
     				}
     				if(firstCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
@@ -190,7 +194,13 @@ public class ScheduleMaker {
     				}  					
     			}
     		}
-    		//System.out.println(firstCourseList.get(i).toString());
+    		try {
+    			System.out.println("List: " + firstCourseList.get(i).toString());
+    		} catch (IndexOutOfBoundsException e) {
+    			// If we go out of bounds we skip this course
+    			i++;
+    		}
+    		
     	}
     	
     	out.add(firstCourseList);
@@ -317,7 +327,7 @@ public class ScheduleMaker {
     	
     	out = build(courses, "Fall 2019");
     	finalCourseList = out.get(0);
-    	//secondCourseList = out.get(1);
+    	secondCourseList = out.get(1);
     	
     	System.out.println("Current Course Size: " + currentCourse.size());
     	for(int i = 0; i < currentCourse.size(); i++) {
