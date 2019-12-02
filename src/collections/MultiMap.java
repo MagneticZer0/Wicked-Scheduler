@@ -1,4 +1,5 @@
 package collections;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,10 +52,10 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 * empty List. (There can be at most one such mapping.)
 	 *
 	 * <p>
-	 * A return value of an empty List does indicate that the map contains no mapping
-	 * for the key; it's also possible that the map explicitly maps the key to an
-	 * empty List. The {@link #containsKey containsKey} operation may be used to
-	 * distinguish these two cases.
+	 * A return value of an empty List does indicate that the map contains no
+	 * mapping for the key; it's also possible that the map explicitly maps the key
+	 * to an empty List. The {@link #containsKey containsKey} operation may be used
+	 * to distinguish these two cases.
 	 *
 	 * @param arg0 The key to get the value(s) of
 	 * @return The value(s) for the given key, or an empty List if none exist.
@@ -118,9 +119,10 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
 	 * Compares the specified object with this map for equality. Returns
 	 * <tt>true</tt> if the given object is also a map and the two maps represent
 	 * the same mappings. More formally, two maps <tt>m1</tt> and <tt>m2</tt>
-	 * represent the same mappings if <tt>m1.entryList().equals(m2.entryList())</tt>.
-	 * This ensures that the <tt>equals</tt> method works properly across different
-	 * implementations of the <tt>Map</tt> interface.
+	 * represent the same mappings if
+	 * <tt>m1.entryList().equals(m2.entryList())</tt>. This ensures that the
+	 * <tt>equals</tt> method works properly across different implementations of the
+	 * <tt>Map</tt> interface.
 	 *
 	 * <p>
 	 * This implementation first checks if the specified object is this map; if so

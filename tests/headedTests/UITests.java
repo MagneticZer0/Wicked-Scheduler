@@ -18,8 +18,6 @@ import org.junit.jupiter.api.Order;
 import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 
-import frontEnd.UI;
-
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static CustomMatchers.CaseInsensitiveSubstringMatcher.*;
@@ -33,6 +31,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import userInterfaces.UI;
 
 /**
  * This class is used for testing UI elements. Please be very careful when

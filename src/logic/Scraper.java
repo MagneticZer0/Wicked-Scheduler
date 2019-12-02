@@ -17,10 +17,14 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
+
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 import collections.MultiMap;
 
@@ -82,15 +86,6 @@ public class Scraper {
 		throw new UnsupportedOperationException(); // Just in case they try to do it through reflection
 	}
 
-//	public static void main(String[] args) throws IOException, ParseException {
-//		System.out.println(getAllSemesters().toString() + "\n");
-//		getAllClasses(getAllSemesters().get("Fall 2001")); // Returns all classes for the Fall 2001 semester
-//		for(Map.Entry<String, List<Course>> entry : courses.entrySet()) {
-//			System.out.println(entry.toString());
-//		}
-//		new ExampleOutputSaver().saveCourses(courses); // Save output
-//	}
-
 	/**
 	 * Accesses the COURSE_SELECT_URL link and takes all the semesters that Michigan
 	 * Tech offers
@@ -105,7 +100,7 @@ public class Scraper {
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
 		boolean searching = false;
-		HashMap<String, String> output = new HashMap<>();
+		LinkedHashMap<String, String> output = new LinkedHashMap<>(); // No need to sort anymore if order is saved
 
 		String regex = "<OPTION VALUE=\".*?\">";
 		Pattern regexPattern = Pattern.compile(regex);
@@ -333,7 +328,7 @@ public class Scraper {
 			directory.mkdir();
 		}
 
-		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirString + "coursesMap.ser"))) {
+		try (FSTObjectOutput out = new FSTObjectOutput(new FileOutputStream(dirString + "coursesMap.ser"))) {
 			out.writeObject(allCoursesMap);
 		} catch (IOException e) {
 			e.printStackTrace(); // If you can't access the file or it doesn't exist start fresh!
@@ -346,7 +341,7 @@ public class Scraper {
 	public static void loadCourses() {
 		if (!loaded) {
 			File coursesMap = new File(System.getProperty("user.home") + "/Wicked-Scheduler/coursesMap.ser");
-			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(coursesMap))) {
+			try (FSTObjectInput in = new FSTObjectInput(new FileInputStream(coursesMap))) {
 				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();
 			} catch (IOException | ClassNotFoundException e) {
 				allCoursesMap = new HashMap<>(); // If we can't read it just start fresh

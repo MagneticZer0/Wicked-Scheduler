@@ -2,6 +2,7 @@ package logic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import collections.MultiMap;
 
@@ -33,7 +34,8 @@ public class ScheduleMaker {
     	}
     }
     
-    public static ArrayList<ArrayList<Course>> build(ArrayList<String> courses, String Semester) {
+    public static ArrayList<ArrayList<Course>> build(List<String> courses, String Semester) {
+    	currentCourse.clear();
     	ArrayList<Course> firstCourseList = new ArrayList<>();
     	ArrayList<Course> secondCourseList = new ArrayList<>();
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();

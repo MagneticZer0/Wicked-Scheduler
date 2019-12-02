@@ -1,4 +1,5 @@
-package frontEnd;
+package userInterfaces;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalTime;
@@ -18,9 +19,9 @@ import impl.com.calendarfx.view.DateControlSkin;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -31,6 +32,7 @@ import javafx.geometry.VPos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -57,7 +59,7 @@ public class UI extends Application {
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private Theme theme = new DefaultTheme();
-	private final IntegerProperty creditLoad = new SimpleIntegerProperty(0);
+	private final DoubleProperty creditLoad = new SimpleDoubleProperty(0);
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
@@ -70,7 +72,6 @@ public class UI extends Application {
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
 	public void start(Stage primaryStage) {
-
 		// set window properties
 		primaryStage.setTitle("Wicked Scheduler");
 		primaryStage.setX(250);
@@ -109,12 +110,12 @@ public class UI extends Application {
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
 
 		// elements regarding desired courses
-		Label currentCredits = new Label("Current credits: 0");
+		Label currentCredits = new Label();
 		currentCredits.setStyle(Theme.toTextStyle(theme.textColor()));
 		currentCredits.textProperty().bind(Bindings.concat("Current credits: ", creditLoad.asString()));
 		currentCredits.textFillProperty().bind(Bindings.when(creditLoad.lessThan(12).or(creditLoad.greaterThan(18))).then(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditInvalidColor().toString()))).otherwise(new ReadOnlyObjectWrapper<>(Paint.valueOf(theme.creditValidColor().toString()))));
 		grid.add(currentCredits, 4, 6, 1, 1);
-		
+
 		Label desiredCoursesLabel = new Label("Desired Courses:");
 		desiredCoursesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
 		grid.add(desiredCoursesLabel, 3, 1, 1, 1);
@@ -133,33 +134,7 @@ public class UI extends Application {
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
 
 		// semester list
-		SortedList<String> sortedSemesters = allSemestersList.sorted(new Comparator<String>() {
-
-			@Override
-			public int compare(String arg0, String arg1) {
-				return value(arg1) - value(arg0); // Normally arg0 - arg1, but I want reverse order
-			}
-
-			private int value(String str) {
-				int value = 0;
-				String[] spl = str.split(" ");
-				switch (spl[0]) {
-					case "Spring":
-						value = 1;
-						break;
-					case "Summer":
-						value = 2;
-						break;
-					case "Fall":
-						value = 3;
-						break;
-					default:
-						value = 4;
-				}
-				return value + Integer.parseInt(spl[1]) * 10;
-			}
-		});
-		semesters = new ComboBox<>(sortedSemesters.filtered(d -> sortedSemesters.indexOf(d) < 5)); // Only do 5 most relevant
+		semesters = new ComboBox<>(allSemestersList.filtered(d -> allSemestersList.indexOf(d) < 5)); // Only do 5 most relevant
 		semesters.setPromptText("Select Semester");
 		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
@@ -181,7 +156,7 @@ public class UI extends Application {
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() + (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().doubleValue() + Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -198,7 +173,7 @@ public class UI extends Application {
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
 				try {
-					creditLoad.set(creditLoad.getValue().intValue() - (int) Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
+					creditLoad.set(creditLoad.getValue().doubleValue() - Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -215,37 +190,32 @@ public class UI extends Application {
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
 			GridPane scheduleGridpane = new GridPane();
+			scheduleGridpane.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
 			scheduleGridpane.setHgap(10);
 			scheduleGridpane.setVgap(10);
 			scheduleGridpane.setAlignment(Pos.CENTER);
 			scene.setRoot(scheduleGridpane);
 
 			TabPane schedulesView = new TabPane();
+			backgroundColorThread(schedulesView, ".tab-header-area .tab-header-background", theme.tabHeaderColor()); // There's something weird about the TabPane so this is the way I have to change the color
 			schedulesView.minWidthProperty().bind(primaryStage.widthProperty().subtract(20));
 			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			//List<String> desiredCourses = desiredCoursesSelection.getItems();
-			ArrayList<String> desiredCourses = new ArrayList<>(desiredCoursesSelection.getItems());
+			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCoursesList, semesters.getValue());
 
-			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCourses, semesters.getValue());	
-			
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
-				if (finalSchedule.isEmpty()) {
-					break;
-				}
-
 				// create the calendar
-				Tab tab = new Tab("Schedule " + (j+1));
+				Tab tab = new Tab("Schedule " + (j + 1));
 				setInfo();
 				CalendarView calendarView = new CalendarView();
-				
+
 				// if the schedule is empty, don't try to print it (the code will break)
-				if ( finalSchedule.get(j).isEmpty() ) {
+				if (finalSchedule.get(j).isEmpty()) {
 					continue;
 				}
-				
+
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
 				CalendarSource sources = new CalendarSource("My Courses");
@@ -255,6 +225,7 @@ public class UI extends Application {
 				int i = 0;
 				for (Course cur : finalSchedule.get(j)) {
 					Calendar cal = new Calendar(cur.toString());
+					cal.setReadOnly(true);
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
 					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
@@ -289,6 +260,7 @@ public class UI extends Application {
 
 			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
+			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setHalignment(backButton, HPos.LEFT);
@@ -300,6 +272,18 @@ public class UI extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		DONOTUSE.countDown();
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Application.launch(args);
+	}
+
+	@Override
+	public void stop() {
+		Scraper.saveCourses();
 	}
 
 	/**
@@ -316,11 +300,6 @@ public class UI extends Application {
 		}
 	}
 
-	@Override
-	public void stop() {
-		Scraper.saveCourses();
-	}
-
 	/**
 	 * Loads the list of all semester codes from the scraper
 	 */
@@ -335,7 +314,7 @@ public class UI extends Application {
 				try {
 					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
 				} catch (Exception e) {
-		 			e.printStackTrace();
+					e.printStackTrace();
 				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
@@ -344,6 +323,7 @@ public class UI extends Application {
 
 	/**
 	 * Loads all the course information for a given semester
+	 * 
 	 * @param semesterID - the semester from which the courses will be loaded
 	 */
 	private void loadCourses(String semesterID) {
@@ -386,6 +366,7 @@ public class UI extends Application {
 
 	/**
 	 * Determines which semester is the next semester in the academic calendar
+	 * 
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {
@@ -397,10 +378,16 @@ public class UI extends Application {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Application.launch(args);
+	private void backgroundColorThread(Node node, String lookup, Color color) {
+		new Thread(() -> {
+			while (node.lookup(lookup) == null) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			node.lookup(lookup).setStyle(Theme.toBackgroundStyle(color));
+		}).start();
 	}
 }
