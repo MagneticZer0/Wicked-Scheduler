@@ -26,6 +26,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.*;
@@ -255,7 +256,7 @@ public class UI extends Application {
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
-			GridPane.setHalignment(backButton, HPos.LEFT);
+			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
 			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
