@@ -252,11 +252,20 @@ public class UI extends Application {
 			}
 
 			// controls between the calendar and class select pages
+			Button moreSchedules = new Button("GIVE ME MORE");
+			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
+			//backButton.setOnAction(e -> /*call colemans scedule algo*/);
+			scheduleGridpane.add(moreSchedules, 0, 0);
+			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
+			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
+			
+			
 			Button backButton = new Button("BACK");
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
+			
 			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
