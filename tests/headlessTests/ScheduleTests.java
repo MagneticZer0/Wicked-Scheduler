@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import logic.Course;
-import logic.ScheduleMaker;
+import logic.GreedyQuickScheduleMaker;
 import logic.Scraper;
 
 public class ScheduleTests {

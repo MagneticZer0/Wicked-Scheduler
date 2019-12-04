@@ -6,7 +6,7 @@ import java.util.List;
 
 import collections.MultiMap;
 
-public class ScheduleMaker {
+public class GreedyQuickScheduleMaker {
 	
     static ArrayList<Course> currentCourse = new ArrayList<>(); // Holds all courses at various times
     private static MultiMap<String, Course> allCourses;
@@ -195,17 +195,19 @@ public class ScheduleMaker {
         				} 
     				} catch (IndexOutOfBoundsException e) {
     	    			// If we go out of bounds we skip this course
-    	    			i++;
+    	    			//i++;
+    	    			numberOfCourses--;
     	    		}
     				 					
     			}
     		}
+    		/**
     		try {
     			System.out.println("List: " + firstCourseList.get(i).toString());
     		} catch (IndexOutOfBoundsException e) {
     			// If we go out of bounds we skip this course
     			i++;
-    		}
+    		}**/
     		
     	}
     	
