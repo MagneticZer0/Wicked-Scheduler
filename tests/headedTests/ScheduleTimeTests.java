@@ -9,7 +9,6 @@ import org.jtimer.Annotations.BeforeClass;
 import org.jtimer.Annotations.Time;
 
 import logic.GreedyQuickScheduleMaker;
-import logic.ScheduleMaker;
 
 public class ScheduleTimeTests {
 
