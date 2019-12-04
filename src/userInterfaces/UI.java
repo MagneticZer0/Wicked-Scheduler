@@ -330,7 +330,7 @@ public class UI extends Application {
 
 	/**
 	 * Loads all the course information for a given semester
-	 *
+	 * 
 	 * @param semesterID - the semester from which the courses will be loaded
 	 */
 	private void loadCourses(String semesterID) {
@@ -373,7 +373,7 @@ public class UI extends Application {
 
 	/**
 	 * Determines which semester is the next semester in the academic calendar
-	 *
+	 * 
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {

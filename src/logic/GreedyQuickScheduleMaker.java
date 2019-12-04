@@ -7,37 +7,33 @@ import java.util.List;
 import collections.MultiMap;
 
 public class GreedyQuickScheduleMaker {
-
+	
+    static ArrayList<Course> currentCourse = new ArrayList<>(); // Holds all courses at various times
     private static MultiMap<String, Course> allCourses;
-    private static String semesterID;
-
+    private static int numCourses;
+	     
     /**
-     * This method will retrieve the Course from the given name and semester and add it to the
+     * This method will retrieve the Course from the given name and semester and add it to the 
      * global ArrayList
      * @author Alex Hare
      * @param courseName - The name of the course to be searched for
      * @param semesterID - Semester to search in
      */
-    public static Set<Course> findCourses( String courseName ) {
-
-    	Set<Course> possibleCourses = new HashSet<>(); // Holds all courses at various times
-
+    public static void findCC( String courseName, String semesterID ) {
     	try {
-    		// load all courses if needed
     		if( allCourses == null ) {
     			Scraper.loadCourses();
     			allCourses = Scraper.getAllClasses(semesterID);
-    		}
+    			//Collections.sort(allCourses);
+    		}    		
     		currentCourse.addAll(allCourses.get(courseName));
     		System.out.println("Add course " + allCourses.get(courseName));
     	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
     		System.exit(0);
     	}
-
-    	return possibleCourses;
     }
-
+    
     public static ArrayList<ArrayList<Course>> build(List<String> courses, String Semester) {
     	currentCourse.clear();
     	ArrayList<Course> firstCourseList = new ArrayList<>();
@@ -45,26 +41,26 @@ public class GreedyQuickScheduleMaker {
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
     	boolean debug = true;
     	ArrayList<Course> copyList = new ArrayList<>();
-
+    	
     	// Create the arraylist of selected courses
     	//courses = getCC();
-
+    	
     	/** Testing
-
+    	
     	courses.add("CS3411 - Systems Programming");
     	courses.add("EE3131 - Electronics");
     	courses.add("CS4321 - Introduction to Algorithms"); **/
-
+    	
     	for(int j = 0; j < courses.size(); j++) {
 			findCC( courses.get(j), Scraper.getAllSemesters().get(Semester));
     	}
-
+    	
     	Collections.sort(currentCourse);
-
+    	
     	for(int i = 0; i < currentCourse.size(); i++) {
     		copyList.add(currentCourse.get(i));
     	}
-
+    	
     	// Compare each element in list for a conflict
     	/**
     	for(int i = 0; i < currentCourse.size(); i++) {
@@ -81,7 +77,7 @@ public class GreedyQuickScheduleMaker {
     			}
     		}
     	}**/
-
+    	
     	int numberOfCourses = 0;
     	for(int i = 0; i < currentCourse.size(); i++) {
     		if(i + 1 < currentCourse.size()) {
@@ -94,9 +90,9 @@ public class GreedyQuickScheduleMaker {
     		}
     	}
     	System.out.println("Courses number 2: " + numberOfCourses);
-
+    	
     	// This array will store the number of course repeats in order of sorted appearance
-    	// i.e. Systems has two offerings
+    	// i.e. Systems has two offerings 
     	int[] arr = new int[numberOfCourses];
     	int ind = 0;
     	for(int i = 0; i < numberOfCourses; i++) {
@@ -110,11 +106,11 @@ public class GreedyQuickScheduleMaker {
         			if(ind + 1 >= currentCourse.size()) {
         				break;
         			}
-        		}
-    		}
+        		}    		
+    		}    		
     		ind++;
-    	}
-
+    	}    	
+    	
     	if (debug) {
     		System.out.println("ArrayList arraylist size: " + out.size());
     		System.out.println("Arr array:");
@@ -127,7 +123,7 @@ public class GreedyQuickScheduleMaker {
     		}
     		System.out.println(numberOfCourses);
     	}
-
+    	
     	int courseIndex = 0;
     	// Build schedule
     	// Go through the number of courses to have
@@ -139,9 +135,9 @@ public class GreedyQuickScheduleMaker {
     			boolean skipConflict = false;
 				for( int k = 0; k < firstCourseList.size(); k++ ) {
 					if(firstCourseList.get(k).toString().equals(currentCourse.get(courseIndex).toString())) {
-
+    					
         				// Class exists skip
-        				skip = true;
+        				skip = true;    				
         			}
 				}
 				if(skip) {
@@ -149,7 +145,7 @@ public class GreedyQuickScheduleMaker {
 					System.out.println("SKIP");
 					break;
 				}
-
+    			
     			//System.out.println(i + " " + courseIndex);
     			// Add the first class
     			if(i == 0) {
@@ -196,17 +192,14 @@ public class GreedyQuickScheduleMaker {
         					firstCourseList.add(currentCourse.get(courseIndex));
         					courseIndex += arr[i];
         					break;
-        				}
+        				} 
     				} catch (IndexOutOfBoundsException e) {
     	    			// If we go out of bounds we skip this course
     	    			//i++;
     	    			numberOfCourses--;
     	    		}
-
+    				 					
     			}
-
-    			validSchedules.removeAll(toRemove);
-    			validSchedules.addAll(toAdd);
     		}
     		/**
     		try {
@@ -215,15 +208,15 @@ public class GreedyQuickScheduleMaker {
     			// If we go out of bounds we skip this course
     			i++;
     		}**/
-
+    		
     	}
-
+    	
     	out.add(firstCourseList);
     	courseIndex = 0;
-
+    	
     	// Make a second schedule if there are enough courses
     	if( numCourses < currentCourse.size() ) {
-
+    		
     		// Multiple courses, go through each course. Single courses first
     		for(int i = 0; i < numCourses; i++) {
         		// Go through the multiple times of that course started from the latest courses
@@ -233,9 +226,9 @@ public class GreedyQuickScheduleMaker {
         			boolean skipConflict = false;
     				for( int k = 0; k < secondCourseList.size(); k++ ) {
     					if(secondCourseList.get(k).toString().equals(currentCourse.get(courseIndex).toString())) {
-
+        					
             				// Class exists skip
-            				skip = true;
+            				skip = true;    				
             			}
     				}
     				if(skip) {
@@ -243,7 +236,7 @@ public class GreedyQuickScheduleMaker {
     					System.out.println("SKIP");
     					break;
     				}
-
+        			
         			//System.out.println(i + " " + courseIndex);
         			// Add the first class
         			if(i == 0) {
@@ -285,16 +278,16 @@ public class GreedyQuickScheduleMaker {
         					secondCourseList.add(currentCourse.get(courseIndex));
         					courseIndex += arr[i];
         					break;
-        				}
+        				}  					
         			}
-
+        			
         			/**
         			// Add the first class
         			if(i == 0) {
         				secondCourseList.add(currentCourse.get(i+j));
         			} else {
         				// Add other classes
-
+        				
         				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(i + j + arr[i - 1]))) {
         					// Conflict go to next option
         					if(j == arr[i] - 1) {
@@ -302,7 +295,7 @@ public class GreedyQuickScheduleMaker {
         						System.out.println("Error incompatable course: " + currentCourse.get(i + j));
         					}
         					continue;
-        				} else {
+        				} else {        					
         					secondCourseList.add(currentCourse.get(i + j));
         					break;
         				}
@@ -311,60 +304,55 @@ public class GreedyQuickScheduleMaker {
         	}
     		out.add(secondCourseList);
     	}
-
+    	
     	if( debug ) {
-
+    		
     		System.out.println("firstCourseList");
         	for(int i = 0; i < firstCourseList.size(); i++) {
         		System.out.println(firstCourseList.get(i));
         	}
     	}
-
-    	// System.out.println("SIZE AFTER PURGE: " + finalSchedules.size() ); // FOR TESTING
-
-    	final long endTime = System.currentTimeMillis();
-    	System.out.println("Total execution time: " + (endTime-startTime) + "ms");
-
-		return finalSchedules;
+    	
+    	return out; 	
     }
-
+    
     public static void main(String[] args) {
     	ArrayList<String> courses = new ArrayList<>(); // Store the courses from the GUI
     	ArrayList<Course> finalCourseList = new ArrayList<>();
     	ArrayList<Course> secondCourseList = new ArrayList<>();
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
-
+    	
     	// Create the arraylist of selected courses
     	//courses = getCC();
-
+    	
     	// Testing
-
+    	
     	courses.add("EE3173 - H-ware/S-ware Syst Integration");
     	courses.add("CS3141 - Team Software Project");
     	courses.add("CS3411 - Systems Programming");
     	courses.add("CS4321 - Introduction to Algorithms");
     	courses.add("EE3173 - H-ware/S-ware Syst Integration Lab");
-
+    	
     	out = build(courses, "Fall 2019");
     	finalCourseList = out.get(0);
     	secondCourseList = out.get(1);
-
+    	
     	System.out.println("Current Course Size: " + currentCourse.size());
     	for(int i = 0; i < currentCourse.size(); i++) {
     		System.out.println(currentCourse.get(i));
     	}
-
+    	    	    	
     	System.out.println(finalCourseList.size());
     	for(int i = 0; i < finalCourseList.size(); i++) {
     		System.out.println(finalCourseList.get(i));
     	}
-
+    	
     	System.out.println(secondCourseList.size());
     	for(int i = 0; i < secondCourseList.size(); i++) {
     		System.out.println(secondCourseList.get(i));
     	}
-
-    	// Build schedule to GUI?
+    	
+    	// Build schedule to GUI?   	
     	return;
     }
 }
