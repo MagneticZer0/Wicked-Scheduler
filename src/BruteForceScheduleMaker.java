@@ -4,7 +4,7 @@ import java.util.Set;
 
 import collections.MultiMap;
 
-public class ScheduleMaker {
+public class BruteForceScheduleMaker {
 	
     private static MultiMap<String, Course> allCourses;
     private static String semesterID;

@@ -227,7 +227,7 @@ public class UI extends Application {
 			//List<String> desiredCourses = desiredCoursesSelection.getItems();
 			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
 
-			Set<Set<Course>> validSchedules = ScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
+			Set<Set<Course>> validSchedules = BruteForceScheduleMaker.build(desiredCourses, Scraper.getAllSemesters().get(semesters.getValue()));	
 			List<Set<Course>> temp = new ArrayList<>(validSchedules);
 			validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
 			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
