@@ -8,6 +8,7 @@ import org.jtimer.Runner;
 import org.jtimer.Annotations.BeforeClass;
 import org.jtimer.Annotations.Time;
 
+import logic.GreedyQuickScheduleMaker;
 import logic.ScheduleMaker;
 
 public class ScheduleTimeTests {
@@ -53,6 +54,6 @@ public class ScheduleTimeTests {
 	@Time(repeat = 25)
 	public void scheduleMaker() {
 		courses = courses.parallelStream().filter(e -> courses.indexOf(e) < counter).collect(Collectors.toList());
-		ScheduleMaker.build(courses, "202001");
+		GreedyQuickScheduleMaker.build(courses, "202001");
 	}
 }
