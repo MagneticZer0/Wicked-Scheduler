@@ -37,7 +37,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import logic.Course;
-import logic.ScheduleMaker;
+import logic.GreedyQuickScheduleMaker;
 import logic.Scraper;
 import themes.DefaultTheme;
 import themes.Theme;
@@ -195,7 +195,7 @@ public class UI extends Application {
 			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			ArrayList<ArrayList<Course>> finalSchedule = ScheduleMaker.build(desiredCoursesList, semesters.getValue());
+			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
 
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
