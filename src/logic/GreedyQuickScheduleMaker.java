@@ -27,7 +27,7 @@ public class GreedyQuickScheduleMaker {
     			//Collections.sort(allCourses);
     		}    		
     		currentCourse.addAll(allCourses.get(courseName));
-    		System.out.println("Add course " + allCourses.get(courseName));
+    		//System.out.println("Add course " + allCourses.get(courseName));
     	} catch ( IOException ex ) {
     		System.out.println("Error PaseException, IOException");
     		System.exit(0);
@@ -39,7 +39,7 @@ public class GreedyQuickScheduleMaker {
     	ArrayList<Course> firstCourseList = new ArrayList<>();
     	ArrayList<Course> secondCourseList = new ArrayList<>();
     	ArrayList<ArrayList<Course>> out = new ArrayList<>();
-    	boolean debug = true;
+    	boolean debug = false;
     	ArrayList<Course> copyList = new ArrayList<>();
     	
     	// Create the arraylist of selected courses
@@ -89,7 +89,7 @@ public class GreedyQuickScheduleMaker {
     			numberOfCourses++;
     		}
     	}
-    	System.out.println("Courses number 2: " + numberOfCourses);
+    	//System.out.println("Courses number 2: " + numberOfCourses);
     	
     	// This array will store the number of course repeats in order of sorted appearance
     	// i.e. Systems has two offerings 
@@ -141,8 +141,8 @@ public class GreedyQuickScheduleMaker {
         			}
 				}
 				if(skip) {
-					System.out.println(currentCourse.get(courseIndex).toString());
-					System.out.println("SKIP");
+					//System.out.println(currentCourse.get(courseIndex).toString());
+					//System.out.println("SKIP");
 					break;
 				}
     			
@@ -185,7 +185,7 @@ public class GreedyQuickScheduleMaker {
         					// Conflict go to next option
         					if(j == arr[i] - 1) {
         						// If on the last option of a class and can't add it ERROR
-        						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
+        						//System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
         					}
         					continue;
         				} else {
