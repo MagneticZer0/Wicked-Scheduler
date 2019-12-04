@@ -231,7 +231,7 @@ public class UI extends Application {
 			List<Set<Course>> temp = new ArrayList<>(validSchedules);
 			validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
 			temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
-
+			
 			// display schedules
 			int k = 1; // for debugging only
 			for ( Set<Course> indvSchedule : validSchedules) {
@@ -261,11 +261,11 @@ public class UI extends Application {
 				int i = 0;
 				for (Course cur : indvSchedule) {
 					if ( i % indvSchedule.size() == 0 ) {
-						// System.out.println("CALENDAR NUMBER " + k ); // FOR TESTING
+						System.out.println("CALENDAR NUMBER " + k );
 						k++;
 					}
 					
-					// System.out.println("  the calendar is dealing with " + cur ); // FOR TESTING
+					System.out.println("  the calendar is dealing with " + cur );
 					Calendar cal = new Calendar(cur.toString());
 					sources.getCalendars().add(cal);
 					cal.setStyle(Style.getStyle(i++));
@@ -300,7 +300,6 @@ public class UI extends Application {
 				calendarView.showWeekPage();
 				tab.setContent(calendarView);
 				schedulesView.getTabs().addAll(tab);
-				System.gc();
 			}
 
 			// controls between the calendar and class select pages
