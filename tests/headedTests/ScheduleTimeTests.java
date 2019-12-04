@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 
 import org.jtimer.Runner;
 import org.jtimer.Annotations.BeforeClass;
+import org.jtimer.Annotations.Settings;
 import org.jtimer.Annotations.Time;
+import org.jtimer.Misc.Setting;
 
 import logic.GreedyQuickScheduleMaker;
 
+//@Settings({Setting.BEST_FIT})
 public class ScheduleTimeTests {
 
 	List<String> courses = new ArrayList<>();
