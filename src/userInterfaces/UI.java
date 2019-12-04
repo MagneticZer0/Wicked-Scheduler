@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Comparator;
 import java.util.List;
 
 import com.calendarfx.model.Calendar;
@@ -14,6 +13,7 @@ import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
 
+import collections.DragAndDropListView;
 import impl.com.calendarfx.view.DateControlSkin;
 
 import javafx.application.Application;
@@ -25,7 +25,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -54,8 +53,9 @@ import org.joda.time.LocalDateTime;
 public class UI extends Application {
 
 	private ObservableList<String> allCoursesList = FXCollections.observableArrayList();
+	ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
 	private ObservableList<String> allSemestersList = FXCollections.observableArrayList();
-	private ListView<String> allCoursesSelection = null;
+	private DragAndDropListView allCoursesSelection = null;
 	private VBox loadingBox = null;
 	private ComboBox<String> semesters = null;
 	private Theme theme = new DefaultTheme();
@@ -66,8 +66,7 @@ public class UI extends Application {
 	private final CountDownLatch DONOTUSE = new CountDownLatch(2);
 
 	/**
-	 * this function builds the GUI and displays it to the user once everything has
-	 * been initialized
+	 * this function builds the GUI and displays it to the user once everything has been initialized
 	 *
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
@@ -103,7 +102,8 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
-		allCoursesSelection = new ListView<>(allCoursesFilter.sorted());
+		allCoursesSelection = new DragAndDropListView(allCoursesList, allCoursesFilter.sorted());
+		allCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
@@ -125,9 +125,9 @@ public class UI extends Application {
 		desiredCoursesSearch.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
-		ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
-		ListView<String> desiredCoursesSelection = new ListView<>(desiredCoursesFilter.sorted());
+		DragAndDropListView desiredCoursesSelection = new DragAndDropListView(desiredCoursesList, desiredCoursesFilter.sorted());
+		desiredCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
@@ -144,7 +144,7 @@ public class UI extends Application {
 		});
 		grid.add(semesters, 2, 2, 1, 1);
 
-		// identify the upcoming semester and load it by deafult
+		// identify the upcoming semester and load it by default
 		loadSemesters();
 		semesters.setValue(defaultSemester());
 
@@ -155,13 +155,9 @@ public class UI extends Application {
 		grid.add(addCourse, 2, 3, 1, 1);
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
-				try {
-					creditLoad.set(creditLoad.getValue().doubleValue() + Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(allCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
+				updateCreditLoad();
 			}
 		});
 
@@ -172,13 +168,9 @@ public class UI extends Application {
 		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
-				try {
-					creditLoad.set(creditLoad.getValue().doubleValue() - Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(desiredCoursesSelection.getSelectionModel().getSelectedItem()).get(0).getCredits()[0]);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
+				updateCreditLoad();
 			}
 		});
 
@@ -275,6 +267,20 @@ public class UI extends Application {
 	}
 
 	/**
+	 * Updates the credit load by putting all the courses into a parallel stream, mapping them to a
+	 * double (their credits), and finally summing them up and updating the interval DoubleProperty.
+	 */
+	private void updateCreditLoad() {
+		creditLoad.set(desiredCoursesList.parallelStream().mapToDouble(course -> {
+			try {
+				return Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(course).get(0).getCredits()[0];
+			} catch (IOException e1) {
+				return 0; // Anything wrong getting credit value? Assume 0.
+			}
+		}).sum());
+	}
+
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -287,8 +293,8 @@ public class UI extends Application {
 	}
 
 	/**
-	 * This is a hacky way to disable the thing that CalendarFX ouputs to console
-	 * because I'm slightly annoyed by it.
+	 * This is a hacky way to disable the thing that CalendarFX outputs to console because I'm slightly
+	 * annoyed by it.
 	 */
 	private void setInfo() {
 		try {
