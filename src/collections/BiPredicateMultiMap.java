@@ -9,15 +9,13 @@ import java.util.List;
 /**
  * This is an extension of Java's HashMap, it maps one key to one, or many,
  * different values. Values cannot be duplicated for a given key.
- * 
- * @author MagneticZero
  *
  * @param <T> The type of elements stored within the map
  */
 public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 
 	/**
-	 * This is for serializable object compatability
+	 * This is for serializable object compatibility
 	 */
 	private static final long serialVersionUID = 278891569418788532L;
 
@@ -27,6 +25,11 @@ public class BiPredicateMultiMap<T> extends MultiMap<T, T> {
 	 */
 	private BiPredicate<T, T> predicate;
 
+	/**
+	 * Creates a BiPredicateMultiMap with the given BiPredicate
+	 * 
+	 * @param predicate The BiPredicate the inserted values will be tested against.
+	 */
 	public BiPredicateMultiMap(BiPredicate<T, T> predicate) {
 		this.predicate = predicate;
 	}

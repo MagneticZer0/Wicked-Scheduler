@@ -21,11 +21,8 @@ import javafx.stage.Stage;
  * A PopupDialogue may become more versatile in the future, although as of right
  * now its only purpose to to capture any of the exception, display them to the
  * user, and give the user an option to save the log into a ZIP file.
- * 
- * @author Harley Merkaj
- *
  */
-public class PopupDialogue {
+public class PopupException {
 
 	/**
 	 * The main stage for the PopupDialogue
@@ -37,13 +34,13 @@ public class PopupDialogue {
 	private TextArea textArea = new TextArea();
 
 	/**
-	 * Used to create popup dialogues, for now only used for logging errors.
+	 * Used to create popup view, for now only used for logging errors.
 	 * 
 	 * @param title   The title for the PopupDialogue
 	 * @param btn1txt The text of the first button
 	 * @param btn2txt The text of the second button
 	 */
-	public PopupDialogue(String title, String btn1txt, String btn2txt) {
+	public PopupException(String title, String btn1txt, String btn2txt) {
 		Platform.runLater(() -> {
 			popupStage = new Stage();
 			Pane pane = new Pane();
@@ -91,7 +88,7 @@ public class PopupDialogue {
 		});
 	}
 
-	public PopupDialogue(String title, String btn1txt) {
+	public PopupException(String title, String btn1txt) {
 		this(title, btn1txt, null);
 	}
 
@@ -140,7 +137,7 @@ public class PopupDialogue {
 				textArea.appendText("\n### END EXCEPTION ###\n");
 			}
 			textArea.selectHome(); //
-			textArea.deselect();   // This is to scroll to the top
+			textArea.deselect(); // This is to scroll to the top
 		});
 	}
 
@@ -149,5 +146,12 @@ public class PopupDialogue {
 	 */
 	public void show() {
 		popupStage.show();
+	}
+
+	/**
+	 * Exits the popup
+	 */
+	public void exit() {
+		popupStage.hide();
 	}
 }

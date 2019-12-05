@@ -21,10 +21,14 @@ import java.util.stream.Collectors;
 import collections.BiPredicateMultiMap;
 import collections.MultiMap;
 
+/**
+ * This class is used to store course information retrieved from the Scraper so
+ * that it can later be manipulated and scheduled
+ */
 public class Course implements Serializable, Comparable<Course>, Iterable<List<LocalTime[]>> {
 
 	/**
-	 * This is used for Serializable compatability
+	 * This is used for Serializable compatibility
 	 */
 	private static final long serialVersionUID = 8126578523819110122L;
 	/**
@@ -54,12 +58,12 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	private ArrayList<String> days;
 	/**
 	 * An array that corresponds to the time the course starts. This directly
-	 * coorelates with the day/endTime lists.
+	 * correlates with the day/endTime lists.
 	 */
 	private ArrayList<LocalTime> startTime;
 	/**
 	 * An array that corresponds to the time the course ends. This directly
-	 * coorelates with the day/startTime lists.
+	 * correlates with the day/startTime lists.
 	 */
 	private ArrayList<LocalTime> endTime;
 	/**
@@ -169,6 +173,24 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	}
 
 	/**
+	 * Returns the subject string representation
+	 * 
+	 * @return The subject, i.e. "MA", "CS", etc.
+	 */
+	public String getSubject() {
+		return subject;
+	}
+
+	/**
+	 * Returns the course code
+	 * 
+	 * @return MA1161 -> 1161
+	 */
+	public String getCourseCode() {
+		return courseCode;
+	}
+
+	/**
 	 * Returns the amount of credits the class is worth.
 	 * 
 	 * @return Most times this array is only of size 1, sometimes it is of size 2
@@ -207,6 +229,11 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return Collections.unmodifiableList(result.stream().distinct().collect(Collectors.toList())); // Create an immutable list that has duplicates removed
 	}
 
+	/**
+	 * Returns the first day of the week the class takes place in a DayOfWeek enum
+	 * 
+	 * @return The DayOfWeek enum for the first day
+	 */
 	public DayOfWeek firstDay() {
 		List<String> days = getDays();
 		String day = days.get(0);
@@ -389,10 +416,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			return true;
 		} else if (startDate1.isAfter(startDate2) && endDate1.isBefore(endDate2)) { // First class starts after and ends before the second class
 			return true;
-		} else if (startDate1.equals(startDate2) && endDate1.equals(endDate2)) { // First class starts and ends at the same date as the second class
-			return true;
-		} else {
-			return false;
+		} else { // First class starts and ends at the same date as the second class
+			return startDate1.equals(startDate2) && endDate1.equals(endDate2);
 		}
 	}
 
@@ -421,10 +446,8 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			return true;
 		} else if (startTime1.isAfter(startTime2) && endTime1.isBefore(endTime2)) { // First class starts after and ends before the second class
 			return true;
-		} else if (startTime1.equals(startTime2) && endTime1.equals(endTime2)) { // First class starts and ends at the same time as the second class
-			return true;
-		} else {
-			return false;
+		} else { // First class starts and ends at the same time as the second class
+			return startTime1.equals(startTime2) && endTime1.equals(endTime2);
 		}
 	}
 
@@ -464,6 +487,11 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return LocalTime.parse(time, formatter);
 	}
 
+	/**
+	 * If the class takes place at different times in the same week
+	 * 
+	 * @return A boolean if the class doesn't always happen at the same time
+	 */
 	public boolean isSplitClass() {
 		return days.size() > 1;
 	}
@@ -572,6 +600,11 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 			}
 		}
 
+		/**
+		 * Gets the current day the iterator is on as a DayOfWeek enum
+		 * 
+		 * @return The DayOfWeek enum representing the day the iterator is on
+		 */
 		public DayOfWeek getDayEnum() {
 			if (day.equals("M")) {
 				return DayOfWeek.MONDAY;
@@ -587,6 +620,14 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		}
 	}
 
+	/**
+	 * Returns a BiPredicateMultiMap that maps an array of courses to the other
+	 * courses in conflicts with
+	 * 
+	 * @param <T>     The Course or subclass of Course type
+	 * @param courses The array of courses
+	 * @return A BiPredicateMultiMap representing the conflicts
+	 */
 	public static <T extends Course> MultiMap<Course, Course> getConflicts(T[] courses) {
 		BiPredicateMultiMap<Course> map = new BiPredicateMultiMap<>((x, y) -> x.conflicts(y));
 		for (Course course : courses) {
@@ -595,6 +636,14 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 		return map;
 	}
 
+	/**
+	 * Returns a BiPredicateMultiMap that maps a collection of courses to the other
+	 * courses in conflicts with
+	 * 
+	 * @param <T>     The Course or subclass of Course type
+	 * @param courses The collection of courses
+	 * @return A BiPredicateMultiMap representing the conflicts
+	 */
 	public static <T extends Course> MultiMap<Course, Course> getConflicts(Collection<T> courses) {
 		return getConflicts((T[]) courses.toArray(new Object[courses.size()]));
 	}

@@ -9,15 +9,13 @@ import java.util.List;
  * This is an extension of Java's HashMap, it maps one key to one, or many,
  * different values. Values cannot be duplicated for a given key.
  * 
- * @author MagneticZero
- *
  * @param <K> The type of keys maintained by the MultiMap
  * @param <V> The type of mapped values
  */
 public class MultiMap<K, V> extends HashMap<K, List<V>> {
 
 	/**
-	 * This is for serializable object compatability
+	 * This is for serializable object compatibility
 	 */
 	private static final long serialVersionUID = 6098566057097491786L;
 

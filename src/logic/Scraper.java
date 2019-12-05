@@ -1,4 +1,5 @@
 package logic;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,9 +33,6 @@ import collections.MultiMap;
  * The Scraper is what does all the data scraping it will access multiple links
  * through the use of web forms and take the information needed from each
  * website and output it into various Java collection classes.
- * 
- * @author Harley Merkaj
- *
  */
 public class Scraper {
 
@@ -48,7 +46,7 @@ public class Scraper {
 	private static final String CATEGORY_SELECT_URL = "https://www.banweb.mtu.edu/owassb/bwckgens.p_proc_term_date";
 	/**
 	 * The tertiary page, this display all classes available for the category
-	 * choosen.
+	 * chosen.
 	 */
 	private static final String CLASS_LIST_URL = "https://www.banweb.mtu.edu/owassb/bzckschd.p_get_crse_unsec";
 	/**
@@ -128,11 +126,11 @@ public class Scraper {
 	}
 
 	/**
-	 * Gets all categories within a given semster by searching it by the semester
+	 * Gets all categories within a given semester by searching it by the semester
 	 * ID.
 	 * 
 	 * @param semesterID The semester ID for the semester, this is given by the map
-	 *                   given by {@link getAllSemesters()}
+	 *                   given by {@link #getAllSemesters()}
 	 * @return Returns a list of available categories.
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
@@ -171,7 +169,7 @@ public class Scraper {
 	 * you to force update cache files if you want to.
 	 * 
 	 * @param semesterID The semester Id for the semester, this is given by the map
-	 *                   given by {@link getAllSemesters()}
+	 *                   given by {@link #getAllSemesters()}
 	 * @return Returns a list of Class objects for the given semester
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
@@ -184,7 +182,7 @@ public class Scraper {
 	 * ID. Also updates the cache files if new things are added
 	 * 
 	 * @param semesterID  The semester Id for the semester, this is given by the map
-	 *                    given by {@link getAllSemesters()}
+	 *                    given by {@link #getAllSemesters()}
 	 * @param forceUpdate If the Scraper should just update the list of classes
 	 *                    anyways
 	 * @return Returns a list of Class objects for the given semester
@@ -274,9 +272,9 @@ public class Scraper {
 									ArrayList<Double> credits = new ArrayList<>();
 									String[] credSplit = classInfo[5].split("-");
 									for (String s : credSplit) {
-										if(s.contains("/")) {
+										if (s.contains("/")) {
 											String[] otherSplit = s.split("/");
-											for(String d : otherSplit) {
+											for (String d : otherSplit) {
 												credits.add(Double.parseDouble(d));
 											}
 											continue;
@@ -299,7 +297,6 @@ public class Scraper {
 							input += value;
 						}
 					}
-
 				}
 			}
 		}
@@ -309,6 +306,12 @@ public class Scraper {
 		return courses;
 	}
 
+	/**
+	 * Gets the MultiMap of courses for the last
+	 * {@link #getAllClasses(String, boolean)} call
+	 * 
+	 * @return The last return result of {@link #getAllClasses(String, boolean)}
+	 */
 	public static MultiMap<String, Course> getLast() {
 		try {
 			return getAllClasses(lastSemesterID);

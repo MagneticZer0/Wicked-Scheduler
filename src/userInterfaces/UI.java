@@ -13,7 +13,7 @@ import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
 
-import collections.DragAndDropListView;
+import collections.CustomListView;
 import impl.com.calendarfx.view.DateControlSkin;
 
 import javafx.application.Application;
@@ -49,25 +49,57 @@ import org.joda.time.LocalDateTime;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
- *
  */
 public class UI extends Application {
 
+	/**
+	 * A list of all the courses
+	 */
 	private ObservableList<String> allCoursesList = FXCollections.observableArrayList();
-	ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
+	/**
+	 * A list of all the desired courses
+	 */
+	private ObservableList<String> desiredCoursesList = FXCollections.observableArrayList();
+	/**
+	 * A list of all semesters
+	 */
 	private ObservableList<String> allSemestersList = FXCollections.observableArrayList();
-	private DragAndDropListView allCoursesSelection = null;
+	/**
+	 * The list view used for all courses available
+	 */
+	private CustomListView allCoursesSelection = null;
+	/**
+	 * A loading box for when something is being loaded from the disc
+	 */
 	private VBox loadingBox = null;
+	/**
+	 * The combo box for the semesters
+	 */
 	private ComboBox<String> semesters = null;
+	/**
+	 * The theme that the UI is using
+	 */
 	private Theme theme = new DefaultTheme();
+	/**
+	 * The property that tracks the current credit load
+	 */
 	private final DoubleProperty creditLoad = new SimpleDoubleProperty(0);
+	/**
+	 * This is the popup that will log exceptions
+	 */
+	private static PopupException popupException = new PopupException("Ignore and Continue", "Save and Exit");
+	/**
+	 * The browser used to show course descriptions
+	 */
+	public static final Browser browser = new Browser();
 	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
 	private final CountDownLatch DONOTUSE = new CountDownLatch(2);
 
 	/**
-	 * this function builds the GUI and displays it to the user once everything has been initialized
+	 * this function builds the GUI and displays it to the user once everything has
+	 * been initialized
 	 *
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
@@ -82,6 +114,11 @@ public class UI extends Application {
 		primaryStage.setMinHeight(486);
 		primaryStage.initStyle(StageStyle.DECORATED);
 		primaryStage.getIcons().add(theme.getIcon());
+		primaryStage.setOnCloseRequest(e -> {
+			popupException.exit();
+			browser.exit();
+			Platform.exit();
+		});
 
 		// create a grid for GUI elements
 		GridPane grid = new GridPane();
@@ -91,6 +128,17 @@ public class UI extends Application {
 		grid.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
 		Scene scene = new Scene(grid, 200, 100);
 		// grid.setGridLinesVisible(true);
+
+		// semester list
+		semesters = new ComboBox<>(allSemestersList.filtered(d -> allSemestersList.indexOf(d) < 5)); // Only do 5 most relevant
+		semesters.setPromptText("Select Semester");
+		semesters.setMaxWidth(primaryStage.getWidth() / 4);
+		semesters.setOnAction(e -> {
+			desiredCoursesList.clear();
+			creditLoad.set(0);
+			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
+		});
+		grid.add(semesters, 2, 2, 1, 1);
 
 		// elements regarding all courses
 		Label allCoursesLabel = new Label("Offered Courses:");
@@ -103,7 +151,7 @@ public class UI extends Application {
 		grid.add(allCoursesSearch, 1, 1, 1, 1);
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
-		allCoursesSelection = new DragAndDropListView(allCoursesList, allCoursesFilter.sorted());
+		allCoursesSelection = new CustomListView(allCoursesList, allCoursesFilter.sorted(), semesters);
 		allCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
@@ -127,23 +175,12 @@ public class UI extends Application {
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
-		DragAndDropListView desiredCoursesSelection = new DragAndDropListView(desiredCoursesList, desiredCoursesFilter.sorted());
+		CustomListView desiredCoursesSelection = new CustomListView(desiredCoursesList, desiredCoursesFilter.sorted(), semesters);
 		desiredCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSelection, 3, 2, 2, 4);
-
-		// semester list
-		semesters = new ComboBox<>(allSemestersList.filtered(d -> allSemestersList.indexOf(d) < 5)); // Only do 5 most relevant
-		semesters.setPromptText("Select Semester");
-		semesters.setMaxWidth(primaryStage.getWidth() / 4);
-		semesters.setOnAction(e -> {
-			desiredCoursesList.clear();
-			creditLoad.set(0);
-			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
-		});
-		grid.add(semesters, 2, 2, 1, 1);
 
 		// identify the upcoming semester and load it by default
 		loadSemesters();
@@ -258,14 +295,13 @@ public class UI extends Application {
 			scheduleGridpane.add(moreSchedules, 0, 0);
 			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
 			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
-			
-			
+
 			Button backButton = new Button("BACK");
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
 			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
-			
+
 			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
 		});
@@ -277,8 +313,18 @@ public class UI extends Application {
 	}
 
 	/**
-	 * Updates the credit load by putting all the courses into a parallel stream, mapping them to a
-	 * double (their credits), and finally summing them up and updating the interval DoubleProperty.
+	 * This is want runs when JavaFX is exiting, currently all this does it save the
+	 * loaded courses
+	 */
+	@Override
+	public void stop() {
+		Scraper.saveCourses();
+	}
+
+	/**
+	 * Updates the credit load by putting all the courses into a parallel stream,
+	 * mapping them to a double (their credits), and finally summing them up and
+	 * updating the interval DoubleProperty.
 	 */
 	private void updateCreditLoad() {
 		creditLoad.set(desiredCoursesList.parallelStream().mapToDouble(course -> {
@@ -291,20 +337,15 @@ public class UI extends Application {
 	}
 
 	/**
-	 * @param args
+	 * Used in case your IDE does not support JavaFX
 	 */
 	public static void main(String[] args) {
 		Application.launch(args);
 	}
 
-	@Override
-	public void stop() {
-		Scraper.saveCourses();
-	}
-
 	/**
-	 * This is a hacky way to disable the thing that CalendarFX outputs to console because I'm slightly
-	 * annoyed by it.
+	 * This is a hacky way to disable the thing that CalendarFX outputs to console
+	 * because I'm slightly annoyed by it.
 	 */
 	private void setInfo() {
 		try {
@@ -394,6 +435,14 @@ public class UI extends Application {
 		}
 	}
 
+	/**
+	 * Used to update a color for a node that is currently not visible, and will be
+	 * visible at an unknown time in the future
+	 * 
+	 * @param node   The node to change the color of
+	 * @param lookup CSS object to lookup
+	 * @param color  The color for it to be changed to
+	 */
 	private void backgroundColorThread(Node node, String lookup, Color color) {
 		new Thread(() -> {
 			while (node.lookup(lookup) == null) {
