@@ -211,6 +211,15 @@ public class UI extends Application {
 				updateCreditLoad();
 			}
 		});
+		
+		// button for displaying the help page
+		Button helpButton = new Button("Help");
+		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
+		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
+		grid.add(helpButton, 0, 0, 1, 1);
+		helpButton.setOnAction(action -> {
+			System.out.println("Help button worked!");
+		});
 
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
@@ -288,14 +297,20 @@ public class UI extends Application {
 				schedulesView.getTabs().addAll(tab);
 			}
 
-			// controls between the calendar and class select pages
+			// allows the user to requesting more schedules from the GUI
 			Button moreSchedules = new Button("GIVE ME MORE");
 			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
 			//backButton.setOnAction(e -> /*call colemans scedule algo*/);
 			scheduleGridpane.add(moreSchedules, 0, 0);
 			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
 			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
+			
+			
+			// adds the help button the schedule view screen
+			scheduleGridpane.add(helpButton, 0, 0);
+			GridPane.setHalignment(helpButton, HPos.CENTER);
 
+			// controls between the calendar and class select pages
 			Button backButton = new Button("BACK");
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
@@ -311,6 +326,8 @@ public class UI extends Application {
 		primaryStage.show();
 		DONOTUSE.countDown();
 	}
+	
+	
 
 	/**
 	 * This is want runs when JavaFX is exiting, currently all this does it save the
