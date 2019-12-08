@@ -1,9 +1,10 @@
 package userInterfaces;
 
+
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLTableElement;
 
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.*;
@@ -46,9 +47,11 @@ public class Browser {
 	 * @param url The URL to load
 	 */
 	public void loadURL(String url) {
-		stage.show();
-		stage.requestFocus();
-		webEngine.load(url);
+		Platform.runLater(() -> {
+			stage.show();
+			stage.requestFocus();
+			webEngine.load(url);
+		});
 	}
 
 	/**
@@ -78,24 +81,26 @@ public class Browser {
 	 * from the page may be removed
 	 */
 	private void addWebEngineEvents() {
-		webEngine.getLoadWorker().workDoneProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+		webEngine.getLoadWorker().workDoneProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue.doubleValue() != 100.0) {
 				stage.setTitle("Wicked Scheduler Browser - Loading: " + newValue.intValue() + "%");
 			} else {
 				stage.setTitle("Wicked Scheduler Browser");
 
-				// Removes Sign In and Help button
-				run(() -> webEngine.getDocument().getElementById("globalNav").getParentNode().removeChild(webEngine.getDocument().getElementById("globalNav")));
+				if (webEngine.getLocation().contains("disp_listcrse")) {
+					// Removes Sign In and Help button
+					run(() -> webEngine.getDocument().getElementById("globalNav").getParentNode().removeChild(webEngine.getDocument().getElementById("globalNav")));
 
-				// Removes Home button
-				run(() -> webEngine.getDocument().getElementById("crumb").getParentNode().removeChild(webEngine.getDocument().getElementById("crumb")));
+					// Removes Home button
+					run(() -> webEngine.getDocument().getElementById("crumb").getParentNode().removeChild(webEngine.getDocument().getElementById("crumb")));
 
-				// Removes Scheduled Meeting Times data and the "Return to Previous Button
-				run(() -> {
-					JSObject tables = (JSObject) webEngine.executeScript("document.getElementsByClassName(\"datadisplaytable\")");
-					((HTMLTableElement) tables.call("item", 1)).getParentNode().removeChild((Node) tables.call("item", 1));
-					((HTMLTableElement) tables.call("item", 1)).getParentNode().removeChild((Node) tables.call("item", 1));
-				});
+					// Removes Scheduled Meeting Times data and the "Return to Previous Button
+					run(() -> {
+						JSObject tables = (JSObject) webEngine.executeScript("document.getElementsByClassName(\"datadisplaytable\")");
+						((HTMLTableElement) tables.call("item", 1)).getParentNode().removeChild((Node) tables.call("item", 1));
+						((HTMLTableElement) tables.call("item", 1)).getParentNode().removeChild((Node) tables.call("item", 1));
+					});
+				}
 			}
 		});
 	}

@@ -2,6 +2,7 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -43,6 +44,7 @@ import themes.DefaultTheme;
 import themes.Theme;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.LocalDateTime;
@@ -233,6 +235,7 @@ public class UI extends Application {
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
 			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
+			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
 
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
@@ -245,6 +248,8 @@ public class UI extends Application {
 				if (finalSchedule.get(j).isEmpty()) {
 					continue;
 				}
+
+				tabCourses.put(j+1, finalSchedule.get(j));
 
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
@@ -289,18 +294,29 @@ public class UI extends Application {
 			}
 
 			// controls between the calendar and class select pages
-			Button moreSchedules = new Button("GIVE ME MORE");
-			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
-			//backButton.setOnAction(e -> /*call colemans scedule algo*/);
-			scheduleGridpane.add(moreSchedules, 0, 0);
-			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
-			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
-
-			Button backButton = new Button("BACK");
+			Button backButton = new Button("Back");
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
+			GridPane.setHalignment(backButton, HPos.LEFT);
 			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
+
+
+			Button moreSchedules = new Button("More Schedules");
+			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
+			//moreSchedules.setOnAction(e -> /*call colemans scedule algo*/);
+			scheduleGridpane.add(moreSchedules, 0, 0);
+			GridPane.setHalignment(moreSchedules, HPos.CENTER);
+			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
+
+			Button crnButton = new Button("Get CRNs");
+			crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
+			crnButton.setOnAction(e -> {
+				//browser.register(Scraper.getAllSemesters().get(semesters.getSelectionModel().getSelectedItem()), tabCourses.get(Integer.parseInt(schedulesView.getSelectionModel().getSelectedItem().getText().split(" ")[1])));
+			});
+			scheduleGridpane.add(crnButton, 0, 0);
+			GridPane.setHalignment(crnButton, HPos.RIGHT);
+			GridPane.setMargin(crnButton, new Insets(5, 0, 0, 0));
 
 			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
