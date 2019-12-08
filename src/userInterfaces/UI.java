@@ -194,7 +194,7 @@ public class UI extends Application {
 		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(helpButton, 0, 0, 1, 1);
 		helpButton.setOnAction(action -> {
-			System.out.println("Help button worked!");
+			browser.loadHelp();
 		});
 
 		// button for adding courses to the desired courses list
