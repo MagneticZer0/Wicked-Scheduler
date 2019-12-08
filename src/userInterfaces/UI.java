@@ -214,6 +214,15 @@ public class UI extends Application {
 			}
 		});
 
+		// button for displaying the help page
+		Button helpButton = new Button("Help");
+		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
+		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
+		grid.add(helpButton, 0, 0, 1, 1);
+		helpButton.setOnAction(action -> {
+			System.out.println("Help button worked!");
+		});
+
 		// control for creating the schedule
 		Button schedule = new Button("Create Schedule");
 		schedule.setStyle(Theme.toStyle(theme.scheduleButtonColors()));
@@ -328,6 +337,8 @@ public class UI extends Application {
 		DONOTUSE.countDown();
 	}
 
+
+
 	/**
 	 * This is want runs when JavaFX is exiting, currently all this does it save the
 	 * loaded courses
@@ -396,7 +407,7 @@ public class UI extends Application {
 
 	/**
 	 * Loads all the course information for a given semester
-	 * 
+	 *
 	 * @param semesterID - the semester from which the courses will be loaded
 	 */
 	private void loadCourses(String semesterID) {
@@ -439,7 +450,7 @@ public class UI extends Application {
 
 	/**
 	 * Determines which semester is the next semester in the academic calendar
-	 * 
+	 *
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {
@@ -454,7 +465,7 @@ public class UI extends Application {
 	/**
 	 * Used to update a color for a node that is currently not visible, and will be
 	 * visible at an unknown time in the future
-	 * 
+	 *
 	 * @param node   The node to change the color of
 	 * @param lookup CSS object to lookup
 	 * @param color  The color for it to be changed to
