@@ -188,6 +188,15 @@ public class UI extends Application {
 		loadSemesters();
 		semesters.setValue(defaultSemester());
 
+		// button for displaying the help page
+		Button helpButton = new Button("Help");
+		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
+		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
+		grid.add(helpButton, 0, 0, 1, 1);
+		helpButton.setOnAction(action -> {
+			System.out.println("Help button worked!");
+		});
+
 		// button for adding courses to the desired courses list
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle(Theme.toStyle(theme.addCourseColors()));
@@ -212,15 +221,6 @@ public class UI extends Application {
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				updateCreditLoad();
 			}
-		});
-
-		// button for displaying the help page
-		Button helpButton = new Button("Help");
-		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
-		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
-		grid.add(helpButton, 0, 0, 1, 1);
-		helpButton.setOnAction(action -> {
-			System.out.println("Help button worked!");
 		});
 
 		// control for creating the schedule
@@ -258,7 +258,7 @@ public class UI extends Application {
 					continue;
 				}
 
-				tabCourses.put(j+1, finalSchedule.get(j));
+				tabCourses.put(j + 1, finalSchedule.get(j));
 
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
@@ -310,7 +310,6 @@ public class UI extends Application {
 			GridPane.setHalignment(backButton, HPos.LEFT);
 			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
 
-
 			Button moreSchedules = new Button("More Schedules");
 			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
 			//moreSchedules.setOnAction(e -> /*call colemans scedule algo*/);
@@ -336,8 +335,6 @@ public class UI extends Application {
 		primaryStage.show();
 		DONOTUSE.countDown();
 	}
-
-
 
 	/**
 	 * This is want runs when JavaFX is exiting, currently all this does it save the
