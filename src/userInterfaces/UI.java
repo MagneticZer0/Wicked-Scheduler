@@ -47,9 +47,7 @@ import themes.Theme;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-=======
-import java.util.HashMap;
->>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
+
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.LocalDateTime;
@@ -160,7 +158,7 @@ public class UI extends Application {
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new CustomListView(allCoursesList, allCoursesFilter.sorted(), semesters);
 		allCoursesSelection.setUpdateFunction(this::updateCreditLoad);
-		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> (newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase())))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
@@ -250,9 +248,6 @@ public class UI extends Application {
 
 			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
 			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
-=======
-			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
->>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
 
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
@@ -312,9 +307,6 @@ public class UI extends Application {
 
 			// controls between the calendar and class select pages
 			Button backButton = new Button("Back");
-=======
-			Button backButton = new Button("Back");
->>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);

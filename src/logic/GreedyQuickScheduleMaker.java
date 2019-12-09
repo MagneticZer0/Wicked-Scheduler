@@ -212,10 +212,11 @@ public class GreedyQuickScheduleMaker {
     	courseIndex = 0;
 
     	// Make a second schedule if there are enough courses
-    	if( numCourses < currentCourse.size() ) {
+    	if( numberOfCourses < currentCourse.size() ) {
+    		System.out.println("Entered second");
 
     		// Multiple courses, go through each course. Single courses first
-    		for(int i = 0; i < numCourses; i++) {
+    		for(int i = 0; i < numberOfCourses; i++) {
         		// Go through the multiple times of that course started from the latest courses
         		for(int j = (arr[i] - 1); j >= 0; j--) {
         			// Skip if the class is already in the schedule
@@ -237,9 +238,11 @@ public class GreedyQuickScheduleMaker {
         			//System.out.println(i + " " + courseIndex);
         			// Add the first class
         			if(i == 0) {
+        				System.out.println("Added i = 0");
         				secondCourseList.add(currentCourse.get(courseIndex));
         				courseIndex++;
         			} else if(arr[i] == 1){
+        				System.out.println("Added arr[i] = 1");
         				for(int k = 0; k < secondCourseList.size(); k++) {
         					if(secondCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
         						skipConflict = true;
@@ -252,27 +255,31 @@ public class GreedyQuickScheduleMaker {
         				}
         				secondCourseList.add(currentCourse.get(courseIndex));
         				courseIndex++;
-        			}else {
+        			} else {
         				// Add other classes
+        				System.out.println("courseIndex: " + courseIndex + " j: " + j);
         				for(int k = 0; k < secondCourseList.size(); k++) {
-        					if(secondCourseList.get(k).conflicts(currentCourse.get(courseIndex))) {
+        					if(secondCourseList.get(k).conflicts(currentCourse.get(courseIndex + j))) {
         						skipConflict = true;
         					}
         				}
         				if(skipConflict) {
-        					courseIndex++;
+        					//courseIndex++;
+        					if(j == 0) {
+        						courseIndex += arr[i];
+        					}
         					skipConflict = false;
         					continue;
         				}
-        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex))) {
+        				if(secondCourseList.get( i - 1 ).conflicts(currentCourse.get(courseIndex + j))) {
         					// Conflict go to next option
         					if(j == arr[i] - 1) {
         						// If on the last option of a class and can't add it ERROR
-        						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex));
+        						System.out.println("Error incompatable course: " + currentCourse.get(courseIndex + j));
         					}
         					continue;
         				} else {
-        					secondCourseList.add(currentCourse.get(courseIndex));
+        					secondCourseList.add(currentCourse.get(courseIndex + j));
         					courseIndex += arr[i];
         					break;
         				}
@@ -299,6 +306,7 @@ public class GreedyQuickScheduleMaker {
         			}**/
         		}
         	}
+    		System.out.println("Second: " + secondCourseList.size());
     		out.add(secondCourseList);
     	}
 
