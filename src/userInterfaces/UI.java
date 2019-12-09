@@ -46,8 +46,7 @@ import themes.DefaultTheme;
 import themes.Theme;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
-import java.util.HashSet;
+import java.util.HashMap;
 =======
 import java.util.HashMap;
 >>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
@@ -250,11 +249,7 @@ public class UI extends Application {
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
 			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
-<<<<<<< HEAD
-			
-			//colemans algo setup
-			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
-			Set<Set<Course>> validSchedules = BruteForceScheduleMaker.build(desiredCourses, semesters.getValue());
+			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
 =======
 			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
 >>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
@@ -316,15 +311,7 @@ public class UI extends Application {
 			}
 
 			// controls between the calendar and class select pages
-<<<<<<< HEAD
-			Button moreSchedules = new Button("GIVE ME MORE");
-			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
-			//moreSchedules.setOnAction(e -> schedulesView.getTabs().addAll(tab));
-			scheduleGridpane.add(moreSchedules, 0, 0);
-			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
-			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
-
-			Button backButton = new Button("BACK");
+			Button backButton = new Button("Back");
 =======
 			Button backButton = new Button("Back");
 >>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
