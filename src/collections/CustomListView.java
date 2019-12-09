@@ -13,6 +13,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import logic.Course;
+import logic.Globals;
 import logic.Scraper;
 import userInterfaces.UI;
 
@@ -88,10 +89,9 @@ public class CustomListView extends ListView<String> {
 				if (event.getButton() == MouseButton.SECONDARY) {
 					try {
 						Course currentCourse = Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(listCell.getItem()).get(0);
-						UI.browser.loadURL("https://www.banweb.mtu.edu/owassb/bwckschd.p_disp_listcrse?term_in=" + Scraper.getAllSemesters().get(semesters.getValue()) + "&subj_in=" + currentCourse.getSubject() + "&crse_in=" + currentCourse.getCourseCode() + "&crn_in=" + currentCourse.getCRN());
+						Globals.browser().loadURL("https://www.banweb.mtu.edu/owassb/bwckschd.p_disp_listcrse?term_in=" + Scraper.getAllSemesters().get(semesters.getValue()) + "&subj_in=" + currentCourse.getSubject() + "&crse_in=" + currentCourse.getCourseCode() + "&crn_in=" + currentCourse.getCRN());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Globals.popupException().writeError(e);
 					}
 				}
 			});

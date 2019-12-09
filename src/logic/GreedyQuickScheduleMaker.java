@@ -29,9 +29,8 @@ public class GreedyQuickScheduleMaker {
     		}
     		currentCourse.addAll(allCourses.get(courseName));
     		//System.out.println("Add course " + allCourses.get(courseName));
-    	} catch ( IOException ex ) {
-    		System.out.println("Error PaseException, IOException");
-    		System.exit(0);
+    	} catch ( IOException e ) {
+    		Globals.popupException().writeError(e);
     	}
     }
 

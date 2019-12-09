@@ -158,7 +158,7 @@ public class Browser {
 			try {
 				execute();
 			} catch (Exception e) {
-				e.printStackTrace();
+				// I don't want it to do anything
 			}
 		}
 	}

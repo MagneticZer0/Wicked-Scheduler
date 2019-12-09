@@ -38,6 +38,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import logic.Course;
+import logic.Globals;
 import logic.GreedyQuickScheduleMaker;
 import logic.Scraper;
 import themes.DefaultTheme;
@@ -87,14 +88,6 @@ public class UI extends Application {
 	 */
 	private final DoubleProperty creditLoad = new SimpleDoubleProperty(0);
 	/**
-	 * This is the popup that will log exceptions
-	 */
-	private static PopupException popupException = new PopupException("Ignore and Continue", "Save and Exit");
-	/**
-	 * The browser used to show course descriptions
-	 */
-	public static final Browser browser = new Browser();
-	/**
 	 * THIS FIELD IS ONLY USED FOR UNIT TESTING AND USED THROUGH REFLECTION
 	 */
 	private final CountDownLatch DONOTUSE = new CountDownLatch(2);
@@ -106,6 +99,7 @@ public class UI extends Application {
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
 	public void start(Stage primaryStage) {
+		Globals.init();
 		// set window properties
 		primaryStage.setTitle("Wicked Scheduler");
 		primaryStage.setX(250);
@@ -117,8 +111,8 @@ public class UI extends Application {
 		primaryStage.initStyle(StageStyle.DECORATED);
 		primaryStage.getIcons().add(theme.getIcon());
 		primaryStage.setOnCloseRequest(e -> {
-			popupException.exit();
-			browser.exit();
+			Globals.popupException().exit();
+			Globals.browser().exit();
 			Platform.exit();
 		});
 
@@ -129,7 +123,6 @@ public class UI extends Application {
 		grid.setAlignment(Pos.CENTER);
 		grid.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
 		Scene scene = new Scene(grid, 200, 100);
-		// grid.setGridLinesVisible(true);
 
 		// semester list
 		semesters = new ComboBox<>(allSemestersList.filtered(d -> allSemestersList.indexOf(d) < 5)); // Only do 5 most relevant
@@ -194,7 +187,7 @@ public class UI extends Application {
 		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(helpButton, 0, 0, 1, 1);
 		helpButton.setOnAction(action -> {
-			browser.loadHelp();
+			Globals.browser().loadHelp();
 		});
 
 		// button for adding courses to the desired courses list
@@ -320,7 +313,10 @@ public class UI extends Application {
 			Button crnButton = new Button("Get CRNs");
 			crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			crnButton.setOnAction(e -> {
-				//browser.register(Scraper.getAllSemesters().get(semesters.getSelectionModel().getSelectedItem()), tabCourses.get(Integer.parseInt(schedulesView.getSelectionModel().getSelectedItem().getText().split(" ")[1])));
+				Globals.popupText().clear();
+				for(Course c : tabCourses.get(Integer.parseInt(schedulesView.getSelectionModel().getSelectedItem().getText().split(" ")[1]))) {
+					Globals.popupText().write("CRN: " + c.getCRN() + " -> " + c.toString());
+				}
 			});
 			scheduleGridpane.add(crnButton, 0, 0);
 			GridPane.setHalignment(crnButton, HPos.RIGHT);
@@ -389,13 +385,13 @@ public class UI extends Application {
 			try {
 				Scraper.getAllSemesters();
 			} catch (Exception e) {
-				e.printStackTrace();
+				Globals.popupException().writeError(e);
 			}
 			Platform.runLater(() -> {
 				try {
 					allSemestersList.addAll(Scraper.getAllSemesters().keySet());
 				} catch (Exception e) {
-					e.printStackTrace();
+					Globals.popupException().writeError(e);
 				}
 				loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
 			});
@@ -417,13 +413,13 @@ public class UI extends Application {
 			try {
 				Scraper.getAllClasses(semesterID);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Globals.popupException().writeError(e);
 			}
 			Platform.runLater(() -> {
 				try {
 					allCoursesList.addAll(Scraper.getAllClasses(semesterID).keySet());
 				} catch (Exception e) {
-					e.printStackTrace();
+					Globals.popupException().writeError(e);
 				}
 				allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 				DONOTUSE.countDown();
@@ -473,7 +469,7 @@ public class UI extends Application {
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					// Do nothing
 				}
 			}
 			node.lookup(lookup).setStyle(Theme.toBackgroundStyle(color));

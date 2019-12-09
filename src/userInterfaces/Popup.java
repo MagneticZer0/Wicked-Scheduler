@@ -16,13 +16,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import logic.Globals;
 
 /**
  * A PopupDialogue may become more versatile in the future, although as of right
  * now its only purpose to to capture any of the exception, display them to the
  * user, and give the user an option to save the log into a ZIP file.
  */
-public class PopupException {
+public class Popup {
 
 	/**
 	 * The main stage for the PopupDialogue
@@ -40,7 +41,7 @@ public class PopupException {
 	 * @param btn1txt The text of the first button
 	 * @param btn2txt The text of the second button
 	 */
-	public PopupException(String title, String btn1txt, String btn2txt) {
+	public Popup(String title, String btn1txt, String btn2txt) {
 		Platform.runLater(() -> {
 			popupStage = new Stage();
 			Pane pane = new Pane();
@@ -88,27 +89,8 @@ public class PopupException {
 		});
 	}
 
-	public PopupException(String title, String btn1txt) {
+	public Popup(String title, String btn1txt) {
 		this(title, btn1txt, null);
-	}
-
-	/**
-	 * Happens whenever you press the Ignore or Exit buttons, creates a zip file
-	 * that contains a log with the Exception.
-	 */
-	protected void createLog() {
-		String date = new SimpleDateFormat("MMddyyHHmmss").format(new Date());
-
-		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(date + "-Crash.zip"))) {
-			ZipEntry ze = new ZipEntry("Crash.log");
-			zos.putNextEntry(ze);
-			byte[] data = textArea.getText().getBytes();
-			zos.write(data);
-			zos.closeEntry();
-			Files.delete(new File("Crash.log").toPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -142,10 +124,29 @@ public class PopupException {
 	}
 
 	/**
+	 * Clears the text area
+	 */
+	public void clear() {
+		Platform.runLater(() -> textArea.setText(""));
+	}
+
+	/**
+	 * Writes text to the popup. Automatically adds a \n character to the end
+	 * 
+	 * @param s The text to write
+	 */
+	public void write(String s) {
+		Platform.runLater(() -> {
+			popupStage.show();
+			textArea.appendText(s + "\n");
+		});
+	}
+
+	/**
 	 * Makes the Popup frame appear
 	 */
 	public void show() {
-		popupStage.show();
+		Platform.runLater(() -> popupStage.show());
 	}
 
 	/**
@@ -153,5 +154,22 @@ public class PopupException {
 	 */
 	public void exit() {
 		popupStage.hide();
+	}
+
+	/**
+	 * Happens whenever you press the Ignore or Exit buttons, creates a zip file
+	 * that contains a log with the Exception.
+	 */
+	protected void createLog() {
+		String date = new SimpleDateFormat("MMddyyHHmmss").format(new Date());
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(date + "-Crash.zip"))) {
+			ZipEntry ze = new ZipEntry("Crash.log");
+			zos.putNextEntry(ze);
+			byte[] data = textArea.getText().getBytes();
+			zos.write(data);
+			zos.closeEntry();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

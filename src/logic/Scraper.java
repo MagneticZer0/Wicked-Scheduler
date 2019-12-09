@@ -118,7 +118,7 @@ public class Scraper {
 			}
 			in.close();
 		} catch (IOException e) {
-			e.printStackTrace(); // It shouldn't get here, but if it does print it out.
+			Globals.popupException().writeError(e); // It shouldn't get here, but if it does print it out.
 		}
 		output.remove("None");
 		semesters = output;
@@ -316,7 +316,7 @@ public class Scraper {
 		try {
 			return getAllClasses(lastSemesterID);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Globals.popupException().writeError(e);
 			return new MultiMap<>();
 		}
 	}
@@ -334,7 +334,7 @@ public class Scraper {
 		try (FSTObjectOutput out = new FSTObjectOutput(new FileOutputStream(dirString + "coursesMap.ser"))) {
 			out.writeObject(allCoursesMap);
 		} catch (IOException e) {
-			e.printStackTrace(); // If you can't access the file or it doesn't exist start fresh!
+			Globals.popupException().writeError(e); // If you can't access the file or it doesn't exist start fresh!
 		}
 	}
 
@@ -369,7 +369,7 @@ public class Scraper {
 
 			return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
 		} catch (IOException e) {
-			e.printStackTrace(); // It shouldn't ever get here, but if it does I wanna know why
+			Globals.popupException().writeError(e); // It shouldn't ever get here, but if it does I wanna know why
 			System.exit(-1); // Exit gracefully
 			return null; // Because the IDE was complaining about a return
 		}
@@ -415,7 +415,7 @@ public class Scraper {
 
 			return new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)); // Reading the source
 		} catch (IOException e) {
-			e.printStackTrace(); // It shouldn't ever get here, but if it does I wanna know why
+			Globals.popupException().writeError(e); // It shouldn't ever get here, but if it does I wanna know why
 			System.exit(-1); // Exit gracefully
 			return null; // Because the IDE was complaining about a return
 		}

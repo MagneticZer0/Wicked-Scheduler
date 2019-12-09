@@ -32,9 +32,8 @@ public class BruteForceScheduleMaker {
     		// add all the inputed course to possibleCourses
     		possibleCourses.addAll(allCourses.get(courseName));
     		
-    	} catch ( IOException ex ) {
-    		System.out.println("Error PaseException, IOException");
-    		System.exit(0);
+    	} catch ( IOException e ) {
+    		Globals.popupException().writeError(e);
     	}
     	
     	return possibleCourses;
