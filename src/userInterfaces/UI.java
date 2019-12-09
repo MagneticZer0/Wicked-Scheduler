@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Set;
 
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
@@ -37,6 +38,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import logic.BruteForceScheduleMaker;
 import logic.Course;
 import logic.Globals;
 import logic.GreedyQuickScheduleMaker;
@@ -46,6 +48,7 @@ import themes.Theme;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.LocalDateTime;
@@ -148,7 +151,7 @@ public class UI extends Application {
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new CustomListView(allCoursesList, allCoursesFilter.sorted(), semesters);
 		allCoursesSelection.setUpdateFunction(this::updateCreditLoad);
-		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> (newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase())))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
