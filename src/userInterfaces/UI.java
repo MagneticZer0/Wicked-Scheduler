@@ -2,10 +2,12 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Set;
 
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
@@ -36,6 +38,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import logic.BruteForceScheduleMaker;
 import logic.Course;
 import logic.GreedyQuickScheduleMaker;
 import logic.Scraper;
@@ -43,6 +46,11 @@ import themes.DefaultTheme;
 import themes.Theme;
 
 import java.util.ArrayList;
+<<<<<<< HEAD
+import java.util.HashSet;
+=======
+import java.util.HashMap;
+>>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.LocalDateTime;
@@ -186,6 +194,15 @@ public class UI extends Application {
 		loadSemesters();
 		semesters.setValue(defaultSemester());
 
+		// button for displaying the help page
+		Button helpButton = new Button("Help");
+		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
+		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
+		grid.add(helpButton, 0, 0, 1, 1);
+		helpButton.setOnAction(action -> {
+			browser.loadHelp();
+		});
+
 		// button for adding courses to the desired courses list
 		Button addCourse = new Button("Add Course");
 		addCourse.setStyle(Theme.toStyle(theme.addCourseColors()));
@@ -233,6 +250,14 @@ public class UI extends Application {
 			GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
 			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
+<<<<<<< HEAD
+			
+			//colemans algo setup
+			Set<String> desiredCourses = new HashSet<>(desiredCoursesSelection.getItems());
+			Set<Set<Course>> validSchedules = BruteForceScheduleMaker.build(desiredCourses, semesters.getValue());
+=======
+			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
+>>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
 
 			// display schedules
 			for (int j = 0; j < finalSchedule.size(); j++) {
@@ -245,6 +270,8 @@ public class UI extends Application {
 				if (finalSchedule.get(j).isEmpty()) {
 					continue;
 				}
+
+				tabCourses.put(j + 1, finalSchedule.get(j));
 
 				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
 				calendarView.showWeekPage();
@@ -289,18 +316,39 @@ public class UI extends Application {
 			}
 
 			// controls between the calendar and class select pages
+<<<<<<< HEAD
 			Button moreSchedules = new Button("GIVE ME MORE");
 			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
-			//backButton.setOnAction(e -> /*call colemans scedule algo*/);
+			//moreSchedules.setOnAction(e -> schedulesView.getTabs().addAll(tab));
 			scheduleGridpane.add(moreSchedules, 0, 0);
 			GridPane.setHalignment(moreSchedules, HPos.RIGHT);
 			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
 
 			Button backButton = new Button("BACK");
+=======
+			Button backButton = new Button("Back");
+>>>>>>> 458568d701ddc59daffe2341d1e6f76dc585aece
 			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 			backButton.setOnAction(e -> scene.setRoot(grid));
 			scheduleGridpane.add(backButton, 0, 0);
+			GridPane.setHalignment(backButton, HPos.LEFT);
 			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
+
+			Button moreSchedules = new Button("More Schedules");
+			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
+			//moreSchedules.setOnAction(e -> /*call colemans scedule algo*/);
+			scheduleGridpane.add(moreSchedules, 0, 0);
+			GridPane.setHalignment(moreSchedules, HPos.CENTER);
+			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
+
+			Button crnButton = new Button("Get CRNs");
+			crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
+			crnButton.setOnAction(e -> {
+				//browser.register(Scraper.getAllSemesters().get(semesters.getSelectionModel().getSelectedItem()), tabCourses.get(Integer.parseInt(schedulesView.getSelectionModel().getSelectedItem().getText().split(" ")[1])));
+			});
+			scheduleGridpane.add(crnButton, 0, 0);
+			GridPane.setHalignment(crnButton, HPos.RIGHT);
+			GridPane.setMargin(crnButton, new Insets(5, 0, 0, 0));
 
 			scheduleGridpane.add(schedulesView, 0, 1);
 			DONOTUSE.countDown();
@@ -380,7 +428,7 @@ public class UI extends Application {
 
 	/**
 	 * Loads all the course information for a given semester
-	 * 
+	 *
 	 * @param semesterID - the semester from which the courses will be loaded
 	 */
 	private void loadCourses(String semesterID) {
@@ -423,7 +471,7 @@ public class UI extends Application {
 
 	/**
 	 * Determines which semester is the next semester in the academic calendar
-	 * 
+	 *
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {
@@ -438,7 +486,7 @@ public class UI extends Application {
 	/**
 	 * Used to update a color for a node that is currently not visible, and will be
 	 * visible at an unknown time in the future
-	 * 
+	 *
 	 * @param node   The node to change the color of
 	 * @param lookup CSS object to lookup
 	 * @param color  The color for it to be changed to
