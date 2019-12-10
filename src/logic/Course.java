@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import collections.BiPredicateMultiMap;
@@ -628,7 +629,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @param courses The array of courses
 	 * @return A BiPredicateMultiMap representing the conflicts
 	 */
-	public static <T extends Course> MultiMap<Course, Course> getConflicts(T[] courses) {
+	public static MultiMap<Course, Course> getConflicts(Course[] courses) {
 		BiPredicateMultiMap<Course> map = new BiPredicateMultiMap<>((x, y) -> x.conflicts(y));
 		for (Course course : courses) {
 			map.put(course);
@@ -644,7 +645,7 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	 * @param courses The collection of courses
 	 * @return A BiPredicateMultiMap representing the conflicts
 	 */
-	public static <T extends Course> MultiMap<Course, Course> getConflicts(Collection<T> courses) {
-		return getConflicts((T[]) courses.toArray(new Object[courses.size()]));
+	public static MultiMap<Course, Course> getConflicts(Collection<Course> courses) {
+		return getConflicts(courses.toArray(new Course[courses.size()]));
 	}
 }

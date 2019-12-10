@@ -3,11 +3,14 @@ package userInterfaces;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
@@ -16,6 +19,7 @@ import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
 
 import collections.CustomListView;
+import collections.MultiMap;
 import impl.com.calendarfx.view.DateControlSkin;
 
 import javafx.application.Application;
@@ -48,10 +52,9 @@ import themes.Theme;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
-
-import org.joda.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -226,107 +229,128 @@ public class UI extends Application {
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
-			GridPane scheduleGridpane = new GridPane();
-			scheduleGridpane.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
-			scheduleGridpane.setHgap(10);
-			scheduleGridpane.setVgap(10);
-			scheduleGridpane.setAlignment(Pos.CENTER);
-			scene.setRoot(scheduleGridpane);
+			scene.setCursor(Cursor.WAIT);
+			new Thread(() -> {
+				Platform.runLater(() -> {
+					GridPane scheduleGridpane = new GridPane();
+					scheduleGridpane.setStyle(Theme.toBackgroundStyle(theme.backgroundColor()));
+					scheduleGridpane.setHgap(10);
+					scheduleGridpane.setVgap(10);
+					scheduleGridpane.setAlignment(Pos.CENTER);
+					scene.setRoot(scheduleGridpane);
 
-			TabPane schedulesView = new TabPane();
-			backgroundColorThread(schedulesView, ".tab-header-area .tab-header-background", theme.tabHeaderColor()); // There's something weird about the TabPane so this is the way I have to change the color
-			schedulesView.minWidthProperty().bind(primaryStage.widthProperty().subtract(20));
-			schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
-			GridPane.setValignment(schedulesView, VPos.BOTTOM);
+					TabPane schedulesView = new TabPane();
+					backgroundColorThread(schedulesView, ".tab-header-area .tab-header-background", theme.tabHeaderColor()); // There's something weird about the TabPane so this is the way I have to change the color
+					schedulesView.minWidthProperty().bind(primaryStage.widthProperty().subtract(20));
+					schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
+					GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
-			ArrayList<ArrayList<Course>> finalSchedule = GreedyQuickScheduleMaker.build(desiredCoursesList, semesters.getValue());
-			HashMap<Integer, ArrayList<Course>> tabCourses = new HashMap<>();
+					Set<Set<Course>> validSchedules = BruteForceScheduleMaker.build(new HashSet<>(desiredCoursesSelection.getItems()), Scraper.getAllSemesters().get(semesters.getValue()));
+					List<Set<Course>> temp = new ArrayList<>(validSchedules);
+					validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
+					temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
 
-			// display schedules
-			for (int j = 0; j < finalSchedule.size(); j++) {
-				// create the calendar
-				Tab tab = new Tab("Schedule " + (j + 1));
-				setInfo();
-				CalendarView calendarView = new CalendarView();
+					HashMap<Integer, Iterable<Course>> tabCourses = new HashMap<>();
+					// display schedules
+					int j = 0;
+					for (Set<Course> indvSchedule : validSchedules) {
 
-				// if the schedule is empty, don't try to print it (the code will break)
-				if (finalSchedule.get(j).isEmpty()) {
-					continue;
-				}
+						tabCourses.put(j++, indvSchedule);
 
-				tabCourses.put(j + 1, finalSchedule.get(j));
+						// create the calendar
+						Tab tab = new Tab("Potential Schedule");
+						setInfo();
+						CalendarView calendarView = new CalendarView();
+						calendarView.showDate(indvSchedule.stream().findFirst().get().getStartDate());
 
-				calendarView.showDate(finalSchedule.get(j).get(0).getStartDate());
-				calendarView.showWeekPage();
-				CalendarSource sources = new CalendarSource("My Courses");
-				calendarView.getCalendarSources().add(sources);
+						CalendarSource sources = new CalendarSource("My Courses");
+						calendarView.getCalendarSources().add(sources);
 
-				// add entries to the calendar
-				int i = 0;
-				for (Course cur : finalSchedule.get(j)) {
-					Calendar cal = new Calendar(cur.toString());
-					cal.setReadOnly(true);
-					sources.getCalendars().add(cal);
-					cal.setStyle(Style.getStyle(i++));
-					if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
-						if (!cur.isSplitClass()) {
-							if (!cur.getStartTime(0).equals(Course.TBA_TIME) && !cur.getEndTime(0).equals(Course.TBA_TIME)) {
-								Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
-								entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(cur.firstDay())));
-								entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
-								entry.changeEndTime(cur.getEndTime(0));
-								entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
-								cal.addEntry(entry);
-							}
-						} else {
-							Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
-							for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
-								for (LocalTime[] time : times) {
-									Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
-									entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(it.getDayEnum())));
-									entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
-									entry.changeEndTime(time[1]);
-									entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
-									cal.addEntry(entry);
+						// add entries to the calendar
+						int i = 0;
+						for (Course cur : indvSchedule) {
+							Calendar cal = new Calendar(cur.toString());
+							cal.setReadOnly(true);
+							sources.getCalendars().add(cal);
+							cal.setStyle(Style.getStyle(i++));
+							if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
+								if (!cur.isSplitClass()) {
+									if (!cur.getStartTime(0).equals(Course.TBA_TIME) && !cur.getEndTime(0).equals(Course.TBA_TIME)) {
+										Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
+										entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(cur.firstDay())));
+										entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
+										entry.changeEndTime(cur.getEndTime(0));
+										entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+										cal.addEntry(entry);
+									}
+								} else {
+									Course.CourseTimeIterator it = (Course.CourseTimeIterator) cur.iterator();
+									for (List<LocalTime[]> times = it.next(); it.hasNext(); times = it.next()) {
+										for (LocalTime[] time : times) {
+											Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
+											entry.changeStartDate(cur.getStartDate().with(TemporalAdjusters.nextOrSame(it.getDayEnum())));
+											entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
+											entry.changeEndTime(time[1]);
+											entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+											cal.addEntry(entry);
+										}
+									}
 								}
 							}
+							calendarView.showDateTime(LocalDateTime.ofInstant(cal.getEarliestTimeUsed(), ZoneOffset.MAX));
 						}
+						calendarView.showWeekPage();
+						tab.setContent(calendarView);
+						schedulesView.getTabs().addAll(tab);
 					}
-				}
 
-				tab.setContent(calendarView);
-				schedulesView.getTabs().addAll(tab);
-			}
+					// controls between the calendar and class select pages
+					Button backButton = new Button("Back");
+					backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
+					backButton.setOnAction(e -> scene.setRoot(grid));
+					scheduleGridpane.add(backButton, 0, 0);
+					GridPane.setHalignment(backButton, HPos.LEFT);
+					GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
 
-			// controls between the calendar and class select pages
-			Button backButton = new Button("Back");
-			backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
-			backButton.setOnAction(e -> scene.setRoot(grid));
-			scheduleGridpane.add(backButton, 0, 0);
-			GridPane.setHalignment(backButton, HPos.LEFT);
-			GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
+					Button crnButton = new Button("Get CRNs");
+					crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
+					crnButton.setOnAction(e -> {
+						Globals.popupText().clear();
+						for (Course c : tabCourses.get(schedulesView.getSelectionModel().getSelectedIndex())) {
+							Globals.popupText().write("CRN: " + c.getCRN() + " -> " + c.toString());
+						}
+					});
+					scheduleGridpane.add(crnButton, 0, 0);
+					GridPane.setHalignment(crnButton, HPos.RIGHT);
+					GridPane.setMargin(crnButton, new Insets(5, 0, 0, 0));
 
-			Button moreSchedules = new Button("More Schedules");
-			moreSchedules.setStyle(Theme.toStyle(theme.backButtonColors()));
-			//moreSchedules.setOnAction(e -> /*call colemans scedule algo*/);
-			scheduleGridpane.add(moreSchedules, 0, 0);
-			GridPane.setHalignment(moreSchedules, HPos.CENTER);
-			GridPane.setMargin(moreSchedules, new Insets(5, 0, 0, 0));
-
-			Button crnButton = new Button("Get CRNs");
-			crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
-			crnButton.setOnAction(e -> {
-				Globals.popupText().clear();
-				for(Course c : tabCourses.get(Integer.parseInt(schedulesView.getSelectionModel().getSelectedItem().getText().split(" ")[1]))) {
-					Globals.popupText().write("CRN: " + c.getCRN() + " -> " + c.toString());
-				}
-			});
-			scheduleGridpane.add(crnButton, 0, 0);
-			GridPane.setHalignment(crnButton, HPos.RIGHT);
-			GridPane.setMargin(crnButton, new Insets(5, 0, 0, 0));
-
-			scheduleGridpane.add(schedulesView, 0, 1);
-			DONOTUSE.countDown();
+					// handle if there are no schedules
+					if (validSchedules.isEmpty()) {
+						GridPane.setHalignment(backButton, HPos.CENTER);
+						crnButton.setVisible(false);
+						MultiMap<Course, Course> conflicts = Course.getConflicts(desiredCoursesSelection.getItems().parallelStream().map(s -> {
+							try {
+								return Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(s);
+							} catch (IOException e1) {
+								Globals.popupException().writeError(e1);
+								return new ArrayList<Course>();
+							}
+						}).collect(Collectors.toList()).parallelStream().flatMap(List::stream).collect(Collectors.toList()));
+						TreeMap<Integer, Course> numConflicts = new TreeMap<>();
+						for (Course c : conflicts.keySet()) {
+							numConflicts.put(conflicts.get(c).size(), c);
+						}
+						Label noSchedulesLabel = new Label("There are no feasible schedules that include all selected courses!\nTry removing " + numConflicts.lastEntry().getValue() + " it conflicts the most!");
+						noSchedulesLabel.setStyle(Theme.toTextStyle(theme.textColor()));
+						GridPane.setHalignment(noSchedulesLabel, HPos.CENTER);
+						scheduleGridpane.add(noSchedulesLabel, 0, 1);
+					} else {
+						scheduleGridpane.add(schedulesView, 0, 1);
+					}
+					DONOTUSE.countDown();
+				});
+				scene.setCursor(Cursor.DEFAULT);
+			}).start();
 		});
 
 		// display the GUI
@@ -451,7 +475,7 @@ public class UI extends Application {
 	 */
 	private String defaultSemester() {
 		LocalDateTime now = LocalDateTime.now();
-		if (now.getMonthOfYear() >= 8 && now.getMonthOfYear() <= 12) {
+		if (now.getMonthValue() >= 8 && now.getMonthValue() <= 12) {
 			return "Spring " + (now.getYear() + 1);
 		} else {
 			return "Fall " + now.getYear();
