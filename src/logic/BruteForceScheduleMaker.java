@@ -42,10 +42,13 @@ public class BruteForceScheduleMaker {
 		/*
 		 * a list of schedules ( list of lists )
 		 * 
-		 * for each desired course: for each section in the desired course: for each
-		 * schedule in the list: for each course in the schedule: if there is a conflict
-		 * remove the schedule from the list of schedules break break; add the section
-		 * to the current schedule
+		 * for each desired course: 
+		 *  for each section in the desired course: 
+		 *   for each schedule in the list: 
+		 *    for each course in the schedule: 
+		 *     if there is a conflict, 
+		 *      remove the schedule from the list of schedules, break break; 
+		 *     add the section to the current schedule
 		 * 
 		 */
 
