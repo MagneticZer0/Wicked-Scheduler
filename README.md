@@ -1,3 +1,5 @@
 # Wicked-Scheduler
 # Programmers:
-  Coleman Carlstein, Alex Hare, Harley Merkaj, Alex Grant, and Sarah Whittaker
+  Coleman Carlstein, Alex Hare, Harley Merkaj, and Alex Grant
+# Program Description:
+  Builds a schedule given MTU courses.
