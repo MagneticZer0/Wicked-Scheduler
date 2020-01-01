@@ -45,7 +45,6 @@ import javafx.stage.StageStyle;
 import logic.BruteForceScheduleMaker;
 import logic.Course;
 import logic.Globals;
-import logic.GreedyQuickScheduleMaker;
 import logic.Scraper;
 import themes.DefaultTheme;
 import themes.Theme;
@@ -189,7 +188,7 @@ public class UI extends Application {
 
 		// button for displaying the help page
 		Button helpButton = new Button("Help");
-		helpButton.setStyle(Theme.toBackgroundStyle(Color.CORAL.desaturate()));
+		helpButton.setStyle(Theme.toStyle(theme.helpButtonColors()));
 		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(helpButton, 0, 0, 1, 1);
 		helpButton.setOnAction(action -> {
@@ -476,9 +475,17 @@ public class UI extends Application {
 	private String defaultSemester() {
 		LocalDateTime now = LocalDateTime.now();
 		if (now.getMonthValue() >= 8 && now.getMonthValue() <= 12) {
-			return "Spring " + (now.getYear() + 1);
+			if (Scraper.getAllSemesters().containsKey("Spring " + (now.getYear() + 1))) {
+				return "Spring " + (now.getYear() + 1);
+			} else {
+				return "Fall " + now.getYear();
+			}
 		} else {
-			return "Fall " + now.getYear();
+			if (Scraper.getAllSemesters().containsKey("Fall " + now.getYear())) {
+				return "Fall " + now.getYear();
+			} else {
+				return "Spring " + now.getYear();
+			}
 		}
 	}
 

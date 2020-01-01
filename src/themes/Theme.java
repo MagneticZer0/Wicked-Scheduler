@@ -52,6 +52,33 @@ public abstract class Theme {
 	}
 
 	/**
+	 * The button color for the help button
+	 * 
+	 * @return The button color
+	 */
+	public abstract Color helpButtonColor();
+
+	/**
+	 * The text color for the help button. By default this is black or white
+	 * depending on the perceived brightness of the {@link #helpButtonColor()}
+	 * 
+	 * @return The text color for the button
+	 */
+	public Color helpButtonTextColor() {
+		return textColor(helpButtonColor());
+	}
+
+	/**
+	 * Returns both {@link #helpButtonColor()} and {@link #helpButtonTextColor()} in
+	 * a Color[]
+	 * 
+	 * @return Color[] representing the colors for the HELP button
+	 */
+	public Color[] helpButtonColors() {
+		return new Color[] { helpButtonColor(), helpButtonTextColor() };
+	}
+
+	/**
 	 * The button color for the add course button
 	 * 
 	 * @return The button color

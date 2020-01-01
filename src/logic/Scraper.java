@@ -396,7 +396,7 @@ public class Scraper {
 	 * 
 	 * @param url       The URL to send the web form to
 	 * @param arguments The StringJoiner of arguments to send within the web form
-	 * @return Returns a BufferedReader, tpyically for reading the source of the
+	 * @return Returns a BufferedReader, typically for reading the source of the
 	 *         page
 	 */
 	private static BufferedReader sendWebForm(String url, StringJoiner arguments) {

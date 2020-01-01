@@ -16,6 +16,14 @@ public class DefaultTheme extends Theme {
 	}
 
 	/**
+	 * This is the button color for the help button
+	 */
+	@Override
+	public Color helpButtonColor() {
+		return Color.CORAL.desaturate();
+	}
+
+	/**
 	 * This is the button color for the add course button
 	 */
 	@Override
