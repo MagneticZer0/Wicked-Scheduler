@@ -6,15 +6,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import collections.MultiMap;
 
+/**
+ * This scheduling algorithm is a greedy algorithm that will greedily produce
+ * schedules. Due to the nature of this algorithm it can produce schedules that
+ * don't have all classes, but it will still return them.
+ */
 public class GreedyQuickScheduleMaker {
 
-	static ArrayList<Course> currentCourse = new ArrayList<>(); // Holds all courses at various times
-	private static MultiMap<String, Course> allCourses;
+	/**
+	 * Stores all course object that the wants
+	 */
+	private static ArrayList<Course> currentCourse = new ArrayList<>();
 
 	/**
-	 * This method will retrieve the Course from the given name and semester and add
+	 * Since the class is static for all intents and purposes there is no need to
+	 * allow instantiation
+	 */
+	private GreedyQuickScheduleMaker() {
+		throw new UnsupportedOperationException("This is a static class and cannot be instantiated!");
+	}
+
+	/**
+	 * This method will retrieve the course from the given name and semester and add
 	 * it to the global ArrayList
 	 * 
 	 * @param courseName - The name of the course to be searched for
@@ -22,16 +36,20 @@ public class GreedyQuickScheduleMaker {
 	 */
 	public static void findCC(String courseName, String semesterID) {
 		try {
-			if (allCourses == null) {
-				allCourses = Scraper.getAllClasses(semesterID);
-			}
-			currentCourse.addAll(allCourses.get(courseName));
+			currentCourse.addAll(Scraper.getAllClasses(semesterID).get(courseName));
 		} catch (IOException e) {
 			Globals.popupException().writeError(e);
 		}
 	}
 
-	public static ArrayList<ArrayList<Course>> build(List<String> courses, String Semester) {
+	/**
+	 * Returns a list of lists of courses that are valid possible schedules
+	 * 
+	 * @param desiredCourses The courses that the user desires
+	 * @param semesterID     The semester ID to make a schedule of
+	 * @return Returns all possible sets of schedules
+	 */
+	public static ArrayList<ArrayList<Course>> build(List<String> desiredCourses, String semesterID) {
 		currentCourse.clear();
 		ArrayList<Course> firstCourseList = new ArrayList<>();
 		ArrayList<Course> secondCourseList = new ArrayList<>();
@@ -39,8 +57,8 @@ public class GreedyQuickScheduleMaker {
 		ArrayList<Course> copyList = new ArrayList<>();
 
 		// Create the arraylist of selected courses
-		for (int j = 0; j < courses.size(); j++) {
-			findCC(courses.get(j), Scraper.getAllSemesters().get(Semester));
+		for (int j = 0; j < desiredCourses.size(); j++) {
+			findCC(desiredCourses.get(j), Scraper.getAllSemesters().get(semesterID));
 		}
 
 		Collections.sort(currentCourse);

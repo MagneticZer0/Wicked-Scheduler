@@ -15,7 +15,6 @@ import javafx.scene.input.TransferMode;
 import logic.Course;
 import logic.Globals;
 import logic.Scraper;
-import userInterfaces.UI;
 
 /**
  * A custom list view is defined as a list that that will allow you to drag

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.*;
 import javafx.stage.Stage;
+import logic.Globals;
 import netscape.javascript.JSObject;
 
 /**
@@ -31,6 +32,7 @@ public class Browser {
 	 */
 	public Browser() {
 		Stage stage = new Stage();
+		stage.getIcons().add(Globals.theme().getIcon());
 		stage.setOnCloseRequest(e -> stage.hide());
 		BorderPane borderPane = new BorderPane();
 		borderPane.setCenter(makeHtmlView());

@@ -6,10 +6,19 @@ import java.util.Set;
 
 import collections.MultiMap;
 
-public class BruteForceScheduleMaker {
+/**
+ * This scheduling algorithm is a smart type of brute-force algorithm that will
+ * generate all possible schedules based on the courses given.
+ */
+public final class BruteForceScheduleMaker {
 
-	private static MultiMap<String, Course> allCourses;
-	private static String semesterID;
+	/**
+	 * Since the class is static for all intents and purposes there is no need to
+	 * allow instantiation
+	 */
+	private BruteForceScheduleMaker() {
+		throw new UnsupportedOperationException("This is a static class and cannot be instantiated!");
+	}
 
 	/**
 	 * This method will retrieve the Course from the given name and semester and add
@@ -18,16 +27,11 @@ public class BruteForceScheduleMaker {
 	 * @param courseName - The name of the course to be searched for
 	 * @param semesterID - Semester to search in
 	 */
-	public static Set<Course> findCourses(String courseName) {
+	public static Set<Course> findCourses(String courseName, String semesterID) {
 		Set<Course> possibleCourses = new HashSet<>(); // Holds all courses at various times
 		try {
-			// load all courses if needed
-			if (allCourses == null) {
-				allCourses = Scraper.getAllClasses(semesterID);
-			}
-
 			// add all the inputed course to possibleCourses
-			possibleCourses.addAll(allCourses.get(courseName));
+			possibleCourses.addAll(Scraper.getAllClasses(semesterID).get(courseName));
 
 		} catch (IOException e) {
 			Globals.popupException().writeError(e);
@@ -36,19 +40,21 @@ public class BruteForceScheduleMaker {
 		return possibleCourses;
 	}
 
-	public static Set<Set<Course>> build(Set<String> desiredCourses, String semester) {
-		semesterID = semester;
-
+	/**
+	 * Returns a set of sets of courses that are valid possible schedules
+	 * 
+	 * @param desiredCourses The courses that the user desires
+	 * @param semesterID     The semester ID to make a schedule of
+	 * @return Returns all possible sets of schedules
+	 */
+	public static Set<Set<Course>> build(Set<String> desiredCourses, String semesterID) {
 		/*
 		 * a list of schedules ( list of lists )
 		 * 
-		 * for each desired course: 
-		 *  for each section in the desired course: 
-		 *   for each schedule in the list: 
-		 *    for each course in the schedule: 
-		 *     if there is a conflict, 
-		 *      remove the schedule from the list of schedules, break break; 
-		 *     add the section to the current schedule
+		 * for each desired course: for each section in the desired course: for each
+		 * schedule in the list: for each course in the schedule: if there is a
+		 * conflict, remove the schedule from the list of schedules, and break twice add
+		 * the section to the current schedule
 		 * 
 		 */
 
@@ -61,7 +67,7 @@ public class BruteForceScheduleMaker {
 		int courseAdditionCount = 0;
 
 		for (String courseCode : desiredCourses) {
-			possibleCourses = findCourses(courseCode);
+			possibleCourses = findCourses(courseCode, semesterID);
 
 			// if there are no pre-existing schedules
 			if (validSchedules.isEmpty()) {

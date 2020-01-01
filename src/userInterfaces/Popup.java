@@ -46,6 +46,7 @@ public class Popup {
 			popupStage = new Stage();
 			Pane pane = new Pane();
 			popupStage.setTitle(title);
+			popupStage.getIcons().add(Globals.theme().getIcon());
 			popupStage.setResizable(false);
 			popupStage.setAlwaysOnTop(true);
 			popupStage.setScene(new Scene(pane, 435, 265));

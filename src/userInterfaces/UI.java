@@ -2,7 +2,6 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -46,7 +45,6 @@ import logic.BruteForceScheduleMaker;
 import logic.Course;
 import logic.Globals;
 import logic.Scraper;
-import themes.DefaultTheme;
 import themes.Theme;
 
 import java.util.ArrayList;
@@ -85,10 +83,6 @@ public class UI extends Application {
 	 */
 	private ComboBox<String> semesters = null;
 	/**
-	 * The theme that the UI is using
-	 */
-	private Theme theme = new DefaultTheme();
-	/**
 	 * The property that tracks the current credit load
 	 */
 	private final DoubleProperty creditLoad = new SimpleDoubleProperty(0);
@@ -105,6 +99,8 @@ public class UI extends Application {
 	 */
 	public void start(Stage primaryStage) {
 		Globals.init();
+		Theme theme = Globals.theme(); // This is just to make things easier
+
 		// set window properties
 		primaryStage.setTitle("Wicked Scheduler");
 		primaryStage.setX(250);
