@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import collections.MultiMap;
-
 /**
  * This scheduling algorithm is a smart type of brute-force algorithm that will
  * generate all possible schedules based on the courses given.
