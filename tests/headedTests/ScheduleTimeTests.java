@@ -15,7 +15,7 @@ import org.jtimer.Misc.Setting;
 import logic.BruteForceScheduleMaker;
 import logic.GreedyQuickScheduleMaker;
 
-@Settings({Setting.BEST_FIT})
+@Settings({ Setting.BEST_FIT })
 public class ScheduleTimeTests {
 
 	List<String> courses = new ArrayList<>();

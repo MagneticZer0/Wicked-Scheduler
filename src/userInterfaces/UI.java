@@ -7,9 +7,14 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.Calendar.Style;
@@ -20,7 +25,6 @@ import com.calendarfx.view.CalendarView;
 import collections.CustomListView;
 import collections.MultiMap;
 import impl.com.calendarfx.view.DateControlSkin;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -34,9 +38,18 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
@@ -46,12 +59,6 @@ import logic.Course;
 import logic.Globals;
 import logic.Scraper;
 import themes.Theme;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 /**
  * @author Alex Grant, Coleman Clarstein, Harley Merkaj
@@ -97,6 +104,7 @@ public class UI extends Application {
 	 *
 	 * @param primaryStage - a pre-made stage created by Application.launch
 	 */
+	@Override
 	public void start(Stage primaryStage) {
 		Globals.init();
 		Theme theme = Globals.theme(); // This is just to make things easier

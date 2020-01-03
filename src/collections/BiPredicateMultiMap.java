@@ -2,9 +2,9 @@ package collections;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.List;
 
 /**
  * This is an extension of Java's HashMap, it maps one key to one, or many,

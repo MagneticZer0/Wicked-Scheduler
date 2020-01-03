@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * This scheduling algorithm is a greedy algorithm that will greedily produce
  * schedules. Due to the nature of this algorithm it can produce schedules that
