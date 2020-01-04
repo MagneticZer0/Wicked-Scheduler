@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import logic.ExecutionCode;
 import logic.Globals;
 import netscape.javascript.JSObject;
 
@@ -32,15 +33,17 @@ public class Browser {
 	 * Creates a Browser object that is essentially just a WebView
 	 */
 	public Browser() {
-		Stage stage = new Stage();
+		stage = new Stage();
 		stage.getIcons().add(Globals.theme().getIcon());
-		stage.setOnCloseRequest(e -> stage.hide());
+		stage.setOnCloseRequest(e -> {
+			Globals.popupException().writeInstruction(ExecutionCode.BROWSERCLOSED);
+			stage.hide();
+		});
 		BorderPane borderPane = new BorderPane();
 		borderPane.setCenter(makeHtmlView());
 
 		Scene scene = new Scene(borderPane, 600, 600);
 		stage.setScene(scene);
-		this.stage = stage;
 	}
 
 	/**
@@ -50,6 +53,7 @@ public class Browser {
 	 */
 	public void loadURL(String url) {
 		Platform.runLater(() -> {
+			Globals.popupException().writeInstruction(ExecutionCode.BROWSEROPEN);
 			stage.show();
 			stage.requestFocus();
 			webEngine.load(url);
@@ -70,6 +74,7 @@ public class Browser {
 	 * Exits the stage by hiding it
 	 */
 	public void exit() {
+		Globals.popupException().writeInstruction(ExecutionCode.BROWSERCLOSED);
 		stage.hide();
 	}
 

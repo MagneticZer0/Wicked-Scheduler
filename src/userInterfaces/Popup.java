@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import logic.ExecutionCode;
 import logic.Globals;
 
 /**
@@ -30,6 +31,10 @@ public class Popup {
 	 * The TextArea is where the exceptions are stored when they are caught.
 	 */
 	private TextArea textArea = new TextArea();
+	/**
+	 * Tracks the current state of the program
+	 */
+	private long executionState = 1l;
 
 	/**
 	 * Used to create popup view, for now only used for logging errors.
@@ -47,7 +52,10 @@ public class Popup {
 			popupStage.setResizable(false);
 			popupStage.setAlwaysOnTop(true);
 			popupStage.setScene(new Scene(pane, 435, 265));
-			popupStage.setOnCloseRequest(e -> popupStage.hide());
+			popupStage.setOnCloseRequest(e -> {
+				Globals.popupException().writeInstruction(ExecutionCode.POPUPCLOSED);
+				popupStage.hide();
+			});
 
 			textArea.setLayoutX(10);
 			textArea.setLayoutY(11);
@@ -87,8 +95,21 @@ public class Popup {
 		});
 	}
 
+	/**
+	 * Create a popup view that only has one button that just exits
+	 * 
+	 * @param title   The title for the PopupDialogue
+	 * @param btn1txt The text of the first button
+	 */
 	public Popup(String title, String btn1txt) {
 		this(title, btn1txt, null);
+	}
+
+	public void writeInstruction(ExecutionCode executionCode) {
+		executionState *= executionCode.getValue();
+		Platform.runLater(() -> {
+			textArea.appendText(executionCode.toString() + "\n");
+		});
 	}
 
 	/**
@@ -99,11 +120,12 @@ public class Popup {
 	 */
 	public void writeError(Throwable e) {
 		Platform.runLater(() -> {
-			popupStage.show();
+			textArea.appendText("State: 0x" + String.format("%16s", Long.toHexString(executionState).toUpperCase()).replace(" ", "0") + "\n");
+			textArea.appendText("Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1000000l + " MB / " + Runtime.getRuntime().maxMemory()/1000000l + " MB\n");
 			if (e instanceof Error) {
-				textArea.appendText("\n### BEGIN ERROR ###\n");
+				textArea.appendText("### BEGIN ERROR ###\n");
 			} else {
-				textArea.appendText("\n### BEGIN EXCEPTION ###\n");
+				textArea.appendText("### BEGIN EXCEPTION ###\n");
 			}
 			StringBuilder sb = new StringBuilder(e.toString());
 			for (StackTraceElement ste : e.getStackTrace()) {
@@ -116,6 +138,7 @@ public class Popup {
 			} else {
 				textArea.appendText("\n### END EXCEPTION ###\n");
 			}
+			popupStage.show();
 			textArea.selectHome(); //
 			textArea.deselect(); // This is to scroll to the top
 		});
@@ -151,6 +174,7 @@ public class Popup {
 	 * Exits the popup
 	 */
 	public void exit() {
+		Globals.popupException().writeInstruction(ExecutionCode.POPUPCLOSED);
 		popupStage.hide();
 	}
 

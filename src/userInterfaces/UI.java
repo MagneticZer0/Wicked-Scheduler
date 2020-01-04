@@ -56,6 +56,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import logic.BruteForceScheduleMaker;
 import logic.Course;
+import logic.ExecutionCode;
 import logic.Globals;
 import logic.Scraper;
 import themes.Theme;
@@ -138,6 +139,7 @@ public class UI extends Application {
 		semesters.setPromptText("Select Semester");
 		semesters.setMaxWidth(primaryStage.getWidth() / 4);
 		semesters.setOnAction(e -> {
+			Globals.popupException().writeInstruction(ExecutionCode.SEMESTERCHANGED);
 			desiredCoursesList.clear();
 			creditLoad.set(0);
 			loadCourses(Scraper.getAllSemesters().get(semesters.getValue()));
@@ -196,6 +198,7 @@ public class UI extends Application {
 		helpButton.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(helpButton, 0, 0, 1, 1);
 		helpButton.setOnAction(action -> {
+			Globals.popupException().writeInstruction(ExecutionCode.HELPBUTTONPRESSED);
 			Globals.browser().loadHelp();
 		});
 
@@ -206,6 +209,7 @@ public class UI extends Application {
 		grid.add(addCourse, 2, 3, 1, 1);
 		addCourse.setOnAction(action -> {
 			if (allCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				Globals.popupException().writeInstruction(ExecutionCode.ADDCOURSEPRESSED);
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
 				updateCreditLoad();
@@ -219,6 +223,7 @@ public class UI extends Application {
 		grid.add(removeCourse, 2, 4, 1, 1);
 		removeCourse.setOnAction(action -> {
 			if (desiredCoursesSelection.getSelectionModel().getSelectedItem() != null) {
+				Globals.popupException().writeInstruction(ExecutionCode.REMOVECOURSEPRESSED);
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				updateCreditLoad();
@@ -232,6 +237,7 @@ public class UI extends Application {
 		grid.add(schedule, 2, 5, 1, 1);
 		GridPane.setValignment(schedule, VPos.BOTTOM);
 		schedule.setOnAction(action -> {
+			Globals.popupException().writeInstruction(ExecutionCode.CREATESCHEDULEPRESSED);
 			scene.setCursor(Cursor.WAIT);
 			new Thread(() -> {
 				Platform.runLater(() -> {
@@ -248,7 +254,9 @@ public class UI extends Application {
 					schedulesView.minHeightProperty().bind(primaryStage.heightProperty().subtract(100));
 					GridPane.setValignment(schedulesView, VPos.BOTTOM);
 
+					Globals.popupException().writeInstruction(ExecutionCode.SCHEDULECREATIONSTART);
 					Set<Set<Course>> validSchedules = BruteForceScheduleMaker.build(new HashSet<>(desiredCoursesSelection.getItems()), Scraper.getAllSemesters().get(semesters.getValue()));
+					Globals.popupException().writeInstruction(ExecutionCode.SCHEDULECREATIONEND);
 					List<Set<Course>> temp = new ArrayList<>(validSchedules);
 					validSchedules = temp.stream().filter(s -> temp.indexOf(s) < 3).collect(Collectors.toSet());
 					temp.removeIf(e -> true); // Some cleaning up, for memory saving purposes
@@ -310,7 +318,10 @@ public class UI extends Application {
 					// controls between the calendar and class select pages
 					Button backButton = new Button("Back");
 					backButton.setStyle(Theme.toStyle(theme.backButtonColors()));
-					backButton.setOnAction(e -> scene.setRoot(grid));
+					backButton.setOnAction(e -> {
+						Globals.popupException().writeInstruction(ExecutionCode.BACKBUTTONPRESSED);
+						scene.setRoot(grid);
+					});
 					scheduleGridpane.add(backButton, 0, 0);
 					GridPane.setHalignment(backButton, HPos.LEFT);
 					GridPane.setMargin(backButton, new Insets(5, 0, 0, 0));
@@ -318,6 +329,7 @@ public class UI extends Application {
 					Button crnButton = new Button("Get CRNs");
 					crnButton.setStyle(Theme.toStyle(theme.backButtonColors()));
 					crnButton.setOnAction(e -> {
+						Globals.popupException().writeInstruction(ExecutionCode.GETCRNS);
 						Globals.popupText().clear();
 						for (Course c : tabCourses.get(schedulesView.getSelectionModel().getSelectedIndex())) {
 							Globals.popupText().write("CRN: " + c.getCRN() + " -> " + c.toString());
@@ -329,6 +341,7 @@ public class UI extends Application {
 
 					// handle if there are no schedules
 					if (validSchedules.isEmpty()) {
+						Globals.popupException().writeInstruction(ExecutionCode.NOVALIDSCHEDULES);
 						GridPane.setHalignment(backButton, HPos.CENTER);
 						crnButton.setVisible(false);
 						MultiMap<Course, Course> conflicts = Course.getConflicts(desiredCoursesSelection.getItems().parallelStream().map(s -> {
@@ -477,6 +490,7 @@ public class UI extends Application {
 	 * @return the semester code for the upcoming semester
 	 */
 	private String defaultSemester() {
+		Globals.popupException().writeInstruction(ExecutionCode.SETDEFAULTSEMESTER);
 		LocalDateTime now = LocalDateTime.now();
 		if (now.getMonthValue() >= 8 && now.getMonthValue() <= 12) {
 			if (Scraper.getAllSemesters().containsKey("Spring " + (now.getYear() + 1))) {
@@ -502,7 +516,7 @@ public class UI extends Application {
 	 * @param color  The color for it to be changed to
 	 */
 	private void backgroundColorThread(Node node, String lookup, Color color) {
-		new Thread(() -> {
+		Thread visualUpdate = new Thread(() -> {
 			while (node.lookup(lookup) == null) {
 				try {
 					Thread.sleep(20);
@@ -511,6 +525,8 @@ public class UI extends Application {
 				}
 			}
 			node.lookup(lookup).setStyle(Theme.toBackgroundStyle(color));
-		}).start();
+		});
+		visualUpdate.setDaemon(true);
+		visualUpdate.start();
 	}
 }

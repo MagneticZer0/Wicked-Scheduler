@@ -93,6 +93,7 @@ public class Scraper {
 		if (semesters != null) {
 			return semesters;
 		}
+		Globals.popupException().writeInstruction(ExecutionCode.LOADSEMESTERS);
 		BufferedReader in = getWebPage(COURSE_SELECT_URL); // Reading the source
 
 		boolean searching = false;
@@ -133,6 +134,7 @@ public class Scraper {
 	 * @throws IOException If something goes wrong accessing the website.
 	 */
 	public static List<String> getCategories(String semesterID) throws IOException {
+		Globals.popupException().writeInstruction(ExecutionCode.LOADCATEGORIES);
 		HashMap<String, String> arguments = new HashMap<>();
 		arguments.put("p_calling_proc", "bzskfcls.P_CrseSearch");
 		arguments.put("p_term", semesterID);
@@ -191,7 +193,7 @@ public class Scraper {
 		if (!forceUpdate && allCoursesMap.get(semesterID) != null) {
 			return allCoursesMap.get(semesterID);
 		}
-
+		Globals.popupException().writeInstruction(ExecutionCode.LOADCLASSESINTERNET);
 		List<String> categories = getCategories(semesterID);
 
 		String year = semesterID.substring(0, 4);
@@ -341,6 +343,7 @@ public class Scraper {
 	 */
 	public static void loadCourses() {
 		if (!loaded) {
+			Globals.popupException().writeInstruction(ExecutionCode.LOADCLASSESFILE);
 			File coursesMap = new File(System.getProperty("user.home") + "/Wicked-Scheduler/coursesMap.ser");
 			try (FSTObjectInput in = new FSTObjectInput(new FileInputStream(coursesMap))) {
 				allCoursesMap = (HashMap<String, MultiMap<String, Course>>) in.readObject();

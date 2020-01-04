@@ -13,6 +13,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import logic.Course;
+import logic.ExecutionCode;
 import logic.Globals;
 import logic.Scraper;
 
@@ -87,6 +88,7 @@ public class CustomListView extends ListView<String> {
 			listCell.setOnMousePressed(event -> {
 				if (event.getButton() == MouseButton.SECONDARY) {
 					try {
+						Globals.popupException().writeInstruction(ExecutionCode.GETCOURSEINFORMATION);
 						Course currentCourse = Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(listCell.getItem()).get(0);
 						Globals.browser().loadURL("https://www.banweb.mtu.edu/owassb/bwckschd.p_disp_listcrse?term_in=" + Scraper.getAllSemesters().get(semesters.getValue()) + "&subj_in=" + currentCourse.getSubject() + "&crse_in=" + currentCourse.getCourseCode() + "&crn_in=" + currentCourse.getCRN());
 					} catch (IOException e) {
@@ -117,6 +119,7 @@ public class CustomListView extends ListView<String> {
 			Dragboard db = event.getDragboard();
 			boolean success = false;
 			if (db.hasString()) {
+				Globals.popupException().writeInstruction(ExecutionCode.DRAGANDDROPCOURSE);
 				underlyingList.add(db.getString());
 				if (this != last) {
 					last.underlyingList.remove(db.getString());
