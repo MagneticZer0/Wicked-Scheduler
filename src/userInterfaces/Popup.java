@@ -105,6 +105,11 @@ public class Popup {
 		this(title, btn1txt, null);
 	}
 
+	/**
+	 * Writes the instruction to the log, but does not display the log
+	 * 
+	 * @param executionCode The execution code to write to the log
+	 */
 	public void writeInstruction(ExecutionCode executionCode) {
 		executionState *= executionCode.getValue();
 		Platform.runLater(() -> {
@@ -121,7 +126,7 @@ public class Popup {
 	public void writeError(Throwable e) {
 		Platform.runLater(() -> {
 			textArea.appendText("State: 0x" + String.format("%16s", Long.toHexString(executionState).toUpperCase()).replace(" ", "0") + "\n");
-			textArea.appendText("Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1000000l + " MB / " + Runtime.getRuntime().maxMemory()/1000000l + " MB\n");
+			textArea.appendText("Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000l + " MB / " + Runtime.getRuntime().maxMemory() / 1000000l + " MB\n");
 			if (e instanceof Error) {
 				textArea.appendText("### BEGIN ERROR ###\n");
 			} else {

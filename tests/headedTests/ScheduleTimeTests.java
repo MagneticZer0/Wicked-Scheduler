@@ -6,27 +6,29 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jtimer.Runner;
-import org.jtimer.Annotations.BeforeClass;
 import org.jtimer.Annotations.DisplayName;
 import org.jtimer.Annotations.Settings;
 import org.jtimer.Annotations.Time;
 import org.jtimer.Misc.Setting;
+import org.junit.jupiter.api.BeforeAll;
 
 import logic.BruteForceScheduleMaker;
+import logic.Globals;
 import logic.GreedyQuickScheduleMaker;
 
 @Settings({ Setting.BEST_FIT })
 public class ScheduleTimeTests {
 
-	List<String> courses = new ArrayList<>();
+	static List<String> courses = new ArrayList<>();
 	long counter = 0; // If you want some variable to keep the repetition that you're on.
 
 	public static void main(String[] args) throws Throwable {
 		Runner.time(ScheduleTimeTests.class);
 	}
 
-	@BeforeClass
-	public void setup() {
+	@BeforeAll
+	public static void setup() {
+		Globals.init();
 		courses.clear();
 		courses.add("EC4050 - Game Theory/Strategic Behavior");
 		courses.add("AF3020 - Effective Com II - Non AFROTC");

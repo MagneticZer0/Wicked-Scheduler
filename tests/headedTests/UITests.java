@@ -34,12 +34,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import logic.Globals;
 import userInterfaces.UI;
 
 /**
  * This class is used for testing UI elements. Please be very careful when
  * editing things in here or the UI case this uses Java's Reflection and things
- * can be messed up very easily casuing unintended behavior.
+ * can be messed up very easily causing unintended behavior.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class UITests {
@@ -50,6 +51,7 @@ public class UITests {
 
 	@BeforeAll
 	public static void setup() throws Exception {
+		Globals.init();
 		Stage stage = FxToolkit.registerPrimaryStage();
 		ui = (UI) FxToolkit.setupApplication(UI.class);
 

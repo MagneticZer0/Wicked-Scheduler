@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +16,11 @@ import collections.BiPredicateMultiMap;
 public class BiPredicateMultiMapTests {
 
 	BiPredicateMultiMap<String> transitiveMap = new BiPredicateMultiMap<>((x, y) -> x.length() == y.length());
+
+	@BeforeAll
+	public static void setup() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		MockGlobals.setup();
+	}
 
 	@BeforeEach
 	public void reset() {

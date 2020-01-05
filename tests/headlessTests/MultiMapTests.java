@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,13 @@ public class MultiMapTests {
 
 	MultiMap<String, Integer> multimap;
 
+	@BeforeAll
+	public static void setup() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		MockGlobals.setup();
+	}
+
 	@BeforeEach
-	public void setup() {
+	public void reset() {
 		multimap = new MultiMap<>();
 		multimap.putSingle("A", 1);
 		multimap.putSingle("A", 2);

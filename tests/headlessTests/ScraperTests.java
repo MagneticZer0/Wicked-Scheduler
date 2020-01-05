@@ -3,6 +3,8 @@ package headlessTests;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import collections.MultiMap;
 import logic.Course;
+import logic.ExecutionCode;
 import logic.Scraper;
 
 public class ScraperTests {
@@ -27,9 +30,15 @@ public class ScraperTests {
 	 * This code may look complex, but it's just so that all 4 lines of code (The
 	 * ones that have Scraper) are executed in parallel as opposed to sequentially
 	 * just to save some testing time.
+	 * 
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
 	@BeforeAll
-	public static void setup() throws InterruptedException {
+	public static void setup() throws InterruptedException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		MockGlobals.setup();
 		CountDownLatch latch = new CountDownLatch(3);
 		new Thread(() -> {
 			semesters = Scraper.getAllSemesters();
@@ -57,16 +66,19 @@ public class ScraperTests {
 
 	@Test
 	public void getAllSemesters() throws IOException {
+		verify(MockGlobals.getMockedPopup(), atLeastOnce()).writeInstruction(ExecutionCode.LOADSEMESTERS);
 		assertAll("getAllSemesters map is incorrect", () -> assertTrue(semesters.keySet().contains("Fall 2001"), "Fall 2001 is not in semesters!"), () -> assertEquals("200108", semesters.get("Fall 2001"), "Fall 2001 id does not match expected!"));
 	}
 
 	@Test
 	public void getCategories() {
+		verify(MockGlobals.getMockedPopup(), atLeastOnce()).writeInstruction(ExecutionCode.LOADCATEGORIES);
 		assertEquals(30, categories.size(), "getCategories size is incorrect!");
 	}
 
 	@Test
 	public void getAllClasses() {
+		verify(MockGlobals.getMockedPopup(), atLeastOnce()).writeInstruction(ExecutionCode.LOADCLASSESINTERNET);
 		assertEquals(3515, courses.allValues().size(), "getAllClasses didn't get all classes!");
 	}
 

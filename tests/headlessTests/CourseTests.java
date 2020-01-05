@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,8 +22,13 @@ public class CourseTests {
 
 	Course tester;
 
+	@BeforeAll
+	public static void setup() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		MockGlobals.setup();
+	}
+
 	@BeforeEach
-	public void setup() throws ParseException {
+	public void reset() throws ParseException {
 		tester = new Course("4", "FA", "20", true, Arrays.asList(48d), "Yang Gang", "MWR", "4:00 am-6:00 pm", "2", "Gang, Yang", "01/18-01/17|2020", 47000);
 	}
 

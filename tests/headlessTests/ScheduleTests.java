@@ -14,7 +14,8 @@ public class ScheduleTests {
 	public static ArrayList<String> courses;
 
 	@BeforeAll
-	public static void setup() throws IOException {
+	public static void setup() throws IOException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		MockGlobals.setup();
 		Scraper.getAllClasses(semesterID); // Preemptively load all the classes
 		courses = new ArrayList<>();
 	}
