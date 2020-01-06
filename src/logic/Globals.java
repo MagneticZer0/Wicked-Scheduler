@@ -26,6 +26,10 @@ public class Globals {
 	 * This is the popup that will show messages to the user
 	 */
 	private static Popup popupText;
+	/**
+	 * The version number 
+	 */
+	private static final String version = "v1.2";
 
 	/**
 	 * Since the class is static for all intents and purposes there is no need to
@@ -60,5 +64,9 @@ public class Globals {
 
 	public static Popup popupText() {
 		return popupText;
+	}
+
+	public static String getVersion() {
+		return version;
 	}
 }
