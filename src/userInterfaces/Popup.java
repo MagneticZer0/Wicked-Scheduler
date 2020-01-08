@@ -65,7 +65,7 @@ public class Popup {
 			textArea.appendText("Well, looks like I've run into a problem!\n");
 			textArea.appendText("Ignore and exit buttons will create a log file!\n");
 			textArea.appendText("Please create a bug report and upload the file created, thanks!\n");
-			textArea.appendText("Version: " + Globals.getVersion());
+			textArea.appendText("Version: " + Globals.getVersion() + "\n");
 			pane.getChildren().add(textArea);
 
 			Button btnNumber1;
