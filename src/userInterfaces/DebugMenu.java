@@ -1,18 +1,25 @@
 package userInterfaces;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import logic.Globals;
+import logic.Scraper;
 
 public class DebugMenu {
 
@@ -26,7 +33,7 @@ public class DebugMenu {
 	 * 
 	 * @param title The title for the PopupDialogue
 	 */
-	public DebugMenu(String title) {
+	public DebugMenu(String title, UI ui) {
 		Platform.runLater(() -> {
 			stage = new Stage();
 			GridPane grid = new GridPane();
@@ -44,6 +51,12 @@ public class DebugMenu {
 			Label heapUsageLabel = new Label("Heap Usage: ");
 			grid.add(heapUsageLabel, 0, 0);
 			ProgressBar heapUsage = new ProgressBar();
+			heapUsage.setOnMouseEntered(action -> {
+				stage.getScene().setCursor(Cursor.HAND);
+			});
+			heapUsage.setOnMouseExited(action -> {
+				stage.getScene().setCursor(Cursor.DEFAULT);
+			});
 			grid.add(heapUsage, 0, 1);
 
 			final Runtime runtime = Runtime.getRuntime();
@@ -57,6 +70,12 @@ public class DebugMenu {
 			Label memoryUsageLabel = new Label("Memory Usage: ");
 			grid.add(memoryUsageLabel, 0, 2);
 			ProgressBar memoryUsage = new ProgressBar();
+			memoryUsage.setOnMouseEntered(action -> {
+				stage.getScene().setCursor(Cursor.HAND);
+			});
+			memoryUsage.setOnMouseExited(action -> {
+				stage.getScene().setCursor(Cursor.DEFAULT);
+			});
 			grid.add(memoryUsage, 0, 3);
 
 			Timeline memoryUsageUpdater = new Timeline(new KeyFrame(Duration.millis(100), e -> {

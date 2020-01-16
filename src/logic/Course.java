@@ -497,6 +497,19 @@ public class Course implements Serializable, Comparable<Course>, Iterable<List<L
 	}
 
 	/**
+	 * Tells if the class takes place on a TBA date or TBA time.
+	 * 
+	 * @return A boolean if the class is TBA on any date/time.
+	 */
+	public boolean isTBAClass() {
+		boolean TBA = getStartDate().equals(Course.TBA_DATE) || getEndDate().equals(Course.TBA_DATE);
+		for (int i = 0; i < startTime.size(); i++) {
+			TBA = TBA || startTime.get(i).equals(Course.TBA_TIME) || endTime.get(i).equals(Course.TBA_TIME);
+		}
+		return TBA;
+	}
+
+	/**
 	 * Returns a string representation for a course object. This will be the
 	 * department followed by the course number followed by the course name, I.E.
 	 * CS3141 - Team Software Project, and if the class is a lab it will have "Lab"

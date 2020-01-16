@@ -2,8 +2,10 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -284,7 +286,7 @@ public class UI extends Application {
 							cal.setReadOnly(true);
 							sources.getCalendars().add(cal);
 							cal.setStyle(Style.getStyle(i++));
-							if (!cur.getStartDate().equals(Course.TBA_DATE) && !cur.getEndDate().equals(Course.TBA_DATE)) {
+							if (!cur.isTBAClass()) {
 								if (!cur.isSplitClass()) {
 									if (!cur.getStartTime(0).equals(Course.TBA_TIME) && !cur.getEndTime(0).equals(Course.TBA_TIME)) {
 										Entry<String> entry = new Entry<>(cur.toString() + " CRN: " + cur.getCRN());
@@ -292,6 +294,7 @@ public class UI extends Application {
 										entry.changeStartTime(cur.getStartTime(0)); // ZonedDateTime doesn't have any precision for minutes?
 										entry.changeEndTime(cur.getEndTime(0));
 										entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + cur.getDays().toString().replaceAll("\\[|\\]", "").replace(" ", "") + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+										entry.changeEndDate(entry.getStartDate()); // By default the end date is todays date, so it messes up if this isn't here.
 										cal.addEntry(entry);
 									}
 								} else {
@@ -303,12 +306,15 @@ public class UI extends Application {
 											entry.changeStartTime(time[0]); // ZonedDateTime doesn't have any precision for minutes?
 											entry.changeEndTime(time[1]);
 											entry.setRecurrenceRule("RRULE:FREQ=WEEKLY;BYDAY=" + it.getRRuleDay() + ";INTERVAL=1;UNTIL=" + cur.getEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "T235959Z");
+											entry.changeEndDate(entry.getStartDate()); // By default the end date is todays date, so it messes up if this isn't here.
 											cal.addEntry(entry);
 										}
 									}
 								}
 							}
+							if (cal.findEntries(LocalDate.MIN, LocalDate.MAX, ZoneId.systemDefault()).size() > 0) {
 							calendarView.showDateTime(LocalDateTime.ofInstant(cal.getEarliestTimeUsed(), ZoneOffset.MAX));
+							}
 						}
 						calendarView.showWeekPage();
 						tab.setContent(calendarView);
