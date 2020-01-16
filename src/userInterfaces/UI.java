@@ -34,6 +34,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.HPos;
@@ -160,7 +161,6 @@ public class UI extends Application {
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new CustomListView(allCoursesList, allCoursesFilter.sorted(), semesters);
-		allCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> (newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase())))); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
@@ -182,9 +182,14 @@ public class UI extends Application {
 		desiredCoursesSearch.setMaxWidth(primaryStage.getWidth() / 4);
 		grid.add(desiredCoursesSearch, 4, 1, 1, 1);
 
+		desiredCoursesList.addListener(new ListChangeListener<String>() {
+			@Override
+			public void onChanged(Change<? extends String> arg0) {
+				updateCreditLoad();
+			}
+		});
 		FilteredList<String> desiredCoursesFilter = new FilteredList<>(desiredCoursesList, d -> true); // Make them all visible at first
 		CustomListView desiredCoursesSelection = new CustomListView(desiredCoursesList, desiredCoursesFilter.sorted(), semesters);
-		desiredCoursesSelection.setUpdateFunction(this::updateCreditLoad);
 		desiredCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> desiredCoursesFilter.setPredicate(d -> newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase()))); // Display all values if it's empty and it's case insensitive
 		desiredCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		desiredCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
@@ -214,7 +219,6 @@ public class UI extends Application {
 				Globals.popupException().writeInstruction(ExecutionCode.ADDCOURSEPRESSED);
 				desiredCoursesList.add(allCoursesSelection.getSelectionModel().getSelectedItem());
 				allCoursesList.remove(allCoursesSelection.getSelectionModel().getSelectedItem());
-				updateCreditLoad();
 			}
 		});
 
@@ -228,7 +232,6 @@ public class UI extends Application {
 				Globals.popupException().writeInstruction(ExecutionCode.REMOVECOURSEPRESSED);
 				allCoursesList.add(desiredCoursesSelection.getSelectionModel().getSelectedItem());
 				desiredCoursesList.remove(desiredCoursesSelection.getSelectionModel().getSelectedItem());
-				updateCreditLoad();
 			}
 		});
 

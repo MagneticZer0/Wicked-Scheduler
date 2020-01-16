@@ -97,6 +97,51 @@ public class DebugMenu {
 			});
 			grid.add(throwException, 1, 1);
 
+			Button fullSchedule = new Button("Add 26 Courses");
+			fullSchedule.setOnAction(action -> {
+				try {
+					Field semestersField = UI.class.getDeclaredField("semesters");
+					semestersField.setAccessible(true);
+					ComboBox<String> semesters = (ComboBox<String>) semestersField.get(ui);
+					semesters.setValue("Spring 2020");
+
+					Scraper.getAllClasses(Scraper.getAllSemesters().get("Spring 2020"));
+					
+					Field coursesField = UI.class.getDeclaredField("desiredCoursesList");
+					coursesField.setAccessible(true);
+					ObservableList<String> courses = (ObservableList<String>) coursesField.get(ui);
+					courses.add("EC4050 - Game Theory/Strategic Behavior");
+					courses.add("AF3020 - Effective Com II - Non AFROTC");
+					courses.add("BL4450 - Limnology");
+					courses.add("CH1151 - University Chemistry Lab I Lab");
+					courses.add("MA1161 - Calculus Plus w/ Technology I Lab");
+					courses.add("FA3400 - Keweenaw Symphony Orchestra Lab");
+					courses.add("CEE4507 - Distribution and Collection Lab");
+					courses.add("CS3311 - Formal Models of Computation");
+					courses.add("BL4530 - Senior Research Capstone Exp");
+					courses.add("MA3160 - Multivariable Calc with Tech Lab");
+					courses.add("BL4752 - Cancer Biology");
+					courses.add("CH1150 - University Chemistry I");
+					courses.add("MA1161 - Calculus Plus w/ Technology I");
+					courses.add("CH1163 - University Chem Recitation II");
+					courses.add("BL3611 - Phlebotomy Lab");
+					courses.add("MA2720 - Statistical Methods");
+					courses.add("MA3160 - Multivariable Calc with Tech");
+					courses.add("ACC2000 - Accounting Principles I");
+					courses.add("EE4800 - Antennas");
+					courses.add("ACC4600 - Advanced Tax Topics");
+					courses.add("EE2174 - Digital Logic and Lab Lab");
+					courses.add("ENT1960 - Wireless Communication Lab");
+					courses.add("PE0121 - Beginning Snowboarding Lab");
+					courses.add("BL3190 - Evolution");
+					courses.add("BL5038 - Epigenetics");
+				} catch (ReflectiveOperationException | IOException e) {
+					e.printStackTrace();
+				}
+			});
+			grid.add(fullSchedule, 1, 2);
+
+			System.out.println(Thread.getAllStackTraces().keySet().toString());
 			stage.show();
 		});
 	}

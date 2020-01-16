@@ -29,7 +29,7 @@ public class Globals {
 	/**
 	 * The version number 
 	 */
-	private static final String version = "v1.2";
+	private static final String version = "v1.3";
 
 	/**
 	 * Since the class is static for all intents and purposes there is no need to
