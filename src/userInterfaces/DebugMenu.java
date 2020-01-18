@@ -2,11 +2,14 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Set;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -18,6 +21,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import logic.Globals;
 import logic.Scraper;
 
@@ -44,9 +48,7 @@ public class DebugMenu {
 			stage.getIcons().add(Globals.theme().getIcon());
 			stage.setResizable(false);
 			stage.setScene(new Scene(grid, 435, 265));
-			stage.setOnCloseRequest(e -> {
-				stage.hide();
-			});
+			stage.setOnCloseRequest(e -> stage.hide());
 
 			Label heapUsageLabel = new Label("Heap Usage: ");
 			grid.add(heapUsageLabel, 0, 0);
@@ -106,7 +108,7 @@ public class DebugMenu {
 					semesters.setValue("Spring 2020");
 
 					Scraper.getAllClasses(Scraper.getAllSemesters().get("Spring 2020"));
-					
+
 					Field coursesField = UI.class.getDeclaredField("desiredCoursesList");
 					coursesField.setAccessible(true);
 					ObservableList<String> courses = (ObservableList<String>) coursesField.get(ui);
@@ -135,13 +137,56 @@ public class DebugMenu {
 					courses.add("PE0121 - Beginning Snowboarding Lab");
 					courses.add("BL3190 - Evolution");
 					courses.add("BL5038 - Epigenetics");
+					courses.add("ENT1960 - Supermileage Systems Lab");
 				} catch (ReflectiveOperationException | IOException e) {
 					e.printStackTrace();
 				}
 			});
 			grid.add(fullSchedule, 1, 2);
 
-			System.out.println(Thread.getAllStackTraces().keySet().toString());
+			Button viewThreads = new Button("View Threads");
+			viewThreads.setOnAction(action -> {
+				Stage threadStage = new Stage();
+				threadStage.getIcons().add(Globals.theme().getIcon());
+				threadStage.setTitle(title + " - Threads");
+
+				GridPane threadsGrid = new GridPane();
+				threadsGrid.setHgap(10);
+				threadsGrid.setVgap(10);
+				threadsGrid.setAlignment(Pos.CENTER_LEFT);
+				threadStage.setScene(new Scene(threadsGrid, 435, 265));
+
+				Set<Thread> allThreads = Thread.getAllStackTraces().keySet();
+				ComboBox<Thread> threadSelection = new ComboBox<>(FXCollections.observableArrayList(allThreads));
+				threadSelection.getSelectionModel().select(0);
+				threadSelection.setConverter(new StringConverter<Thread>() {
+					@Override
+					public Thread fromString(String threadName) {
+						return Thread.getAllStackTraces().keySet().parallelStream().filter(e -> e.getName().equals(threadName)).findFirst().get();
+					}
+
+					@Override
+					public String toString(Thread thread) {
+						return thread.getName();
+					}
+				});
+				threadSelection.setOnAction(e -> {
+					Thread selectedThread = threadSelection.getSelectionModel().getSelectedItem();
+					// Allow name change and stopping thread
+					System.out.println("ID: " + selectedThread.getId());
+					System.out.println("Priority: " + selectedThread.getPriority()); // Allow change
+					System.out.println("State: " + selectedThread.getState());
+					System.out.println("Thread Group: " + selectedThread.getThreadGroup());
+					System.out.println("Exception Handler: " + selectedThread.getUncaughtExceptionHandler()); // Allow change
+					System.out.println("Daemon: " + selectedThread.isDaemon()); //  Allow change
+					System.out.println(Arrays.deepToString(selectedThread.getStackTrace()));
+				});
+				threadsGrid.add(threadSelection, 0, 0);
+
+				threadStage.show();
+			});
+			grid.add(viewThreads, 1, 3);
+
 			stage.show();
 		});
 	}
