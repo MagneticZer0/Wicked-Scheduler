@@ -2,22 +2,38 @@ package userInterfaces;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -152,13 +168,13 @@ public class DebugMenu {
 
 				GridPane threadsGrid = new GridPane();
 				threadsGrid.setHgap(10);
-				threadsGrid.setVgap(10);
 				threadsGrid.setAlignment(Pos.CENTER_LEFT);
-				threadStage.setScene(new Scene(threadsGrid, 435, 265));
+				threadStage.setScene(new Scene(threadsGrid, 435, 365));
 
-				Set<Thread> allThreads = Thread.getAllStackTraces().keySet();
-				ComboBox<Thread> threadSelection = new ComboBox<>(FXCollections.observableArrayList(allThreads));
-				threadSelection.getSelectionModel().select(0);
+				ComboBox<Thread> threadSelection = new ComboBox<>();
+				threadSelection.itemsProperty().bind(Bindings.createObjectBinding(() -> {
+					return FXCollections.observableArrayList(Thread.getAllStackTraces().keySet());
+				}, threadSelection.pressedProperty()));
 				threadSelection.setConverter(new StringConverter<Thread>() {
 					@Override
 					public Thread fromString(String threadName) {
@@ -170,18 +186,81 @@ public class DebugMenu {
 						return thread.getName();
 					}
 				});
+
+				TextField nameField = new TextField();
+				nameField.textProperty().addListener(e -> {
+					threadSelection.getSelectionModel().getSelectedItem().setName(nameField.getText());
+				});
+				threadsGrid.add(nameField, 0, 1);
+				GridPane.setColumnSpan(nameField, 2);
+
+				Label idLabel = new Label("ID: ");
+				threadsGrid.add(idLabel, 0, 2);
+
+				Label priorityLabel = new Label("Priority: ");
+				threadsGrid.add(priorityLabel, 0, 3);
+
+				Spinner<Integer> prioritySpinner = new Spinner<>();
+				prioritySpinner.valueProperty().addListener((obs, oldV, newV) -> {
+					threadSelection.getSelectionModel().getSelectedItem().setPriority(newV);
+				});
+				threadsGrid.add(prioritySpinner, 1, 3);
+
+				Label stateLabel = new Label("State: ");
+				threadsGrid.add(stateLabel, 0, 4);
+
+				Label daemonLabel = new Label("Daemon: ");
+				threadsGrid.add(daemonLabel, 0, 5);
+
+				CheckBox daemonCheck = new CheckBox();
+				daemonCheck.setDisable(true);
+				daemonCheck.setOnAction(e -> {
+					threadSelection.getSelectionModel().getSelectedItem().setDaemon(daemonCheck.isSelected());
+				});
+				threadsGrid.add(daemonCheck, 1, 5);
+
+				Label groupLabel = new Label("Thread Group: ");
+				threadsGrid.add(groupLabel, 0, 6);
+
+				Label exceptionLabel = new Label("Exception Handler: ");
+				threadsGrid.add(exceptionLabel, 0, 7);
+				GridPane.setColumnSpan(exceptionLabel, 2);
+
+				TextArea stackTraceArea = new TextArea();
+				stackTraceArea.setEditable(false);
+				threadsGrid.add(stackTraceArea, 0, 8);
+				GridPane.setColumnSpan(stackTraceArea, 2);
+
+				Button interruptButton = new Button("Interrupt");
+				threadsGrid.add(interruptButton, 0, 9);
+				interruptButton.setOnAction(e -> {
+					threadSelection.getSelectionModel().getSelectedItem().interrupt();
+				});
+
+				Button suspendButton = new Button("Suspend");
+				threadsGrid.add(suspendButton, 0, 10);
+				suspendButton.setOnAction(e -> {
+					threadSelection.getSelectionModel().getSelectedItem().suspend();
+				});
+
 				threadSelection.setOnAction(e -> {
 					Thread selectedThread = threadSelection.getSelectionModel().getSelectedItem();
-					// Allow name change and stopping thread
-					System.out.println("ID: " + selectedThread.getId());
-					System.out.println("Priority: " + selectedThread.getPriority()); // Allow change
-					System.out.println("State: " + selectedThread.getState());
-					System.out.println("Thread Group: " + selectedThread.getThreadGroup());
-					System.out.println("Exception Handler: " + selectedThread.getUncaughtExceptionHandler()); // Allow change
-					System.out.println("Daemon: " + selectedThread.isDaemon()); //  Allow change
-					System.out.println(Arrays.deepToString(selectedThread.getStackTrace()));
+					if (selectedThread != null) {
+						nameField.setText(selectedThread.getName());
+						idLabel.setText("ID: " + selectedThread.getId());
+						prioritySpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, selectedThread.getPriority()));
+						stateLabel.setText("State: " + selectedThread.getState());
+						daemonCheck.setSelected(selectedThread.isDaemon());
+						groupLabel.setText("Thread Group: " + ((selectedThread.getThreadGroup() == null) ? "NONE" : selectedThread.getThreadGroup().getName()));
+						exceptionLabel.setText("Exception Handler: " + ((selectedThread.getUncaughtExceptionHandler() == null) ? "NONE" : selectedThread.getUncaughtExceptionHandler().toString())); // Allow change
+						stackTraceArea.clear();
+						stackTraceArea.setText(Arrays.deepToString(selectedThread.getStackTrace()).replace(", ", "\n").replaceAll("\\[|\\]", ""));
+					}
 				});
+				threadSelection.getSelectionModel().selectFirst();
+				threadSelection.fireEvent(new ActionEvent()); // To populate the values
 				threadsGrid.add(threadSelection, 0, 0);
+				GridPane.setColumnSpan(threadSelection, 2);
 
 				threadStage.show();
 			});
