@@ -161,7 +161,40 @@ public class UI extends Application {
 
 		FilteredList<String> allCoursesFilter = new FilteredList<>(allCoursesList, d -> true); // Make them all visible at first
 		allCoursesSelection = new CustomListView(allCoursesList, allCoursesFilter.sorted(), semesters);
-		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> (newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.toLowerCase())))); // Display all values if it's empty and it's case insensitive
+		allCoursesSearch.textProperty().addListener((obs, oldVal, newVal) -> allCoursesFilter.setPredicate(d -> {
+			if (newVal.matches("credits:\\[(<|>|=)[=]?[0-9]+[.]?[0-9]*\\]")) {
+				try {
+					double[] credits = Scraper.getAllClasses(Scraper.getAllSemesters().get(semesters.getValue())).get(d).get(0).getCredits();
+					boolean creditsCheck = false;
+					if (newVal.charAt(newVal.indexOf("credits:[") + 9) == '<') {
+						if (newVal.charAt(newVal.indexOf("credits:[") + 10) == '=') {
+							creditsCheck = credits[credits.length - 1] <= Double.parseDouble(newVal.substring(newVal.indexOf("credits:[") + 11, newVal.indexOf("]")));
+						} else {
+							creditsCheck = credits[credits.length - 1] < Double.parseDouble(newVal.substring(newVal.indexOf("credits:[") + 10, newVal.indexOf("]")));
+						}
+					} else if (newVal.charAt(newVal.indexOf("credits:[") + 9) == '>') {
+						if (newVal.charAt(newVal.indexOf("credits:[") + 10) == '=') {
+							creditsCheck = credits[0] >= Double.parseDouble(newVal.substring(newVal.indexOf("credits:[") + 11, newVal.indexOf("]")));
+						} else {
+							creditsCheck = credits[0] > Double.parseDouble(newVal.substring(newVal.indexOf("credits:[") + 10, newVal.indexOf("]")));
+						}
+					} else if (newVal.charAt(newVal.indexOf("credits:[") + 9) == '=') {
+						creditsCheck = credits[0] == Double.parseDouble(newVal.substring(newVal.indexOf("credits:[") + 10, newVal.indexOf("]")));
+					}
+					String rest = newVal.replaceAll("credits:\\[(<|>|=)[=]?[0-9]+[.]?[0-9]*\\]", "").trim();
+					if (rest.length() == 0) {
+						return creditsCheck;
+					} else {
+						return creditsCheck && d.toLowerCase().contains(rest.toLowerCase());
+					}
+				} catch (IOException e) {
+					Globals.popupException().writeError(e);
+				}
+			} else {
+				return (newVal == null || newVal.isEmpty() || d.toLowerCase().contains(newVal.trim().toLowerCase()));
+			}
+			return true;
+		})); // Display all values if it's empty and it's case insensitive
 		allCoursesSelection.setPlaceholder(new Label("Nothing is here!"));
 		allCoursesSelection.setMinWidth(primaryStage.getWidth() / 4);
 		grid.add(allCoursesSelection, 0, 2, 2, 4);
@@ -316,7 +349,7 @@ public class UI extends Application {
 								}
 							}
 							if (cal.findEntries(LocalDate.MIN, LocalDate.MAX, ZoneId.systemDefault()).size() > 0) {
-							calendarView.showDateTime(LocalDateTime.ofInstant(cal.getEarliestTimeUsed(), ZoneOffset.MAX));
+								calendarView.showDateTime(LocalDateTime.ofInstant(cal.getEarliestTimeUsed(), ZoneOffset.MAX));
 							}
 						}
 						calendarView.showWeekPage();
